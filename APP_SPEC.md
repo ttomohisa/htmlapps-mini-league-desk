@@ -1,128 +1,509 @@
 # APP_SPEC.md
 
-This file is the product contract for the application created from this template. Replace the starter specification below before asking an LLM to build a new product.
-
 ## 1. Product identity
 
-- **Working name:** Single HTML App Starter
-- **One-sentence purpose:** Demonstrate the template's local-first, responsive, bilingual, single-file application foundation.
-- **Primary users:** Developers and LLM coding agents starting a new browser utility.
-- **Release artifacts:** `dist/index.html`, `dist/index.self-extract.html`, and a repository-root copy of the readable build named from `repository.name` with a leading `htmlapps-` removed
+- **Name:** Mini League Desk
+- **Japanese name:** Mini League Desk / ミニリーグ運営
+- **Current app version:** v0.1.0
+- **Target stable release:** v1.0.0
+- **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
+- **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
+- **Typical scale:** 3–16 participants. The UI may support larger rosters where browser performance remains reasonable.
+- **Release artifacts:** `dist/index.html`, `dist/index.self-extract.html`, and the repository-root readable copy `mini-league-desk.html`.
 
-## 2. Problem and outcome
+## 2. Product definition
 
-The starter must make the repository's constraints visible and testable without pretending to be a finished end-user product. A user can enter text, see basic counts, copy it, save it, and persist it locally.
+Mini League Desk is not a general tournament-management platform.
 
-A successful replacement app should state here:
+The core repeated questions are:
 
-- What concrete problem it solves.
-- Who experiences the problem.
-- What result the user gets in one session.
-- Why a local single-HTML implementation is useful.
+1. Who plays next?
+2. What matches are still unfinished?
+3. Who does a specific participant still need to play?
+4. What are the current standings?
+5. How far through the event are we?
 
-## 3. Core user flow
+The product should make those answers quick to reach on a phone while an event is running.
 
-1. Open the page locally or through GitHub Pages.
-2. Enter or paste text.
-3. See character, word, and line counts update immediately.
-4. Edit the suggested output filename, then copy or download the text.
-5. Use Clear or Restore sample and undo the reversible change from the toast when needed.
-6. Reload and recover the locally saved text.
+## 3. Non-goals for v1.0.0
 
-## 4. Functional requirements
+Do not add these before v1.0.0 unless this specification is intentionally revised:
 
-- Provide a responsive text area.
-- Calculate Unicode-aware character count.
-- Calculate approximate word and line counts.
-- Copy text with a compatibility fallback.
-- Download UTF-8 plain text with a user-editable output filename and a predictable `.txt` extension.
-- Save the current text in local storage when available.
-- Use the reusable `AppToast.show()` Undo pattern for reversible Clear / Restore sample operations. Reserve `AppConfirm.ask()` for irreversible or high-risk actions.
-- Switch Japanese and English without reloading.
-- Use a light-only interface; do not add a dark-mode or theme switcher.
-- Expose build version, generation timestamp, and embedded dependency count.
+- knockout brackets
+- Swiss pairing
+- group stage + knockout
+- user accounts
+- server-side storage
+- real-time multi-device synchronization
+- spectator publishing URLs
+- detailed venue scheduling
+- team-member management
+- Elo/rating systems
+- social-network features
+- large-event administration
 
-## 5. Data and privacy
+## 4. Runtime and privacy contract
 
-- Input text remains in browser memory and local storage.
-- The app performs no runtime network request.
-- There is no server-side storage, login, analytics, telemetry, or tracking.
-- Download occurs only after a user action.
+- The app must work as a self-contained HTML file opened directly with `file://`.
+- Runtime CDN, API, analytics, telemetry, remote fonts, and hidden network dependencies are prohibited.
+- Keep `connect-src 'none'`.
+- Event names, participant names, fixtures, scores, and standings must remain in the browser unless the user explicitly exports data.
+- No user account is required.
+- `assets/favicon.svg` is the canonical app icon.
+- Japanese and English live in the same HTML.
+- Desktop and smartphone layouts are first-class.
+- Current v0.1.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
 
-## 6. Non-goals
+## 5. Event setup
 
-- Collaborative editing.
-- Cloud synchronization.
-- Rich text formatting.
-- Server-side conversion.
-- Account management.
+### 5.1 Event name
 
-## 7. UX and accessibility
+- Optional.
+- Maximum 100 characters.
+- Trim surrounding whitespace for the committed event name.
+- If blank when setup is confirmed, use the localized default `新しい大会` / `New event`.
 
-- Mobile-first responsive layout from 320px upward.
-- All controls have visible labels or accessible names.
-- Keyboard focus is visible.
-- Motion respects `prefers-reduced-motion`.
-- Reversible changes provide a visible Undo action in the reusable toast.
-- Irreversible or high-risk destructive actions use the reusable confirmation component, centered on desktop and presented as a safe-area-aware bottom sheet on smartphones.
-- Status messages use an `aria-live` region.
-- If the finished app needs persistent smartphone access to 3-5 sections or workflow actions, reuse `components/mobile-bottom-bar.html` rather than inventing another fixed bottom bar. For long multi-section tools, prefer its mobile page-tab mode (`data-mobile-page-target`) so tapping a bottom tab shows only that group on smartphones while desktop still shows all sections. Keep unavailable actions disabled until their prerequisites exist.
+### 5.2 Participants
 
-## 8. Performance expectations
+- Minimum for confirming setup: 3.
+- Current hard maximum: 64.
+- Maximum participant-name length: 80 Unicode code points.
+- Trim surrounding whitespace and collapse runs of whitespace when a name is added.
+- Blank names are invalid.
+- Duplicate participant names are invalid.
+- Duplicate comparison is case-insensitive after normalization.
+- Participant identity must use internal IDs, not names.
 
-- Initial UI should become interactive without network access.
-- Input updates should remain smooth for at least 100,000 characters on a typical desktop browser.
-- Avoid rebuilding large DOM sections on every keystroke.
+### 5.3 Add methods
 
-## 9. Browser target
+Support:
 
-Current stable desktop and mobile versions of Chromium, Firefox, and Safari. Direct `file://` opening is required.
+- one-at-a-time participant entry
+- multiline paste, one participant per line
+- blank-line removal in multiline input
+- reorder
+- shuffle
+- removal
+- full reset
 
-## 10. Acceptance criteria
+Bulk add is atomic. If the batch contains an invalid name, duplicate, or would exceed the participant limit, add none of the batch.
 
-- `build-standalone.ps1` produces the readable HTML, a gzip self-extracting variant, and an exact repository-root copy named from `repository.name` with a leading `htmlapps-` removed (for example `htmlapps-tap-counter` → `tap-counter.html`).
-- Embedded asset bytes are Base64-encoded exactly once; the complete asset-bundle JSON is not wrapped in a second Base64 layer.
-- Assets configured with `gzip` / `auto` can be read through the async embedded-asset API, and the build writes `build-size-report.json`.
-- `scripts/verify-standalone.ps1` passes.
-- The self-extract loader is ASCII-only, inherits the embedded favicon from the readable HTML, and restores the source HTML byte-for-byte.
-- The generated HTML contains no unresolved build placeholder.
-- The generated HTML contains no external script, stylesheet, frame, module import, or CSS asset URL.
-- Runtime CSP includes `connect-src 'none'`.
-- The full core user flow works after opening either generated HTML directly.
-- No data leaves the page.
-- Japanese and English copy both fit at 360px width.
-- Clear happens immediately but offers Undo for long enough to recover the previous text.
-- The output filename can be edited before download; invalid filename characters are sanitized and an empty name falls back to the app slug.
+### 5.4 Reorder and removal
 
-## 11. Open decisions for a new app
+- Reorder must work by buttons; drag-and-drop is not required.
+- Up/down controls must be keyboard accessible.
+- Removing one participant is immediate and offers Undo.
+- Shuffle is immediate and offers Undo.
+- Full reset requires a confirmation dialog because it clears multiple fields at once.
 
-Replace these with explicit decisions before implementation:
+## 6. Setup phases
 
-- Maximum accepted input size.
-- Supported input file types.
-- Export file formats, default filename, editable filename behavior, sanitization, and extension rules.
-- Persistence strategy and reset behavior.
-- Undo/redo scope.
-- Error and recovery behavior, including stale async-result invalidation when inputs can change during processing.
-- Explicit async phases (`empty`, `ready`, `loading-runtime` if needed, `processing`, `result`, `error`) for heavy processing apps.
-- Mobile relationship between previews and their directly related controls.
-- Smartphone navigation model: bottom-tab page switching, section-scrolling bottom bar, workflow-action bar, or no fixed bottom bar.
-- Media coordinate/orientation strategy when drawing overlays.
-- Required third-party libraries.
-- Whether the app intentionally needs peer-to-peer WebRTC. If so, decide whether the fully serverless same-LAN QR pairing component is appropriate, what DataChannels are required, and how paired-device data is described to users.
-- Whether bilingual UI is required.
+The state model begins with:
 
-## In-app help
+```text
+setup
+ready
+```
 
-The upper-right header includes a compact help button. It opens a bilingual “使い方と注意事項” dialog containing:
+### setup
 
-- the real user workflow,
-- privacy and local-processing behavior,
-- limitations and data-loss risks,
-- any browser or device constraints relevant to the app.
+Event name and participants are editable.
 
-Acceptance criteria: help content is updated together with each user-facing behavior change, contains no leftover starter instructions, and remains fully scrollable at narrow smartphone widths / short viewport heights so the final item and close control are always reachable.
+### ready
 
-## WebRTC readiness requirement
+The participant list is confirmed and shown as a review state. v0.1.0 stops here.
 
-When an app uses peer-to-peer WebRTC DataChannels, define which reliable channel represents application readiness. Custom channel layouts must set `readyChannelLabel`; do not define application-ready from ICE/PeerConnection `connected` alone.
+From v0.2.0 onward, confirming setup will lead into round-robin fixture generation and the event workflow.
+
+## 7. Round-robin fixtures — v0.2.0 target
+
+For `n` participants, generate exactly:
+
+```text
+n × (n - 1) / 2
+```
+
+matches.
+
+Requirements:
+
+- every unordered participant pair occurs exactly once
+- no participant plays themself
+- no duplicate pair exists
+- organize matches into rounds using a standard round-robin/circle-method schedule
+- odd participant counts produce one localized `休み` / `Bye` per round
+- round order helps display and default progression but does not block entering later matches first
+
+## 8. Match state — v0.3.0 target
+
+Each match has:
+
+```text
+id
+round
+order
+participantAId
+participantBId
+status
+scoreA
+scoreB
+result
+winnerId
+```
+
+v1 states:
+
+- `pending`
+- `completed`
+
+Do not add in-progress, delayed, forfeit, or cancelled states before they have a clear user need.
+
+## 9. Result modes — v0.3.0 target
+
+Support three presets.
+
+### Win/loss
+
+- win = 1 league point
+- loss = 0
+
+### Win/draw/loss
+
+- win = 3
+- draw = 1
+- loss = 0
+
+### Score entry
+
+Store both numeric scores and derive win/draw/loss.
+
+If draws are disabled, equal scores cannot be committed.
+
+## 10. Standings — v0.3.0 target
+
+Recalculate immediately after every result add, edit, or removal.
+
+For score-based events, sort by:
+
+1. league points
+2. score difference
+3. score for
+
+For modes without scores, sort by league points only.
+
+If every active tiebreak value is identical, participants share the same rank. Never use name or registration order to create a false sporting rank.
+
+Direct-head-to-head tiebreak is out of scope for v1.0.0.
+
+## 11. Main navigation — v0.4.0 target
+
+Smartphone primary destinations:
+
+```text
+進行 / Progress
+対戦 / Matches
+順位 / Standings
+```
+
+Use the canonical mobile bottom-tab pattern when implemented.
+
+Desktop may show more information simultaneously when it improves event operation.
+
+## 12. Progress screen — v0.4.0 target
+
+Show:
+
+- event name
+- completed match count
+- total match count
+- progress
+- next pending match
+- following pending matches
+- remaining match count
+
+Default next match is the first remaining match in generated order.
+
+This is a suggestion, not a lock. Any pending match may be opened and completed.
+
+## 13. Remaining matches — v0.4.0 target
+
+Provide:
+
+- all remaining matches
+- all completed matches
+- all matches
+- per-participant completed opponents
+- per-participant remaining opponents
+
+This must answer “Who does this person still need to play?” without scanning the full fixture table.
+
+## 14. Result editing — v0.3.0 onward
+
+Completed matches can be opened to:
+
+- edit the result
+- remove the result and return the match to pending
+
+All dependent standings and progress values must update immediately.
+
+Where practical, result add/edit/removal should offer Undo.
+
+## 15. Completion — v0.4.0 onward
+
+The event is automatically considered complete when every match is completed.
+
+Do not require a separate “End tournament” action.
+
+Completion UI shows at least:
+
+- completion confirmation
+- final standings
+- export entry points once exports exist
+
+## 16. Persistence and backup — v0.5.0 target
+
+Persist the active event locally.
+
+Persist at least:
+
+```text
+schemaVersion
+event id
+event name
+settings
+participants
+participant order
+matches
+results
+createdAt
+updatedAt
+```
+
+Requirements:
+
+- reload restores the same event
+- restored standings equal pre-reload standings
+- restored remaining matches equal pre-reload remaining matches
+- incompatible or malformed imported data must not overwrite valid current state
+
+### JSON backup
+
+Provide explicit JSON export and import.
+
+JSON export is the portability/backup path when browser site data is cleared or another device is used.
+
+## 17. Exports — v0.7.0 target
+
+### CSV
+
+Export match results and standings.
+
+### Standings image
+
+Generate a shareable local image containing at least:
+
+- event name
+- rank
+- participant
+- key record/points fields relevant to the selected scoring mode
+
+### Print
+
+Provide print CSS for standings and results.
+
+Every file-producing feature must offer an editable safe filename before saving.
+
+## 18. Current implementation milestone: v0.1.0
+
+v0.1.0 implements only the setup foundation.
+
+Implemented behavior:
+
+- concrete Mini League Desk product identity
+- event name
+- add participant individually
+- multiline participant add
+- duplicate prevention
+- participant-name limits
+- 64-participant cap
+- reorder using up/down controls
+- shuffle with Undo
+- remove with Undo
+- reset with confirmation
+- participant count
+- empty state
+- setup validation
+- confirm roster at 3+ participants
+- ready/review state
+- Japanese and English setup UI
+- responsive desktop/mobile layout
+- help/privacy/limitations copy
+- no runtime network
+- direct-file-compatible architecture
+
+Not implemented in v0.1.0:
+
+- fixture generation
+- match results
+- standings
+- event-data persistence
+- JSON backup
+- CSV/image/print exports
+
+The UI must not present inactive buttons for these future functions.
+
+## 19. v0.1.0 acceptance criteria
+
+### Setup
+
+- Fresh load shows an empty participant state with a clear next action.
+- Event name may be blank.
+- One valid participant can be added with Enter or the Add button.
+- Empty participant names are rejected with field-local feedback.
+- A duplicate participant is not added.
+- Multiline input ignores blank lines.
+- Bulk add is atomic if any name is invalid or duplicated.
+- A roster cannot exceed 64 participants.
+- Participant names wrap without breaking layout.
+- Roster can be reordered without drag-and-drop.
+- Shuffle changes order and exposes Undo.
+- Removal exposes Undo.
+- Full reset requires confirmation.
+- Fewer than 3 participants cannot be confirmed.
+- 3 or more participants can be confirmed into the ready state.
+- Ready state can return to editing without losing the current roster.
+
+### Responsive / accessibility
+
+- No page-level horizontal scrolling at 320 CSS px from normal content.
+- Main touch controls are approximately 44px high where practical.
+- All main controls are keyboard reachable.
+- Visible focus remains present.
+- Controls do not rely on color alone.
+- Dialogs close with close controls and Escape.
+- Help content remains scrollable on short phone viewports.
+- Japanese and English both complete the setup flow.
+
+### Runtime / build
+
+- `__APP_CONFIG_JSON__`, `__BUILD_MANIFEST_JSON__`, and `__EMBEDDED_ASSET_BUNDLE_JSON__` each occur exactly once in the source.
+- `__APP_ICON_DATA_URI__` occurs exactly twice.
+- No runtime external URL is required.
+- `window.StandaloneAssets`, `window.AppToast`, and `window.AppConfirm` remain available.
+- PowerShell syntax preflight and repository check must pass before the milestone is considered verified.
+- Do not claim browser/device/manual-network verification unless it was actually performed.
+
+## 20. Planned development sequence
+
+### v0.2.0 — Round Robin
+
+- round-robin algorithm
+- rounds
+- odd-count Bye
+- fixture view
+- pairing invariant tests
+
+### v0.3.0 — Results & Standings
+
+- result modes
+- score entry
+- result edit/remove
+- standings
+- shared rank handling
+
+### v0.4.0 — League Desk
+
+- Progress / Matches / Standings workflow
+- next match
+- remaining matches
+- participant remaining-opponent view
+- event completion
+
+### v0.5.0 — Persistence
+
+- local event save/restore
+- schema version
+- JSON export/import
+- corruption handling
+- broader Undo state handling
+
+### v0.6.0 — Mobile / UX
+
+- smartphone bottom tabs
+- result-entry optimization
+- long-name and narrow-width hardening
+- empty/completed/error state polish
+
+### v0.7.0 — Export
+
+- CSV
+- standings image
+- print
+- editable output filenames
+
+### v0.8.0 — i18n / Accessibility / Polish
+
+- full bilingual review
+- keyboard/accessibility audit
+- icon/help/privacy finalization
+
+### v0.9.0 — Release Candidate
+
+- regression testing
+- 3/4/5/8/16 participant cases
+- tie/result/persistence/import tests
+- README and screenshots
+- standalone and privacy checks
+
+### v1.0.0 — Stable
+
+- release fixes only
+- final regression
+- version alignment
+- final screenshots
+- final standalone/network/privacy verification
+
+## 21. Browser targets
+
+Primary:
+
+- current Chrome
+- current Edge
+
+Best effort:
+
+- current Safari
+- current Firefox
+- Chrome for Android
+- Safari on iPhone
+
+Avoid browser APIs that are unnecessary for this product.
+
+## 22. Accessibility
+
+At minimum:
+
+- semantic buttons and fields
+- explicit labels
+- visible focus
+- keyboard operation
+- `aria-label` for icon-only actions
+- `aria-live` for relevant dynamic status
+- sufficient contrast
+- state not communicated by color alone
+- reduced-motion support
+
+## 23. Implementation priority
+
+When scope conflicts arise:
+
+```text
+correct event state
+→ understandable workflow
+→ mobile usability
+→ error recovery
+→ visual polish
+→ additional features
+```
+
+The goal is not to accumulate tournament features. The goal is to make a small round-robin event easy to run.

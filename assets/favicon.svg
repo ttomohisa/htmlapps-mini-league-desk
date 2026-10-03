@@ -1,5 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="App icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mini League Desk">
   <rect width="64" height="64" rx="16" fill="#16624F"/>
-  <path d="M18 16h20l8 8v24H18z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M38 16v10h10M25 34h14M25 42h10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <g fill="#fff">
+    <circle cx="18" cy="19" r="4"/>
+    <circle cx="46" cy="19" r="4"/>
+    <circle cx="18" cy="32" r="4"/>
+    <circle cx="46" cy="32" r="4"/>
+    <circle cx="18" cy="45" r="4"/>
+    <circle cx="46" cy="45" r="4"/>
+  </g>
+  <path d="M23 19h18M23 32h18M23 45h18" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
 </svg>
