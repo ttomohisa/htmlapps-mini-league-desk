@@ -793,8 +793,6 @@
 
       const APP_CONFIG = __APP_CONFIG_JSON__;
       const BUILD_MANIFEST = __BUILD_MANIFEST_JSON__;
-      const outputFilename = null; // Reserved by the template build contract; export UI starts in v0.7.0.
-      void outputFilename;
       const assetBundle = __EMBEDDED_ASSET_BUNDLE_JSON__;
       const blobUrls = new Set();
       const assetByteCache = new Map();
@@ -1000,3 +998,346 @@
         }
         function show({ message: text = '', actionLabel = '', onAction = null, duration = 3500, tone = 'default' } = {}) {
           clearTimeout(timer);
+          message.textContent = String(text);
+          root.dataset.tone = tone;
+          actionHandler = typeof onAction === 'function' ? onAction : null;
+          action.textContent = actionLabel || '';
+          action.hidden = !actionHandler || !actionLabel;
+          root.classList.add('show');
+          if (duration > 0) timer = window.setTimeout(dismiss, duration);
+          return Object.freeze({ dismiss });
+        }
+        action.addEventListener('click', () => {
+          const handler = actionHandler;
+          dismiss();
+          if (handler) handler();
+        });
+        return Object.freeze({ show, dismiss });
+      })();
+      window.AppToast = AppToast;
+
+      const AppConfirm = (() => {
+        const dialog = $('#appConfirmDialog');
+        const title = $('#appConfirmTitle');
+        const message = $('#appConfirmMessage');
+        const closeButton = $('#appConfirmClose');
+        const cancelButton = $('#appConfirmCancel');
+        const okButton = $('#appConfirmOk');
+        let resolver = null;
+        let restoreFocus = null;
+        function finish(result) {
+          if (!dialog.open) return;
+          const currentResolver = resolver;
+          resolver = null;
+          dialog.close();
+          if (restoreFocus instanceof HTMLElement && restoreFocus.isConnected) restoreFocus.focus({ preventScroll: true });
+          restoreFocus = null;
+          if (currentResolver) currentResolver(result);
+        }
+        function ask({ title: heading, message: body, confirmLabel, cancelLabel, tone = 'default' } = {}) {
+          if (dialog.open) finish(false);
+          title.textContent = heading || translate('confirmTitle');
+          message.textContent = body || '';
+          cancelButton.textContent = cancelLabel || translate('cancel');
+          okButton.textContent = confirmLabel || translate('confirmAction');
+          okButton.classList.toggle('danger', tone === 'danger');
+          okButton.classList.toggle('primary', tone !== 'danger');
+          restoreFocus = document.activeElement;
+          return new Promise(resolve => {
+            resolver = resolve;
+            dialog.showModal();
+            requestAnimationFrame(() => cancelButton.focus({ preventScroll: true }));
+          });
+        }
+        closeButton.addEventListener('click', () => finish(false));
+        cancelButton.addEventListener('click', () => finish(false));
+        okButton.addEventListener('click', () => finish(true));
+        dialog.addEventListener('cancel', event => { event.preventDefault(); finish(false); });
+        dialog.addEventListener('click', event => {
+          const rect = dialog.getBoundingClientRect();
+          if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) finish(false);
+        });
+        return Object.freeze({ ask });
+      })();
+      window.AppConfirm = AppConfirm;
+
+      function showToast(message, options = {}) { AppToast.show({ message, ...options }); }
+      function setText(id, value) { const element = $(id); if (element) element.textContent = value; }
+      function setParticipantError(message = '') { setText('#participantError', message); }
+      function setBulkError(message = '') { setText('#bulkError', message); }
+
+      function updateStaticLanguage() {
+        document.documentElement.lang = language;
+        document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = translate(element.dataset.i18n); });
+        document.querySelectorAll('[data-i18n-title]').forEach(element => { element.title = translate(element.dataset.i18nTitle); });
+        document.querySelectorAll('[data-i18n-aria-label]').forEach(element => { element.setAttribute('aria-label', translate(element.dataset.i18nAriaLabel)); });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => { element.placeholder = translate(element.dataset.i18nPlaceholder); });
+        $('#languageButton').textContent = language === 'ja' ? 'EN' : '日本語';
+        $('#languageButton').setAttribute('aria-label', language === 'ja' ? '英語に切り替え' : 'Switch to Japanese');
+        document.title = language === 'ja' ? APP_CONFIG.nameJa : APP_CONFIG.name;
+        render();
+      }
+
+      function renderRoster() {
+        const count = state.participants.length;
+        setText('#participantCount', new Intl.NumberFormat(language).format(count));
+        $('#emptyRoster').hidden = count > 0;
+        $('#rosterWithData').hidden = count === 0;
+        $('#shuffleButton').disabled = count < 2;
+        $('#resetButton').disabled = count === 0 && !$('#tournamentName').value.trim();
+
+        const list = $('#rosterList');
+        list.replaceChildren();
+        state.participants.forEach((participant, index) => {
+          const item = document.createElement('li');
+          item.className = 'participant';
+
+          const number = document.createElement('span');
+          number.className = 'participant-number';
+          number.textContent = String(index + 1);
+
+          const name = document.createElement('span');
+          name.className = 'participant-name';
+          name.textContent = participant.name;
+
+          const actions = document.createElement('div');
+          actions.className = 'participant-actions';
+
+          const up = createActionButton('up', translate('moveUpLabel', { name: participant.name }), index === 0);
+          const down = createActionButton('down', translate('moveDownLabel', { name: participant.name }), index === count - 1);
+          const remove = createActionButton('remove', translate('removeLabel', { name: participant.name }), false, true);
+
+          up.addEventListener('click', () => moveParticipant(index, index - 1));
+          down.addEventListener('click', () => moveParticipant(index, index + 1));
+          remove.addEventListener('click', () => removeParticipant(index));
+
+          actions.append(up, down, remove);
+          item.append(number, name, actions);
+          list.append(item);
+        });
+
+        const canConfirm = count >= 3;
+        $('#confirmParticipantsButton').disabled = !canConfirm;
+        setText('#startHelp', translate(canConfirm ? 'readyToConfirm' : 'needThree'));
+        setText('#validationSummary', '');
+      }
+
+      function createActionButton(action, label, disabled, danger = false) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `small-icon-button${danger ? ' danger' : ''}`;
+        button.disabled = disabled;
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        if (action === 'up') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg>';
+        if (action === 'down') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+        if (action === 'remove') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg>';
+        return button;
+      }
+
+      function renderReady() {
+        const name = state.tournamentName || translate('defaultTournament');
+        setText('#readyTitle', name);
+        setText('#readyCount', new Intl.NumberFormat(language).format(state.participants.length));
+        const root = $('#readyParticipants');
+        root.replaceChildren();
+        state.participants.forEach(participant => {
+          const chip = document.createElement('span');
+          chip.className = 'ready-chip';
+          chip.textContent = participant.name;
+          root.append(chip);
+        });
+      }
+
+      function render() {
+        $('#setupView').hidden = state.phase !== 'setup';
+        $('#readyView').hidden = state.phase !== 'ready';
+        if (state.phase === 'setup') renderRoster();
+        else renderReady();
+      }
+
+      function addParticipant(rawName) {
+        setParticipantError('');
+        const name = normalizeName(rawName);
+        if (!name) {
+          setParticipantError(translate('requiredName'));
+          $('#participantName').focus();
+          return false;
+        }
+        if ([...name].length > 80) {
+          setParticipantError(translate('bulkTooLong'));
+          $('#participantName').focus();
+          return false;
+        }
+        if (state.participants.length >= 64) {
+          setParticipantError(translate('tooMany'));
+          return false;
+        }
+        const key = nameKey(name);
+        if (state.participants.some(participant => nameKey(participant.name) === key)) {
+          setParticipantError(translate('duplicateName'));
+          $('#participantName').select();
+          return false;
+        }
+        state.participants.push({ id: createId(), name });
+        $('#participantName').value = '';
+        renderRoster();
+        showToast(translate('addedOne', { name }), { tone: 'success' });
+        $('#participantName').focus();
+        return true;
+      }
+
+      function addBulkParticipants() {
+        setBulkError('');
+        const names = $('#bulkParticipants').value.split(/\r?\n/).map(normalizeName).filter(Boolean);
+        if (!names.length) {
+          setBulkError(translate('bulkEmpty'));
+          $('#bulkParticipants').focus();
+          return;
+        }
+        if (names.some(name => [...name].length > 80)) {
+          setBulkError(translate('bulkTooLong'));
+          return;
+        }
+        if (state.participants.length + names.length > 64) {
+          setBulkError(translate('bulkTooMany'));
+          return;
+        }
+        const seen = new Set(state.participants.map(participant => nameKey(participant.name)));
+        const duplicateNames = [];
+        for (const name of names) {
+          const key = nameKey(name);
+          if (seen.has(key)) duplicateNames.push(name);
+          seen.add(key);
+        }
+        if (duplicateNames.length) {
+          const unique = [...new Set(duplicateNames)].slice(0, 5).join(language === 'ja' ? '、' : ', ');
+          setBulkError(translate('bulkDuplicate', { names: unique }));
+          return;
+        }
+        state.participants.push(...names.map(name => ({ id: createId(), name })));
+        $('#bulkParticipants').value = '';
+        renderRoster();
+        showToast(translate('addedMany', { count: names.length }), { tone: 'success' });
+      }
+
+      function removeParticipant(index) {
+        const [removed] = state.participants.splice(index, 1);
+        if (!removed) return;
+        renderRoster();
+        showToast(translate('removed', { name: removed.name }), {
+          actionLabel: translate('undo'),
+          duration: 5000,
+          onAction: () => {
+            state.participants.splice(Math.min(index, state.participants.length), 0, removed);
+            renderRoster();
+            showToast(translate('undone'));
+          }
+        });
+      }
+
+      function moveParticipant(from, to) {
+        if (to < 0 || to >= state.participants.length || from === to) return;
+        const [participant] = state.participants.splice(from, 1);
+        state.participants.splice(to, 0, participant);
+        renderRoster();
+        showToast(translate('moved'));
+      }
+
+      function shuffleParticipants() {
+        if (state.participants.length < 2) return;
+        const before = state.participants.map(participant => ({ ...participant }));
+        for (let index = state.participants.length - 1; index > 0; index -= 1) {
+          const target = Math.floor(Math.random() * (index + 1));
+          [state.participants[index], state.participants[target]] = [state.participants[target], state.participants[index]];
+        }
+        renderRoster();
+        showToast(translate('shuffled'), {
+          actionLabel: translate('undo'),
+          duration: 5000,
+          onAction: () => {
+            state.participants = before;
+            renderRoster();
+            showToast(translate('undone'));
+          }
+        });
+      }
+
+      async function resetSetup() {
+        if (!state.participants.length && !$('#tournamentName').value.trim()) return;
+        const confirmed = await AppConfirm.ask({
+          title: translate('resetTitle'),
+          message: translate('resetMessage'),
+          confirmLabel: translate('resetAction'),
+          cancelLabel: translate('cancel'),
+          tone: 'danger'
+        });
+        if (!confirmed) return;
+        state.phase = 'setup';
+        state.tournamentName = '';
+        state.participants = [];
+        $('#tournamentName').value = '';
+        $('#participantName').value = '';
+        $('#bulkParticipants').value = '';
+        setParticipantError('');
+        setBulkError('');
+        render();
+        $('#tournamentName').focus();
+        showToast(translate('resetDone'));
+      }
+
+      function confirmParticipants() {
+        if (state.participants.length < 3) return;
+        state.tournamentName = $('#tournamentName').value.trim().slice(0, 100);
+        state.phase = 'ready';
+        render();
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        showToast(translate('confirmed'), { tone: 'success' });
+      }
+
+      $('#participantForm').addEventListener('submit', event => {
+        event.preventDefault();
+        addParticipant($('#participantName').value);
+      });
+      $('#participantName').addEventListener('input', () => setParticipantError(''));
+      $('#bulkParticipants').addEventListener('input', () => setBulkError(''));
+      $('#bulkAddButton').addEventListener('click', addBulkParticipants);
+      $('#shuffleButton').addEventListener('click', shuffleParticipants);
+      $('#resetButton').addEventListener('click', resetSetup);
+      $('#confirmParticipantsButton').addEventListener('click', confirmParticipants);
+      $('#backToEditButton').addEventListener('click', () => {
+        state.phase = 'setup';
+        render();
+        $('#tournamentName').value = state.tournamentName;
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      });
+      $('#tournamentName').addEventListener('input', event => {
+        state.tournamentName = event.target.value.trim().slice(0, 100);
+        $('#resetButton').disabled = state.participants.length === 0 && !event.target.value.trim();
+      });
+
+      $('#languageButton').addEventListener('click', () => {
+        language = language === 'ja' ? 'en' : 'ja';
+        writeStorage(storageKeys.language, language);
+        updateStaticLanguage();
+      });
+
+      const helpDialog = $('#helpDialog');
+      $('#helpButton').addEventListener('click', () => helpDialog.showModal());
+      $('#closeHelpButton').addEventListener('click', () => helpDialog.close());
+      helpDialog.addEventListener('click', event => {
+        const rect = helpDialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) helpDialog.close();
+      });
+
+      // File export starts in a later milestone; keep the runtime free of inactive export controls.
+      const outputFilename = null;
+      void outputFilename;
+
+      $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
+      updateStaticLanguage();
+      render();
+    })();
+  </script>
+</body>
+</html>
