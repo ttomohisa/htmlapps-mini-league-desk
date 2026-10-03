@@ -793,6 +793,8 @@
 
       const APP_CONFIG = __APP_CONFIG_JSON__;
       const BUILD_MANIFEST = __BUILD_MANIFEST_JSON__;
+      const outputFilename = null; // Reserved by the template build contract; export UI starts in v0.7.0.
+      void outputFilename;
       const assetBundle = __EMBEDDED_ASSET_BUNDLE_JSON__;
       const blobUrls = new Set();
       const assetByteCache = new Map();
