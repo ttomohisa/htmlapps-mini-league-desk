@@ -80,7 +80,7 @@ foreach ($forbidden in @(
   'aria-label="League desk sections"',
   'aria-label="Match filter"',
   'aria-label="Event progress"',
-  'v0.1.0では大会内容の自動保存はまだありません。',
+  'v0.1.0',
   "W-D-L",
   "W-L"
 )) {
