@@ -7,7 +7,7 @@ $source = Get-Content -Raw -Encoding UTF8 $SourcePath
 
 $requiredTokens = @(
   "@media (max-width: 380px)",
-  "grid-template-areas: \"side-a side-b\" \"center center\"",
+  'grid-template-areas: "side-a side-b" "center center"',
   "body.has-mobile-bottom-bar .app-toast",
   "var(--app-mobile-bottom-bar-height)",
   ".result-choice.is-current",
