@@ -20,7 +20,7 @@ on:
       - ".github/workflows/build-standalone.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -38,36 +38,6 @@ jobs:
         shell: pwsh
         run: ./scripts/check-repository.ps1
 
-      - name: Setup Node.js for RC screenshots
-        if: github.event_name == 'pull_request' && github.head_ref == 'release/v0.9.0-rc'
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
-      - name: Capture RC screenshots
-        if: github.event_name == 'pull_request' && github.head_ref == 'release/v0.9.0-rc'
-        shell: pwsh
-        run: node ./scripts/capture-release-screenshots.mjs
-
-      - name: Commit RC screenshots
-        if: github.event_name == 'pull_request' && github.head_ref == 'release/v0.9.0-rc'
-        shell: pwsh
-        run: |
-          git fetch origin $env:GITHUB_HEAD_REF
-          git switch -C $env:GITHUB_HEAD_REF "origin/$env:GITHUB_HEAD_REF"
-          Copy-Item -Force release-screenshots\screenshot.png assets\screenshot.png
-          Copy-Item -Force release-screenshots\screenshot-mobile.png assets\screenshot-mobile.png
-          Copy-Item -Force release-screenshots\screenshot-en.png assets\screenshot-en.png
-          Copy-Item -Force release-screenshots\screenshot-mobile-en.png assets\screenshot-mobile-en.png
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/screenshot.png assets/screenshot-mobile.png assets/screenshot-en.png assets/screenshot-mobile-en.png
-          git diff --cached --quiet
-          if ($LASTEXITCODE -ne 0) {
-            git commit -m "docs: refresh v0.9.0 release screenshots"
-            git push origin "HEAD:$env:GITHUB_HEAD_REF"
-          }
-
       - name: Upload standalone artifact
         uses: actions/upload-artifact@v7
         with:
@@ -79,6 +49,5 @@ jobs:
             dist/dependency-manifest.json
             dist/self-extract-manifest.json
             dist/.nojekyll
-            release-screenshots/*.png
           if-no-files-found: error
           retention-days: 14
