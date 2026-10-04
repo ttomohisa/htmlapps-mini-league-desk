@@ -939,6 +939,25 @@
     }
     .save-status svg { width: 14px; height: 14px; color: var(--accent); }
 
+
+    .export-dialog { width: min(560px,calc(100% - 28px)); }
+    .export-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 16px; }
+    .export-option {
+      min-height: 72px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .export-option:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .export-option strong { display: block; font-size: 12px; }
+    .export-option span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .print-sheet { display: none; }
+
     footer {
       width: min(1120px,100%);
       margin: 0 auto;
@@ -1126,8 +1145,11 @@
       .score-submit { min-height: 50px; }
       .result-dialog-footer { flex-direction: column-reverse; align-items: stretch; }
       .result-dialog-footer .button { width: 100%; min-height: 48px; }
-      .backup-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 22px 22px 0 0; }
-      .backup-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .backup-dialog,
+      .export-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 22px 22px 0 0; }
+      .backup-dialog .dialog-body,
+      .export-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .export-grid { grid-template-columns: 1fr; }
       .backup-dialog-actions { flex-direction: column-reverse; }
       .backup-dialog-actions .button { width: 100%; min-height: 48px; }
       .data-actions .button { flex: 1 1 150px; }
@@ -1232,6 +1254,28 @@
       .completion-standing strong:last-child { grid-column: 2; justify-self: start; }
     }
 
+
+    @media print {
+      @page { size: auto; margin: 12mm; }
+      body { background: #fff !important; color: #111 !important; }
+      body > *:not(#printSheet) { display: none !important; }
+      #printSheet {
+        display: block !important;
+        width: 100%;
+        color: #111;
+        font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+      }
+      .print-title { margin: 0 0 4px; font-size: 22pt; }
+      .print-meta { margin: 0 0 16px; color: #555; font-size: 9pt; }
+      .print-section { margin-top: 16px; }
+      .print-section h2 { margin: 0 0 8px; font-size: 14pt; }
+      .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 8.5pt; }
+      .print-table th, .print-table td { padding: 5px 6px; border: 1px solid #bbb; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+      .print-table th { background: #f1f2ef !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-round { margin-top: 12px; break-inside: avoid; }
+      .print-round h3 { margin: 0 0 5px; font-size: 10pt; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
@@ -1243,7 +1287,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.6.0</span></p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.7.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
@@ -1403,6 +1447,7 @@
           <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
           <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
           <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+          <button class="button primary" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
         </div>
         <div class="desktop-league-nav" aria-label="League desk sections">
           <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
@@ -1445,6 +1490,7 @@
             <div class="completion-standings" id="completionStandings"></div>
             <div class="progress-actions">
               <button class="button primary" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
+              <button class="button" id="completionExportButton" type="button" data-i18n="exportOpen">出力</button>
             </div>
           </div>
         </section>
@@ -1564,6 +1610,41 @@
     </form>
   </dialog>
 
+
+  <dialog class="export-dialog" id="exportDialog" aria-labelledby="exportTitle">
+    <div class="dialog-header">
+      <h2 id="exportTitle" data-i18n="exportTitle">大会結果を出力</h2>
+      <button class="icon-button" id="closeExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="backup-field">
+        <label for="outputFilename" data-i18n="exportFilename">ファイル名</label>
+        <input id="outputFilename" type="text" maxlength="120" autocomplete="off">
+      </div>
+      <p class="backup-help" data-i18n="exportFilenameHelp">拡張子は選んだ形式に合わせて自動で付けます。</p>
+      <div class="export-grid">
+        <button class="export-option" id="exportMatchesCsvButton" type="button">
+          <strong data-i18n="exportMatchesCsv">対戦結果CSV</strong>
+          <span data-i18n="exportMatchesCsvHelp">全試合の状態・結果・得点を保存</span>
+        </button>
+        <button class="export-option" id="exportStandingsCsvButton" type="button">
+          <strong data-i18n="exportStandingsCsv">順位CSV</strong>
+          <span data-i18n="exportStandingsCsvHelp">現在の順位表を保存</span>
+        </button>
+        <button class="export-option" id="exportStandingsPngButton" type="button">
+          <strong data-i18n="exportStandingsPng">順位表PNG</strong>
+          <span data-i18n="exportStandingsPngHelp">共有しやすい順位表画像を保存</span>
+        </button>
+        <button class="export-option" id="printEventButton" type="button">
+          <strong data-i18n="exportPrint">印刷</strong>
+          <span data-i18n="exportPrintHelp">順位と全対戦結果を印刷</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle">
     <div class="dialog-header">
       <h2 id="resultDialogTitle" data-i18n="resultDialogTitle">試合結果</h2>
@@ -1631,6 +1712,8 @@
       <!-- APP:HELP:END -->
     </div>
   </dialog>
+
+  <section class="print-sheet" id="printSheet" aria-hidden="true"></section>
 
   <script>
     (() => {
