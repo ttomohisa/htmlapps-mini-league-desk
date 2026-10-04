@@ -4,61 +4,67 @@
 
 Mini League Desk is a local-first browser tool for running small round-robin events. It is designed around quickly answering: **who plays next, what is still unfinished, and what are the current standings?**
 
-Current development version: **v0.4.0**
+Current development version: **v0.5.0**
 
 ## Current features
 
-v0.4.0 adds the League Desk workflow used while an event is running:
+v0.5.0 adds local persistence and JSON backup to the existing League Desk workflow:
 
 - Event setup and three result modes
 - Complete round-robin fixture generation
 - Result add / edit / removal with Undo
-- Live standings and shared ranks
-- **Progress** view with completed, pending, percentage, next match, and following matches
-- **Matches** view with All / Pending / Completed filters
-- Per-participant pending and completed opponent lists
-- **Standings** view with the current table
-- Automatic event completion when every match has a result
-- Final standings shown in the completion state
-- Smartphone bottom tabs for Progress / Matches / Standings
-- Desktop layout that keeps key event information visible together
+- Progress / Matches / Standings workflow
+- Per-participant remaining/completed opponent views
+- Automatic event completion and final standings
+- **Automatic local event save**
+- Reload and continue the same event in the same browser context
+- Schema-versioned event data with event ID and timestamps
+- **JSON backup export** with an editable safe filename
+- **JSON import** with strict validation before replacement
+- Confirmation before replacing an existing event
+- Undo after a successful replacement import
 - Japanese / English UI
 - No runtime CDN, API, analytics, or telemetry
 
-## Event workflow
+## Persistence
 
-1. Enter an event name and choose a result mode.
-2. Add at least three participants and generate the round-robin schedule.
-3. Use **Progress** to see what is next.
-4. Enter a result from the next-match card or from any matchup.
-5. Use **Matches** to find pending/completed matches or see one participant's remaining opponents.
-6. Use **Standings** to check the live table.
-7. When no pending matches remain, the event automatically shows its completion state and final standings.
+Mini League Desk stores the active event in browser local storage. Setup drafts, participants, settings, fixtures, results, and League Desk UI state are included.
 
-The suggested next match is the first pending match in generated order. It is never a lock: any pending match may be completed first.
+If saved local data is malformed or uses an unsupported schema version, it is not applied to the app.
 
-## Result and ranking rules
+Browser storage can be cleared by the browser or operating system, so JSON backup is the portability and recovery path for important events.
 
-- Win / loss: win 1, loss 0
-- Win / draw / loss: win 3, draw 1, loss 0
-- Score entry: win 3, draw 1, loss 0; tied scores can be enabled or disabled
+## JSON backup
 
-Non-score modes rank by league points. Score mode ranks by league points → score difference → score for. Identical active tiebreak values share the same rank.
+Choose **JSON backup**, edit the proposed file name if needed, and save the file locally.
+
+A backup includes:
+
+- schema version
+- event ID
+- event name
+- result settings
+- participants and order
+- rounds and matches
+- recorded results
+- League Desk UI state
+- created / updated timestamps
+
+Import validates the document before touching the current event. Invalid or incompatible files are rejected. Replacing an existing event requires confirmation.
 
 ## Privacy
 
-Event names, participants, fixtures, results, progress, and standings are processed inside the browser. Runtime network access remains blocked by Content Security Policy and the app does not send event data to a server.
+Event names, participants, fixtures, results, progress, standings, and backups are processed locally in the browser. Runtime network access remains blocked by Content Security Policy.
 
-v0.4.0 only stores the language preference. **The event itself is not saved yet**, so reloading or closing the page clears the event and its results. Local persistence is planned for v0.5.0.
-
-## Limitations in v0.4.0
+## Limitations in v0.5.0
 
 Not yet included:
 
-- local event persistence
-- JSON backup / restore
-- CSV, image, or print export
+- CSV export
+- standings image export
+- print layout
 - final release-stage mobile/accessibility polish
+- release-candidate screenshots and broader browser/device regression
 
 See `APP_SPEC.md` for the remaining roadmap.
 

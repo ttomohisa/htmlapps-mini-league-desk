@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.4.0
+- **Current app version:** v0.5.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.4.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
+- Current v0.5.0 stores the active event locally in addition to the language preference.
 
 ## 5. Event setup
 
@@ -262,7 +262,7 @@ Completion UI shows at least:
 - final standings
 - export entry points once exports exist
 
-## 16. Persistence and backup — v0.5.0 target
+## 16. Persistence and backup — v0.5.0
 
 Persist the active event locally.
 
@@ -315,78 +315,66 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.4.0
+## 18. Current implementation milestone: v0.5.0
 
-v0.4.0 turns the fixture/result view into the League Desk workflow used during an event.
+v0.5.0 adds local event persistence and portable JSON backup / restore.
 
 Implemented behavior:
 
-- all setup, round-robin, result-entry, Undo, and standings behavior from v0.1.0–v0.3.0
-- Progress / Matches / Standings primary destinations
-- canonical smartphone bottom page tabs for those three destinations
-- desktop overview keeps Progress and Standings visible together, with Matches below
-- completed / pending / progress percentage summary
-- next pending match is the first pending match by generated global order
-- up to two following pending matches are shown
-- next/following matches open result entry directly
-- All / Pending / Completed match filters
-- per-participant pending and completed opponent views
-- participant opponent entries open the corresponding match directly
-- event automatically becomes complete when no pending matches remain
-- completion view shows final standings and a direct path to the Standings page
-- all League Desk surfaces refresh immediately after result add/edit/remove and Undo
-- Japanese and English League Desk UI
+- all setup, fixtures, results, standings, and League Desk behavior from v0.1.0–v0.4.0
+- schemaVersion 1 event document
+- event ID, createdAt, and updatedAt metadata
+- automatic local save using browser localStorage
+- setup drafts are saved as soon as they contain meaningful data
+- active fixtures, results, League Desk filter, participant focus, and active mobile page are saved
+- reload restores the same event when the saved document is valid
+- invalid or incompatible local data is ignored rather than applied
+- JSON backup export with editable sanitized filename
+- JSON import from a local file
+- import validates schema, participant identity/name constraints, fixtures, match states, results, score rules, and round-robin invariants before replacing state
+- incompatible schema versions are rejected
+- invalid imports never overwrite the current valid event
+- importing over an existing event requires confirmation
+- successful import offers Undo when a previous event existed
+- full reset clears the locally saved event
+- local save failure produces a visible warning recommending JSON backup
+- Japanese and English persistence / backup UI
 - no runtime network
 
-Not implemented in v0.4.0:
+Not implemented in v0.5.0:
 
-- local event persistence
-- JSON backup / restore
 - CSV/image/print exports
-- release-stage mobile/accessibility polish beyond the current responsive implementation
+- release-stage mobile/accessibility polish
+- release-candidate screenshots and broader browser/device regression
 
-## 19. v0.4.0 acceptance criteria
+## 19. v0.5.0 acceptance criteria
 
-### Progress
+### Automatic persistence
 
-- Completed, pending, and progress percentage derive from match state rather than separate counters.
-- The next match is the lowest-order pending match.
-- Following matches are the next two pending matches by generated order.
-- Any pending match may still be opened from the Matches page regardless of the suggested order.
-- Entering, editing, removing, or undoing a result refreshes Progress immediately.
-- The Pending shortcut switches the Matches view to its Pending filter.
-- When all matches are completed, the normal next-match state is replaced by the completion state.
+- Event setup data survives a normal reload in the same browser context.
+- Active fixtures and recorded results survive reload.
+- Result mode and score-draw settings survive reload.
+- League Desk match filter, participant focus, and mobile page selection survive reload.
+- Restored standings equal the pre-reload standings because standings are recomputed from the restored match results.
+- Restored pending matches equal the pre-reload pending matches.
+- Full reset removes the stored active event.
+- Local save failure does not break the active in-memory event and shows a user-visible warning.
 
-### Matches
+### JSON backup
 
-- All, Pending, and Completed filters show the correct counts and matches.
-- A filter with no matches shows an explicit empty state.
-- Filtering never changes match data.
-- Selecting a participant shows every pending opponent and every completed opponent for that participant.
-- Participant-specific opponent entries open the exact corresponding match.
-- Long participant names remain wrapping-safe.
+- Backup JSON contains format, schemaVersion, appVersion, event ID, event name, phase, settings, participants, rounds/matches/results, UI state, createdAt, and updatedAt.
+- Export uses an editable filename and sanitizes unsafe filename characters.
+- Import accepts only the current schemaVersion.
+- Import validates participant IDs/names, unique match IDs/orders, fixture pairing invariants, status/result consistency, and score constraints.
+- A malformed or incompatible import does not modify the current event.
+- Importing over an existing event requires confirmation.
+- Successful replacement import can Undo back to the previous valid event.
 
-### Standings / completion
+### Runtime / regression
 
-- Standings retain the v0.3.0 ranking behavior.
-- Completion is automatic when total matches are non-zero and pending matches equal zero.
-- Completion UI shows the final standings.
-- Removing or undoing a result after completion returns the event to an in-progress state.
-
-### Responsive / navigation
-
-- Smartphone primary navigation is Progress / Matches / Standings in a safe-area-aware fixed bottom bar.
-- At smartphone widths only the selected League Desk page is shown.
-- Desktop keeps the event dashboard in normal document flow and provides quick section navigation.
-- Bottom navigation is hidden during setup.
-- The bottom bar must not cover reachable page content.
-
-### Regression / build
-
-- Existing round-robin tests for 3..64 participants continue to pass.
-- Existing result/standings tests continue to pass.
-- League Desk regression tests cover next-match order, following matches, filters, per-participant pending/completed opponents, and completion.
-- `window.AppMobileBottomBar` remains available from the adapted canonical component.
+- Existing round-robin, result/standings, and League Desk regression tests continue to pass.
+- Persistence regression tests cover JSON round-trip, schema rejection, malformed-event rejection, and preservation of pending/completed match state.
+- Runtime communication remains blocked.
 - PowerShell syntax preflight and repository check must pass.
 - Do not claim real-device/manual-network verification unless it was actually performed.
 
@@ -416,7 +404,7 @@ Not implemented in v0.4.0:
 - participant remaining-opponent view
 - event completion
 
-### v0.5.0 — Persistence
+### v0.5.0 — Persistence — implemented
 
 - local event save/restore
 - schema version
