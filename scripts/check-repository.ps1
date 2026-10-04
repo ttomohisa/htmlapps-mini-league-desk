@@ -11,6 +11,10 @@ $required = @(
   "APP_SPEC.md",
   "app.config.json",
   "assets\favicon.svg",
+  "assets\screenshot.png",
+  "assets\screenshot-mobile.png",
+  "assets\screenshot-en.png",
+  "assets\screenshot-mobile-en.png",
   "dependencies.json",
   "dependencies.lock.json",
   ".github\workflows\dependency-updates.yml",
@@ -45,6 +49,7 @@ $required = @(
   "scripts\test-mobile-ux.ps1",
   "scripts\test-export.ps1",
   "scripts\test-i18n-accessibility.ps1",
+  "scripts\test-release-candidate.ps1",
   "README.md",
   "README.ja.md",
   "LICENSE",
@@ -297,6 +302,7 @@ if ($rootHtmlHash -ne $readableOutputHash) {
 }
 
 Write-Host "[OK] Repository-root HTML matches the readable standalone build: $rootHtmlPath" -ForegroundColor Green
+& (Join-Path $Root "scripts\test-release-candidate.ps1")
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
 
 # WebRTC readiness DataChannel regression
