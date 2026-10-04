@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.1.0
+- **Current app version:** v0.2.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.1.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
+- Current v0.2.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
 
 ## 5. Event setup
 
@@ -98,24 +98,22 @@ Bulk add is atomic. If the batch contains an invalid name, duplicate, or would e
 
 ## 6. Setup phases
 
-The state model begins with:
+The v0.2.0 state model is:
 
 ```text
 setup
-ready
+fixtures
 ```
 
 ### setup
 
 Event name and participants are editable.
 
-### ready
+### fixtures
 
-The participant list is confirmed and shown as a review state. v0.1.0 stops here.
+Confirming a roster of at least three participants generates the round-robin schedule and shows it by round. Returning to setup invalidates the generated schedule; confirming again generates a fresh schedule from the current roster.
 
-From v0.2.0 onward, confirming setup will lead into round-robin fixture generation and the event workflow.
-
-## 7. Round-robin fixtures — v0.2.0 target
+## 7. Round-robin fixtures — v0.2.0
 
 For `n` participants, generate exactly:
 
@@ -313,89 +311,69 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.1.0
+## 18. Current implementation milestone: v0.2.0
 
-v0.1.0 implements only the setup foundation.
+v0.2.0 adds round-robin fixture generation to the v0.1.0 setup foundation.
 
 Implemented behavior:
 
-- concrete Mini League Desk product identity
-- event name
-- add participant individually
-- multiline participant add
-- duplicate prevention
-- participant-name limits
-- 64-participant cap
-- reorder using up/down controls
-- shuffle with Undo
-- remove with Undo
-- reset with confirmation
-- participant count
-- empty state
-- setup validation
-- confirm roster at 3+ participants
-- ready/review state
-- Japanese and English setup UI
+- event name and participant management from v0.1.0
+- standard circle-method round-robin generation
+- exactly one match for every unordered participant pair
+- round grouping
+- one localized Bye per round for odd participant counts
+- participant / match / round counts
+- fixture view with long-name-safe matchup rows
+- return to participant editing and regenerate from the revised roster
+- internal runtime invariant validation before showing generated fixtures
+- repository regression tests for participant counts 3 through 64
+- Japanese and English fixture UI/help
 - responsive desktop/mobile layout
-- help/privacy/limitations copy
 - no runtime network
 - direct-file-compatible architecture
 
-Not implemented in v0.1.0:
+Not implemented in v0.2.0:
 
-- fixture generation
-- match results
+- match result entry
 - standings
+- progress / next-match workflow
 - event-data persistence
 - JSON backup
 - CSV/image/print exports
 
-The UI must not present inactive buttons for these future functions.
+The UI must not present inactive controls for these future functions.
 
-## 19. v0.1.0 acceptance criteria
+## 19. v0.2.0 acceptance criteria
 
-### Setup
+### Round robin
 
-- Fresh load shows an empty participant state with a clear next action.
-- Event name may be blank.
-- One valid participant can be added with Enter or the Add button.
-- Empty participant names are rejected with field-local feedback.
-- A duplicate participant is not added.
-- Multiline input ignores blank lines.
-- Bulk add is atomic if any name is invalid or duplicated.
-- A roster cannot exceed 64 participants.
-- Participant names wrap without breaking layout.
-- Roster can be reordered without drag-and-drop.
-- Shuffle changes order and exposes Undo.
-- Removal exposes Undo.
-- Full reset requires confirmation.
-- Fewer than 3 participants cannot be confirmed.
-- 3 or more participants can be confirmed into the ready state.
-- Ready state can return to editing without losing the current roster.
+- Confirming a valid roster generates a fixture schedule immediately.
+- For `n` participants the fixture set contains exactly `n × (n - 1) / 2` matches.
+- Every unordered participant pair appears exactly once.
+- No participant can play themself.
+- A participant appears at most once in each round.
+- Even participant counts produce `n - 1` rounds and no Bye.
+- Odd participant counts produce `n` rounds and exactly one Bye per participant.
+- Each match already carries the v0.3.0-compatible pending match fields: ID, round, global order, participant IDs, pending status, null scores/result/winner.
+- Returning to editing does not lose the roster, but invalidates the generated fixture schedule.
+- Confirming again regenerates fixtures from the current participant order.
+- Long participant names wrap without causing page-level horizontal scrolling.
+- Japanese and English both render round labels and Bye labels naturally.
 
-### Responsive / accessibility
+### Regression / build
 
-- No page-level horizontal scrolling at 320 CSS px from normal content.
-- Main touch controls are approximately 44px high where practical.
-- All main controls are keyboard reachable.
-- Visible focus remains present.
-- Controls do not rely on color alone.
-- Dialogs close with close controls and Escape.
-- Help content remains scrollable on short phone viewports.
-- Japanese and English both complete the setup flow.
-
-### Runtime / build
-
+- The round-robin regression script verifies all participant counts from 3 through 64.
+- Existing v0.1.0 setup validation and Undo behavior remain available.
 - `__APP_CONFIG_JSON__`, `__BUILD_MANIFEST_JSON__`, and `__EMBEDDED_ASSET_BUNDLE_JSON__` each occur exactly once in the source.
 - `__APP_ICON_DATA_URI__` occurs exactly twice.
 - No runtime external URL is required.
 - `window.StandaloneAssets`, `window.AppToast`, and `window.AppConfirm` remain available.
-- PowerShell syntax preflight and repository check must pass before the milestone is considered verified.
+- PowerShell syntax preflight, round-robin regression tests, and repository check must pass before the milestone is considered verified.
 - Do not claim browser/device/manual-network verification unless it was actually performed.
 
 ## 20. Planned development sequence
 
-### v0.2.0 — Round Robin
+### v0.2.0 — Round Robin — implemented
 
 - round-robin algorithm
 - rounds
