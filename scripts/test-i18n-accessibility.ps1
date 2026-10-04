@@ -17,8 +17,15 @@ function Get-TranslationKeys {
   $end = $Text.IndexOf($EndMarker, $start, [System.StringComparison]::Ordinal)
   if ($end -lt 0) { throw "Translation block end marker is missing: $EndMarker" }
   $block = $Text.Substring($start, $end - $start)
-  $matches = [regex]::Matches($block, '(?m)(?:^\s*|,\s*)([A-Za-z][A-Za-z0-9]*):\s*')
-  return @($matches | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+  $matches = [regex]::Matches($block, '(?m)^\s{10}([A-Za-z][A-Za-z0-9]*):\s*')
+  $keys = @($matches | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+  $inlineMatches = [regex]::Matches($block, '(?m)^\s{10}[A-Za-z][A-Za-z0-9]*:[^\r\n]*')
+  foreach ($lineMatch in $inlineMatches) {
+    $line = $lineMatch.Value
+    $extra = [regex]::Matches($line, ',\s*([A-Za-z][A-Za-z0-9]*):\s*')
+    $keys += @($extra | ForEach-Object { $_.Groups[1].Value })
+  }
+  return @($keys | Sort-Object -Unique)
 }
 
 $jaKeys = @(Get-TranslationKeys -Text $source -StartMarker "        ja: {" -EndMarker "        en: {")
