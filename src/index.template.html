@@ -2078,11 +2078,14 @@
           if (participants.length < 3 || !Array.isArray(event.rounds)) return { ok: false, reason: 'invalid' };
           const seenMatchIds = new Set();
           const seenOrders = new Set();
+          const seenRoundNumbers = new Set();
 
           for (const round of event.rounds) {
-            if (!isPlainObject(round) || !Number.isInteger(round.number) || round.number < 1 || !Array.isArray(round.matches)) {
+            if (!isPlainObject(round) || !Number.isInteger(round.number) || round.number < 1 ||
+                seenRoundNumbers.has(round.number) || round.number !== rounds.length + 1 || !Array.isArray(round.matches)) {
               return { ok: false, reason: 'invalid' };
             }
+            seenRoundNumbers.add(round.number);
             const matches = [];
             for (const match of round.matches) {
               if (!isPlainObject(match) ||
@@ -2150,6 +2153,11 @@
             rounds.push({ number: round.number, matches, byeParticipantId });
           }
           if (!validateRoundRobin(rounds, participants)) return { ok: false, reason: 'invalid' };
+          const expectedMatchCount = participants.length * (participants.length - 1) / 2;
+          if (seenOrders.size !== expectedMatchCount) return { ok: false, reason: 'invalid' };
+          for (let order = 1; order <= expectedMatchCount; order += 1) {
+            if (!seenOrders.has(order)) return { ok: false, reason: 'invalid' };
+          }
         }
 
         if (event.phase === 'setup' && event.rounds != null && (!Array.isArray(event.rounds) || event.rounds.length > 0)) {
