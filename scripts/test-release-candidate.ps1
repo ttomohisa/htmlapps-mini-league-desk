@@ -1,0 +1,179 @@
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+
+$Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+
+function Assert-Equal {
+  param($Actual, $Expected, [string]$Message)
+  if ($Actual -ne $Expected) {
+    throw "$Message Expected '$Expected' but got '$Actual'."
+  }
+}
+
+function New-RcRoundRobinSchedule {
+  param([int]$ParticipantCount)
+
+  $rotation = @(0..($ParticipantCount - 1))
+  if (($ParticipantCount % 2) -eq 1) { $rotation += $null }
+
+  $rounds = @()
+  $roundCount = $rotation.Count - 1
+  $matchesPerRound = [int]($rotation.Count / 2)
+
+  for ($roundIndex = 0; $roundIndex -lt $roundCount; $roundIndex += 1) {
+    $matches = @()
+    $bye = $null
+
+    for ($pairIndex = 0; $pairIndex -lt $matchesPerRound; $pairIndex += 1) {
+      $a = $rotation[$pairIndex]
+      $b = $rotation[$rotation.Count - 1 - $pairIndex]
+      if ($null -eq $a -or $null -eq $b) {
+        if ($null -eq $a) { $bye = $b } else { $bye = $a }
+        continue
+      }
+      $matches += [PSCustomObject]@{ A = [int]$a; B = [int]$b }
+    }
+
+    $rounds += [PSCustomObject]@{ Matches = @($matches); Bye = $bye }
+    $middle = @($rotation[1..($rotation.Count - 2)])
+    $rotation = @($rotation[0], $rotation[$rotation.Count - 1]) + $middle
+  }
+
+  return @($rounds)
+}
+
+$matrix = @(
+  @{ Count = 3; Matches = 3; Rounds = 3; Byes = 3 },
+  @{ Count = 4; Matches = 6; Rounds = 3; Byes = 0 },
+  @{ Count = 5; Matches = 10; Rounds = 5; Byes = 5 },
+  @{ Count = 8; Matches = 28; Rounds = 7; Byes = 0 },
+  @{ Count = 16; Matches = 120; Rounds = 15; Byes = 0 }
+)
+
+foreach ($case in $matrix) {
+  $rounds = @(New-RcRoundRobinSchedule -ParticipantCount $case.Count)
+  Assert-Equal $rounds.Count $case.Rounds "RC round count for $($case.Count) participants."
+
+  $pairs = @{}
+  $byes = @{}
+  $matchCount = 0
+
+  foreach ($round in $rounds) {
+    $active = @{}
+    foreach ($match in @($round.Matches)) {
+      if ($match.A -eq $match.B) { throw "RC self match for $($case.Count) participants." }
+      if ($active.ContainsKey($match.A) -or $active.ContainsKey($match.B)) {
+        throw "RC duplicate participant in one round for $($case.Count) participants."
+      }
+      $active[$match.A] = $true
+      $active[$match.B] = $true
+
+      $low = [Math]::Min($match.A, $match.B)
+      $high = [Math]::Max($match.A, $match.B)
+      $pairKey = ([string]$low + ":" + [string]$high)
+      if ($pairs.ContainsKey($pairKey)) { throw "RC duplicate pair $pairKey." }
+      $pairs[$pairKey] = $true
+      $matchCount += 1
+    }
+
+    if ($null -ne $round.Bye) {
+      if ($active.ContainsKey([int]$round.Bye)) { throw "RC Bye participant also plays." }
+      $byes[[int]$round.Bye] = $true
+    }
+  }
+
+  Assert-Equal $matchCount $case.Matches "RC match count for $($case.Count) participants."
+  Assert-Equal $pairs.Count $case.Matches "RC pair coverage for $($case.Count) participants."
+  Assert-Equal $byes.Count $case.Byes "RC Bye coverage for $($case.Count) participants."
+}
+
+function Get-PngDimensions {
+  param([string]$Path)
+
+  $bytes = [System.IO.File]::ReadAllBytes($Path)
+  if ($bytes.Length -lt 24) { throw "PNG is too small: $Path" }
+  $signature = @(0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a)
+  for ($index = 0; $index -lt $signature.Count; $index += 1) {
+    if ($bytes[$index] -ne $signature[$index]) { throw "Invalid PNG signature: $Path" }
+  }
+
+  $width = [int](
+    ([int64]$bytes[16] * 16777216) +
+    ([int64]$bytes[17] * 65536) +
+    ([int64]$bytes[18] * 256) +
+    [int64]$bytes[19]
+  )
+  $height = [int](
+    ([int64]$bytes[20] * 16777216) +
+    ([int64]$bytes[21] * 65536) +
+    ([int64]$bytes[22] * 256) +
+    [int64]$bytes[23]
+  )
+  return [PSCustomObject]@{ Width = $width; Height = $height; Bytes = $bytes.Length }
+}
+
+$screenshots = @(
+  @{ Path = "assets\screenshot.png"; Width = 1440; Height = 1000 },
+  @{ Path = "assets\screenshot-mobile.png"; Width = 390; Height = 844 },
+  @{ Path = "assets\screenshot-en.png"; Width = 1440; Height = 1000 },
+  @{ Path = "assets\screenshot-mobile-en.png"; Width = 390; Height = 844 }
+)
+
+foreach ($shot in $screenshots) {
+  $absolute = Join-Path $Root $shot.Path
+  if (-not (Test-Path -LiteralPath $absolute -PathType Leaf)) { throw "Release screenshot is missing: $($shot.Path)" }
+  $info = Get-PngDimensions -Path $absolute
+  Assert-Equal $info.Width $shot.Width "Release screenshot width for $($shot.Path)."
+  Assert-Equal $info.Height $shot.Height "Release screenshot height for $($shot.Path)."
+  if ($info.Bytes -lt 20000) { throw "Release screenshot looks unexpectedly small: $($shot.Path)" }
+}
+
+$legacyBlobs = @{
+  "assets\screenshot.png" = "66fc76b66a7a241b2507ad488ce0a5514e546258"
+  "assets\screenshot-mobile.png" = "9f854b8cf00453c4615d25fb3df5d37712fc6ae6"
+}
+foreach ($relative in $legacyBlobs.Keys) {
+  $currentBlob = (& git -C $Root hash-object -- $relative).Trim()
+  if ($currentBlob -eq $legacyBlobs[$relative]) {
+    throw "Legacy template screenshot returned: $relative"
+  }
+}
+
+$app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
+Assert-Equal ([string]$app.version) "0.9.0" "Release candidate version."
+if (-not [bool]$app.build.blockRuntimeNetwork) { throw "blockRuntimeNetwork must remain true." }
+if (-not [bool]$app.build.selfExtract.enabled) { throw "Self-extract build must remain enabled." }
+
+$source = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "src\index.template.html")
+if (-not $source.Contains("connect-src 'none'")) { throw "Runtime CSP must keep connect-src 'none'." }
+$externalPattern = '(?is)<(?:script|link|img|iframe)\b[^>]*(?:src|href)\s*=\s*["'']https?://'
+if ($source -match $externalPattern) { throw "External runtime resource URL found in source." }
+if ($source.Contains("single-html-app-starter")) { throw "Template starter marker remains in application source." }
+
+$favicon = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "assets\favicon.svg")
+if (-not $favicon.ToLowerInvariant().Contains("#16624f")) { throw "Favicon must use Browser Kitty brand color #16624F." }
+if (-not $favicon.Contains("Mini League Desk")) { throw "Favicon must identify Mini League Desk." }
+
+$readme = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.md")
+$readmeJa = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.ja.md")
+foreach ($token in @("v0.9.0", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
+  if (-not $readme.Contains($token)) { throw "English README release marker is missing: $token" }
+}
+foreach ($token in @("v0.9.0", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
+  if (-not $readmeJa.Contains($token)) { throw "Japanese README release marker is missing: $token" }
+}
+
+$readable = Join-Path $Root ([string]$app.build.output)
+$selfExtract = Join-Path $Root ([string]$app.build.selfExtract.output)
+$rootHtml = Join-Path $Root "mini-league-desk.html"
+foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
+  if (-not (Test-Path -LiteralPath $artifact -PathType Leaf)) { throw "Release artifact is missing: $artifact" }
+  if ((Get-Item -LiteralPath $artifact).Length -le 0) { throw "Release artifact is empty: $artifact" }
+}
+
+$builtHtml = Get-Content -Raw -Encoding UTF8 $readable
+if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
+if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
+if (-not $builtHtml.Contains("v0.9.0")) { throw "Built standalone does not contain v0.9.0." }
+
+Write-Host "[OK] Release candidate checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green
