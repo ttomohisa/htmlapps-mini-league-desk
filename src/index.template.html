@@ -45,7 +45,7 @@
     }
     button,input,textarea { font: inherit; }
     button { color: inherit; }
-    button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible {
+    button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible {
       outline: 3px solid color-mix(in srgb,var(--focus) 55%,transparent);
       outline-offset: 2px;
     }
@@ -1276,6 +1276,33 @@
       .print-round h3 { margin: 0 0 5px; font-size: 10pt; }
     }
 
+
+    @media (forced-colors: active) {
+      button,
+      input,
+      textarea,
+      select,
+      .panel,
+      .league-page,
+      .match-row,
+      .standing-row,
+      .round-card,
+      dialog {
+        border-color: CanvasText;
+      }
+      .button.primary,
+      .app-confirm-button.primary,
+      .app-confirm-button.danger {
+        forced-color-adjust: none;
+      }
+      .match-filter.is-active,
+      .result-choice.is-current,
+      .app-mobile-bottom-item[aria-current="page"] {
+        outline: 2px solid Highlight;
+        outline-offset: 1px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
@@ -1287,7 +1314,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.7.0</span></p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.8.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
@@ -1449,7 +1476,7 @@
           <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
           <button class="button primary" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
         </div>
-        <div class="desktop-league-nav" aria-label="League desk sections">
+        <div class="desktop-league-nav" data-i18n-aria-label="leagueNavLabel" aria-label="大会内ナビゲーション">
           <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
           <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
           <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
@@ -1470,7 +1497,7 @@
             <div class="progress-stat"><strong id="progressRemaining">0</strong><span data-i18n="remainingMatches">未実施</span></div>
             <div class="progress-stat"><strong id="progressPercent">0%</strong><span data-i18n="progressPercentLabel">進行率</span></div>
           </div>
-          <progress class="event-progress" id="eventProgress" max="100" value="0" aria-label="Event progress"></progress>
+          <progress class="event-progress" id="eventProgress" max="100" value="0" data-i18n-aria-label="eventProgressLabel" aria-label="大会の進行率"></progress>
           <div id="progressActiveState">
             <div class="next-match-card">
               <h4 data-i18n="nextMatch">次の試合</h4>
@@ -1532,10 +1559,10 @@
           </div>
         </div>
         <div class="match-page-toolbar">
-          <div class="match-filters" role="group" aria-label="Match filter">
-            <button class="match-filter is-active" type="button" data-match-filter="all"><span data-i18n="filterAll">すべて</span><span class="match-filter-count" id="filterAllCount">0</span></button>
-            <button class="match-filter" type="button" data-match-filter="pending"><span data-i18n="filterPending">未実施</span><span class="match-filter-count" id="filterPendingCount">0</span></button>
-            <button class="match-filter" type="button" data-match-filter="completed"><span data-i18n="filterCompleted">完了</span><span class="match-filter-count" id="filterCompletedCount">0</span></button>
+          <div class="match-filters" role="group" data-i18n-aria-label="matchFilterLabel" aria-label="対戦フィルター">
+            <button class="match-filter is-active" type="button" data-match-filter="all" aria-pressed="true"><span data-i18n="filterAll">すべて</span><span class="match-filter-count" id="filterAllCount">0</span></button>
+            <button class="match-filter" type="button" data-match-filter="pending" aria-pressed="false"><span data-i18n="filterPending">未実施</span><span class="match-filter-count" id="filterPendingCount">0</span></button>
+            <button class="match-filter" type="button" data-match-filter="completed" aria-pressed="false"><span data-i18n="filterCompleted">完了</span><span class="match-filter-count" id="filterCompletedCount">0</span></button>
           </div>
         </div>
         <div class="rounds-grid" id="roundsContainer"></div>
@@ -1549,7 +1576,7 @@
   </main>
 
 
-  <nav class="app-mobile-bottom-bar" id="leagueBottomBar" aria-label="League navigation" hidden>
+  <nav class="app-mobile-bottom-bar" id="leagueBottomBar" data-i18n-aria-label="leagueNavLabel" aria-label="大会内ナビゲーション" hidden>
     <button class="app-mobile-bottom-item is-active" type="button" data-mobile-key="progress" data-mobile-page-target="progressPage" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7"/></svg>
       <span data-i18n="navProgress">進行</span>
@@ -1590,7 +1617,7 @@
 
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden>
 
-  <dialog class="backup-dialog" id="backupExportDialog" aria-labelledby="backupExportTitle">
+  <dialog class="backup-dialog" id="backupExportDialog" aria-labelledby="backupExportTitle" aria-describedby="backupFilenameHelp">
     <div class="dialog-header">
       <h2 id="backupExportTitle" data-i18n="backupExportTitle">JSONバックアップを保存</h2>
       <button class="icon-button" id="closeBackupExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
@@ -1600,9 +1627,9 @@
     <form class="dialog-body" id="backupExportForm">
       <div class="backup-field">
         <label for="backupFilename" data-i18n="backupFilename">ファイル名</label>
-        <input id="backupFilename" type="text" maxlength="120" autocomplete="off">
+        <input id="backupFilename" type="text" maxlength="120" autocomplete="off" aria-describedby="backupFilenameHelp">
       </div>
-      <p class="backup-help" data-i18n="backupFilenameHelp">大会名・参加者・対戦・結果・設定をJSONとして保存します。</p>
+      <p class="backup-help" id="backupFilenameHelp" data-i18n="backupFilenameHelp">大会名・参加者・対戦・結果・設定をJSONとして保存します。</p>
       <div class="backup-dialog-actions">
         <button class="button" id="cancelBackupExportButton" type="button" data-i18n="cancel">キャンセル</button>
         <button class="button primary" type="submit" data-i18n="backupDownload">保存</button>
@@ -1611,7 +1638,7 @@
   </dialog>
 
 
-  <dialog class="export-dialog" id="exportDialog" aria-labelledby="exportTitle">
+  <dialog class="export-dialog" id="exportDialog" aria-labelledby="exportTitle" aria-describedby="exportFilenameHelp">
     <div class="dialog-header">
       <h2 id="exportTitle" data-i18n="exportTitle">大会結果を出力</h2>
       <button class="icon-button" id="closeExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
@@ -1621,9 +1648,9 @@
     <div class="dialog-body">
       <div class="backup-field">
         <label for="outputFilename" data-i18n="exportFilename">ファイル名</label>
-        <input id="outputFilename" type="text" maxlength="120" autocomplete="off">
+        <input id="outputFilename" type="text" maxlength="120" autocomplete="off" aria-describedby="exportFilenameHelp">
       </div>
-      <p class="backup-help" data-i18n="exportFilenameHelp">拡張子は選んだ形式に合わせて自動で付けます。</p>
+      <p class="backup-help" id="exportFilenameHelp" data-i18n="exportFilenameHelp">拡張子は選んだ形式に合わせて自動で付けます。</p>
       <div class="export-grid">
         <button class="export-option" id="exportMatchesCsvButton" type="button">
           <strong data-i18n="exportMatchesCsv">対戦結果CSV</strong>
@@ -1645,7 +1672,7 @@
     </div>
   </dialog>
 
-  <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle">
+  <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle" aria-describedby="resultDialogMeta">
     <div class="dialog-header">
       <h2 id="resultDialogTitle" data-i18n="resultDialogTitle">試合結果</h2>
       <button class="icon-button" id="closeResultButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
@@ -1659,20 +1686,20 @@
         <strong id="resultCurrentValue"></strong>
       </div>
       <div class="result-choice-grid" id="resultChoicePanel">
-        <button class="result-choice" id="resultAWin" type="button"></button>
-        <button class="result-choice" id="resultDraw" type="button" data-i18n="drawChoice">引き分け</button>
-        <button class="result-choice" id="resultBWin" type="button"></button>
+        <button class="result-choice" id="resultAWin" type="button" aria-pressed="false"></button>
+        <button class="result-choice" id="resultDraw" type="button" aria-pressed="false" data-i18n="drawChoice">引き分け</button>
+        <button class="result-choice" id="resultBWin" type="button" aria-pressed="false"></button>
       </div>
       <form class="score-form" id="scoreForm" hidden novalidate>
         <div class="score-grid">
           <div class="score-field">
             <label id="scoreALabel" for="scoreA"></label>
-            <input class="score-input" id="scoreA" type="number" min="0" max="999999" step="1" inputmode="numeric" autocomplete="off">
+            <input class="score-input" id="scoreA" type="number" min="0" max="999999" step="1" inputmode="numeric" autocomplete="off" aria-describedby="scoreError">
           </div>
           <span class="score-separator" aria-hidden="true">—</span>
           <div class="score-field">
             <label id="scoreBLabel" for="scoreB"></label>
-            <input class="score-input" id="scoreB" type="number" min="0" max="999999" step="1" inputmode="numeric" autocomplete="off">
+            <input class="score-input" id="scoreB" type="number" min="0" max="999999" step="1" inputmode="numeric" autocomplete="off" aria-describedby="scoreError">
           </div>
         </div>
         <div class="score-error" id="scoreError" role="status" aria-live="polite"></div>
@@ -1696,17 +1723,17 @@
       <!-- APP:HELP:BEGIN -->
       <h3 data-i18n="helpBasicsTitle">基本操作</h3>
       <ol>
-        <li data-i18n="helpStep1">大会名を入力します。未入力でも利用できます。</li>
-        <li data-i18n="helpStep2">参加者を1人ずつ追加するか、複数行をまとめて貼り付けて追加します。</li>
-        <li data-i18n="helpStep3">矢印で順番を整え、必要ならシャッフルします。3人以上になったら「参加者を確定」を押します。</li>
+        <li data-i18n="helpStep1">大会名と結果の記録方法を選びます。</li>
+        <li data-i18n="helpStep2">参加者を追加し、3人以上で確定して総当たり表を作ります。</li>
+        <li data-i18n="helpStep3">大会開始後は進行・対戦・順位を切り替え、試合結果を入力します。</li>
       </ol>
       <h3 data-i18n="helpPrivacyTitle">プライバシー</h3>
-      <p data-i18n="helpPrivacyBody">大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。</p>
+      <p data-i18n="helpPrivacyBody">大会データと出力データはこのページ内で処理し、このアプリから外部サーバーへ送信しません。</p>
       <h3 data-i18n="helpNotesTitle">注意事項</h3>
       <ul>
-        <li data-i18n="helpNoteNoSave">v0.1.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると入力内容は失われます。</li>
-        <li data-i18n="helpNoteNames">同じ参加者名は重複登録できません。参加者名は80文字までです。</li>
-        <li data-i18n="helpNoteScope">このバージョンは大会作成の基礎段階です。対戦表、結果入力、順位計算はまだ表示しません。</li>
+        <li data-i18n="helpNoteNoSave">大会内容はこの端末に自動保存されます。別の端末へ移す場合はJSONバックアップを利用できます。</li>
+        <li data-i18n="helpNoteNames">同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。</li>
+        <li data-i18n="helpNoteScope">スマホでは下部の進行・対戦・順位で切り替えます。CSV・順位PNG・印刷も端末内で生成できます。</li>
       </ul>
       <p class="dialog-note" data-i18n="helpOffline">配布用HTMLはローカルで直接開いて利用できます。</p>
       <!-- APP:HELP:END -->
@@ -1824,7 +1851,7 @@
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
           fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
           matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
-          navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
@@ -1840,9 +1867,9 @@
           helpStep1: '大会名と結果の記録方法を選びます。',
           helpStep2: '参加者を追加し、3人以上で「参加者を確定」を押して総当たり表を作ります。',
           helpStep3: '大会開始後は「進行」で次の試合、「対戦」で未実施・完了や参加者別の残り対戦、「順位」で現在順位を確認できます。',
-          helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
+          helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名、参加者、対戦、結果、順位、JSON・CSV・PNGの出力データはこのページ内で処理し、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: 'v0.5.0では大会内容をこの端末に自動保存します。JSONバックアップで別のブラウザや端末へ移すこともできます。',
+          helpNoteNoSave: '大会内容はこの端末に自動保存されます。別のブラウザや端末へ移す場合はJSONバックアップを利用できます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
           helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。大会中はCSV・順位PNG・印刷で結果を出力できます。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
@@ -1864,7 +1891,7 @@
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
           fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
           matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
-          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
@@ -1880,9 +1907,9 @@
           helpStep1: 'Choose an event name and result-entry mode.',
           helpStep2: 'Add participants and confirm at three or more to generate the round-robin fixtures.',
           helpStep3: 'After starting, use Progress for what is next, Matches for pending/completed and participant-specific remaining opponents, and Standings for the current table.',
-          helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event and participant names are processed in this page and are not sent to an external server by this app. The app makes no runtime network requests.',
+          helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event names, participants, matches, results, standings, and JSON/CSV/PNG export data are processed on this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'v0.5.0 saves the event automatically on this device. JSON backup can also move the event to another browser or device.',
+          helpNoteNoSave: 'The event is saved automatically on this device. Use JSON backup when moving it to another browser or device.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
           helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. During an event you can export CSV files, a standings PNG, or a print layout.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
@@ -1907,6 +1934,20 @@
       function removeStorage(key) {
         try { localStorage.removeItem(key); return true; } catch { return false; }
       }
+
+      const dialogOpeners = new WeakMap();
+      function rememberDialogOpener(dialog) {
+        const active = document.activeElement;
+        if (active instanceof HTMLElement) dialogOpeners.set(dialog, active);
+      }
+      function restoreDialogOpener(dialog) {
+        const target = dialogOpeners.get(dialog);
+        dialogOpeners.delete(dialog);
+        if (target instanceof HTMLElement && target.isConnected && !target.hasAttribute('disabled')) {
+          requestAnimationFrame(() => target.focus({ preventScroll: true }));
+        }
+      }
+
       function detectLanguage() {
         if (APP_CONFIG.defaultLanguage === 'ja' || APP_CONFIG.defaultLanguage === 'en') return APP_CONFIG.defaultLanguage;
         return (navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en';
@@ -2382,6 +2423,7 @@
         if (!meaningfulEventState()) return;
         persistEvent();
         $('#backupFilename').value = defaultBackupFilename();
+        rememberDialogOpener($('#backupExportDialog'));
         $('#backupExportDialog').showModal();
         requestAnimationFrame(() => $('#backupFilename').select());
       }
@@ -2486,6 +2528,7 @@
       function openExportDialog() {
         if (state.phase !== 'fixtures') return;
         $('#outputFilename').value = defaultOutputFilename();
+        rememberDialogOpener($('#exportDialog'));
         $('#exportDialog').showModal();
         requestAnimationFrame(() => $('#outputFilename').select());
       }
@@ -2629,7 +2672,13 @@
           ctx.font = '700 20px system-ui, -apple-system, "Segoe UI", sans-serif';
           ctx.fillText(translate('csvRank'), 70, 217);
           ctx.fillText(translate('csvParticipant'), 160, 217);
-          ctx.fillText(config.drawsAllowed ? 'W-D-L' : 'W-L', 720, 217);
+          ctx.fillText(
+            config.drawsAllowed
+              ? translate('csvWins') + '-' + translate('csvDraws') + '-' + translate('csvLosses')
+              : translate('csvWins') + '-' + translate('csvLosses'),
+            720,
+            217
+          );
           if (config.scoreBased) ctx.fillText(translate('csvDifference'), 900, 217);
           ctx.fillText(translate('points'), 1070, 217);
 
@@ -3116,9 +3165,11 @@
         const root = $('#standingsList');
         root.replaceChildren();
 
+        root.setAttribute('role', 'list');
         standings.rows.forEach(row => {
           const item = document.createElement('div');
           item.className = 'standing-row';
+          item.setAttribute('role', 'listitem');
           const rank = document.createElement('span');
           rank.className = 'standing-rank';
           rank.textContent = row.rank === null ? '—' : String(row.rank);
@@ -3175,6 +3226,7 @@
       }
 
       let activeMatchId = null;
+      let resultReturnMatchId = null;
 
       function openResultDialog(matchId) {
         const match = findMatch(matchId);
@@ -3184,6 +3236,8 @@
         const participantB = participantById.get(match.participantBId);
         if (!participantA || !participantB) return;
         activeMatchId = match.id;
+        resultReturnMatchId = match.id;
+        rememberDialogOpener($('#resultDialog'));
         setText('#resultDialogMeta', translate('resultDialogMeta', { round: match.round, a: participantA.name, b: participantB.name }));
         setText('#resultAWin', translate('playerWinChoice', { name: participantA.name }));
         setText('#resultBWin', translate('playerWinChoice', { name: participantB.name }));
@@ -3192,7 +3246,10 @@
         setText('#scoreError', '');
         const currentResult = $('#resultCurrent');
         const currentValue = $('#resultCurrentValue');
-        document.querySelectorAll('.result-choice').forEach(button => button.classList.remove('is-current'));
+        document.querySelectorAll('.result-choice').forEach(button => {
+          button.classList.remove('is-current');
+          button.setAttribute('aria-pressed', 'false');
+        });
         const scoreMode = state.settings.resultMode === 'score';
         currentResult.hidden = match.status !== 'completed';
         if (match.status === 'completed') {
@@ -3201,10 +3258,13 @@
           } else if (match.result === 'draw') {
             currentValue.textContent = translate('drawChoice');
             $('#resultDraw').classList.add('is-current');
+            $('#resultDraw').setAttribute('aria-pressed', 'true');
           } else {
             const winner = match.winnerId === match.participantAId ? participantA : participantB;
             currentValue.textContent = translate('playerWinChoice', { name: winner?.name || '' });
-            (match.winnerId === match.participantAId ? $('#resultAWin') : $('#resultBWin')).classList.add('is-current');
+            const currentWinnerButton = match.winnerId === match.participantAId ? $('#resultAWin') : $('#resultBWin');
+            currentWinnerButton.classList.add('is-current');
+            currentWinnerButton.setAttribute('aria-pressed', 'true');
           }
         } else {
           currentValue.textContent = '';
@@ -3303,7 +3363,9 @@
         setText('#filterPendingCount', String(snapshot.pending.length));
         setText('#filterCompletedCount', String(snapshot.completed.length));
         document.querySelectorAll('[data-match-filter]').forEach(button => {
-          button.classList.toggle('is-active', button.dataset.matchFilter === state.ui.matchFilter);
+          const active = button.dataset.matchFilter === state.ui.matchFilter;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         const container = $('#roundsContainer');
         container.replaceChildren();
@@ -3332,6 +3394,7 @@
             const row = document.createElement('button');
             row.type = 'button';
             row.className = 'match-row' + (match.status === 'completed' ? ' completed' : '');
+            row.dataset.matchId = match.id;
             row.setAttribute('aria-label', translate('resultDialogMeta', { round: match.round, a: participantA?.name || '', b: participantB?.name || '' }));
             row.addEventListener('click', () => openResultDialog(match.id));
             const sideA = document.createElement('span');
@@ -3637,6 +3700,7 @@
         event.preventDefault();
         closeBackupExportDialog();
       });
+      $('#backupExportDialog').addEventListener('close', () => restoreDialogOpener($('#backupExportDialog')));
       $('#backupExportDialog').addEventListener('click', event => {
         const dialog = $('#backupExportDialog');
         const rect = dialog.getBoundingClientRect();
@@ -3651,6 +3715,7 @@
         event.preventDefault();
         closeExportDialog();
       });
+      $('#exportDialog').addEventListener('close', () => restoreDialogOpener($('#exportDialog')));
       $('#exportDialog').addEventListener('click', event => {
         const dialog = $('#exportDialog');
         const rect = dialog.getBoundingClientRect();
@@ -3678,7 +3743,16 @@
       $('#removeResultButton').addEventListener('click', removeActiveResult);
       $('#closeResultButton').addEventListener('click', closeResultDialog);
       $('#cancelResultButton').addEventListener('click', closeResultDialog);
-      $('#resultDialog').addEventListener('close', () => { activeMatchId = null; });
+      $('#resultDialog').addEventListener('close', () => {
+        const matchId = resultReturnMatchId;
+        activeMatchId = null;
+        resultReturnMatchId = null;
+        requestAnimationFrame(() => {
+          const matchButton = matchId ? document.querySelector('[data-match-id="' + matchId + '"]') : null;
+          if (matchButton instanceof HTMLElement) matchButton.focus({ preventScroll: true });
+          else restoreDialogOpener($('#resultDialog'));
+        });
+      });
       $('#resultDialog').addEventListener('click', event => {
         const dialog = $('#resultDialog');
         const rect = dialog.getBoundingClientRect();
@@ -3686,12 +3760,17 @@
       });
 
       const helpDialog = $('#helpDialog');
-      $('#helpButton').addEventListener('click', () => helpDialog.showModal());
+      $('#helpButton').addEventListener('click', () => {
+        rememberDialogOpener(helpDialog);
+        helpDialog.showModal();
+        requestAnimationFrame(() => $('#closeHelpButton').focus({ preventScroll: true }));
+      });
       $('#closeHelpButton').addEventListener('click', () => helpDialog.close());
       helpDialog.addEventListener('click', event => {
         const rect = helpDialog.getBoundingClientRect();
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) helpDialog.close();
       });
+      helpDialog.addEventListener('close', () => restoreDialogOpener(helpDialog));
 
       let outputFilename = '';
 

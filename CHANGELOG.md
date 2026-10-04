@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.0 - i18n / Accessibility / Polish - 2026-10-04
+
+- Localized League Desk navigation, event-progress, and match-filter accessible names.
+- Added translation-key parity and static i18n-reference regression checks.
+- Added aria-pressed state for match filters and current result choices.
+- Added aria-describedby relationships for result, export, backup, and score-validation content.
+- Added dialog opener/focus restoration, including match-focused return after result entry.
+- Added select focus-visible coverage and forced-colors support.
+- Added list/listitem semantics to standings.
+- Replaced stale early-development help fallback text and finalized privacy/help wording.
+- Localized standings-PNG record headings.
+- Updated Japanese / English README files, specification, and version metadata.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.7.0 - Export - 2026-10-04
 
 - Added editable local export dialog available during an event and from the completed-event state.

@@ -4,68 +4,62 @@
 
 Mini League Desk is a local-first browser tool for running small round-robin events. It is designed around quickly answering: **who plays next, what is still unfinished, and what are the current standings?**
 
-Current development version: **v0.7.0**
+Current development version: **v0.8.0**
 
 ## Current features
 
-v0.7.0 adds local result export to the existing League Desk workflow:
+Mini League Desk currently includes:
 
 - Event setup and three result modes
 - Complete round-robin fixtures
 - Result add / edit / removal with Undo
 - Progress / Matches / Standings workflow
 - Per-participant remaining/completed opponents
-- Automatic local save and JSON backup / restore
-- Smartphone-focused result entry and navigation
-- **Match results CSV**
-- **Standings CSV**
-- **Standings PNG**
-- **Print layout for standings and all match results**
-- Editable safe filename before file downloads
+- Automatic event completion and final standings
+- Local automatic save and JSON backup / restore
+- Smartphone-focused navigation and narrow-screen handling
+- Match Results CSV and Standings CSV
+- Local Canvas Standings PNG
+- Print layout for standings and all match results
 - Japanese / English UI
+- Keyboard-visible focus and localized accessible labels
+- Dialog focus restoration and accessible selected-state indicators
 - No runtime CDN, API, analytics, telemetry, or external export service
 
-## Export
+## Accessibility and keyboard operation
 
-Open **Export** during an event or from the completed-event card.
+v0.8.0 completes the pre-release accessibility pass:
 
-### Match results CSV
+- buttons, inputs, textareas, selects, and summaries show a visible keyboard focus indicator
+- Match filters expose their selected state with `aria-pressed`
+- completed-result winner/draw choices expose the current selection with `aria-pressed`
+- League Desk navigation, progress, and filter accessible names are localized
+- result, export, backup, and help dialogs restore focus to a meaningful control when closed where possible
+- score validation is associated with both score fields
+- standings expose list/listitem semantics
+- forced-colors mode receives explicit border and selected-state support
+- reduced-motion behavior remains supported
 
-Contains every match in generated order with round, order, participants, status, optional score, result, and winner.
+Japanese and English translation keys are checked for parity in repository verification, and static i18n references are checked against both dictionaries.
 
-CSV is written as UTF-8 with BOM. User-controlled text that begins with common spreadsheet formula prefixes is protected before serialization.
+## Privacy
 
-### Standings CSV
+Event names, participants, matches, results, standings, saved-event data, and generated JSON/CSV/PNG outputs are processed locally in the browser. The application makes no runtime network requests and keeps `connect-src 'none'`.
 
-Uses the same standings calculation shown in the app. The columns adapt to the active result mode, including score statistics only when relevant.
+## Export and persistence
 
-### Standings PNG
+The active event is saved locally in the browser. JSON backup is available for portability and recovery.
 
-Creates a 1200px-wide shareable image entirely with the browser Canvas API. It includes the event name, result mode, participant order, rank, record, points, and score difference for score-based events.
+During an event, Export provides Match Results CSV, Standings CSV, Standings PNG, and a print layout. File-producing exports allow an editable safe filename before saving.
 
-### Print
+## Remaining before v1.0.0
 
-Builds a print-only sheet containing the standings and every round's match results. The normal app UI, dialogs, and mobile navigation are hidden from print.
+v0.9.0 is the release-candidate milestone and focuses on:
 
-## File names
-
-The export dialog proposes an event/date-based file name. Edit it before saving if desired. Unsafe filename characters are replaced locally; each export adds its own suffix and extension.
-
-## Persistence and privacy
-
-The active event is saved locally in the browser. JSON backup remains available for portability and recovery.
-
-Event data and generated exports are processed locally. Runtime network access remains blocked by Content Security Policy.
-
-## Limitations in v0.7.0
-
-Not yet completed:
-
-- final bilingual copy review
-- final keyboard/accessibility audit
-- release-candidate screenshots and broad browser/device regression
-
-See `APP_SPEC.md` for the remaining roadmap.
+- broader regression cases
+- README and screenshot finalization
+- standalone / privacy / network checks
+- release-candidate browser/device review
 
 ## Single HTML / offline use
 

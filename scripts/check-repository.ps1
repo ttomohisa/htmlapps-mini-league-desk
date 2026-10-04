@@ -44,6 +44,7 @@ $required = @(
   "scripts\test-persistence.ps1",
   "scripts\test-mobile-ux.ps1",
   "scripts\test-export.ps1",
+  "scripts\test-i18n-accessibility.ps1",
   "README.md",
   "README.ja.md",
   "LICENSE",
@@ -125,7 +126,7 @@ if ($sourceText.Contains("__EMBEDDED_ASSET_BUNDLE_BASE64__")) { throw "Legacy do
 $iconPlaceholderCount = ([regex]::Matches($sourceText, [regex]::Escape("__APP_ICON_DATA_URI__"))).Count
 if ($iconPlaceholderCount -ne 2) { throw "src\index.template.html must use __APP_ICON_DATA_URI__ exactly twice: favicon and header icon." }
 if (-not $sourceText.Contains('id="appBrandIcon"')) { throw "src\index.template.html is missing the canonical header brand icon marker." }
-foreach ($token in @("bytesAsync", "blobUrlAsync", "outputFilename", "window.AppToast", "calculateStandings", "resultDialog", "renderProgress", "renderParticipantMatchStatus", "window.AppMobileBottomBar", "SCHEMA_VERSION", "normalizeImportedEvent", "restorePersistedEvent", "buildEventDocument", "resultCurrent", "showAllMatchesButton", "exportMatchesCsv", "exportStandingsPng", "buildPrintSheet")) {
+foreach ($token in @("bytesAsync", "blobUrlAsync", "outputFilename", "window.AppToast", "calculateStandings", "resultDialog", "renderProgress", "renderParticipantMatchStatus", "window.AppMobileBottomBar", "SCHEMA_VERSION", "normalizeImportedEvent", "restorePersistedEvent", "buildEventDocument", "resultCurrent", "showAllMatchesButton", "exportMatchesCsv", "exportStandingsPng", "buildPrintSheet", "leagueNavLabel", "restoreDialogOpener")) {
   if (-not $sourceText.Contains($token)) { throw "src\index.template.html is missing required template behavior marker: $token" }
 }
 
@@ -135,6 +136,7 @@ foreach ($token in @("bytesAsync", "blobUrlAsync", "outputFilename", "window.App
 & (Join-Path $Root "scripts\test-persistence.ps1")
 & (Join-Path $Root "scripts\test-mobile-ux.ps1")
 & (Join-Path $Root "scripts\test-export.ps1")
+& (Join-Path $Root "scripts\test-i18n-accessibility.ps1")
 
 $builderText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
 foreach ($token in @("compressionSetting", "Compress-GzipBytes", "build-size-report.json", "sizeBudget", "DependencyLockPath", "tarballSha256", "__EMBEDDED_ASSET_BUNDLE_JSON__", "AppIconPath", "__APP_ICON_DATA_URI__", "rootHtmlOutputPath", 'StartsWith("htmlapps-"')) {
