@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0 - Mobile / UX - 2026-10-04
+
+- Hardened smartphone bottom-tab spacing and moved event toasts above the fixed navigation.
+- Added a 380px narrow-screen matchup layout that prioritizes long participant names.
+- Increased smartphone result-choice, score-input, and dialog action touch targets.
+- Added current-result display and active-choice highlighting when editing completed matches.
+- Added select-on-focus behavior for faster score correction.
+- Converted JSON backup dialog to a smartphone bottom sheet with full-width actions.
+- Expanded very-narrow participant action buttons to 44px touch targets.
+- Added Show all matches recovery from empty match-filter states.
+- Updated mobile help copy and added Mobile / UX regression checks.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.5.0 - Persistence / JSON Backup - 2026-10-04
 
 - Added schemaVersion 1 event persistence using browser local storage.

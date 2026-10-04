@@ -4,67 +4,61 @@
 
 Mini League Desk is a local-first browser tool for running small round-robin events. It is designed around quickly answering: **who plays next, what is still unfinished, and what are the current standings?**
 
-Current development version: **v0.5.0**
+Current development version: **v0.6.0**
 
 ## Current features
 
-v0.5.0 adds local persistence and JSON backup to the existing League Desk workflow:
+v0.6.0 keeps the existing League Desk and persistence features, with a stronger smartphone workflow:
 
 - Event setup and three result modes
 - Complete round-robin fixture generation
 - Result add / edit / removal with Undo
 - Progress / Matches / Standings workflow
-- Per-participant remaining/completed opponent views
+- Per-participant pending/completed opponents
 - Automatic event completion and final standings
-- **Automatic local event save**
-- Reload and continue the same event in the same browser context
-- Schema-versioned event data with event ID and timestamps
-- **JSON backup export** with an editable safe filename
-- **JSON import** with strict validation before replacement
-- Confirmation before replacing an existing event
-- Undo after a successful replacement import
+- Local automatic save and JSON backup / restore
+- Smartphone fixed bottom tabs for Progress / Matches / Standings
+- Narrow-screen matchup cards that reflow participant names before result/status
+- Larger result controls and score fields on phones
+- Current-result highlighting when editing completed matches
+- Fast score correction by selecting the existing score on focus
+- Toasts positioned above the mobile bottom navigation
+- Mobile bottom-sheet JSON backup dialog
+- Empty match-filter recovery with **Show all matches**
 - Japanese / English UI
 - No runtime CDN, API, analytics, or telemetry
 
-## Persistence
+## Smartphone workflow
 
-Mini League Desk stores the active event in browser local storage. Setup drafts, participants, settings, fixtures, results, and League Desk UI state are included.
+On phones, the event is split into three bottom-tab pages:
 
-If saved local data is malformed or uses an unsupported schema version, it is not applied to the app.
+- **Progress** — next match, following matches, completed/pending counts, completion state
+- **Matches** — filters, participant-specific remaining/completed opponents, result entry
+- **Standings** — current ranking
 
-Browser storage can be cleared by the browser or operating system, so JSON backup is the portability and recovery path for important events.
+The fixed bottom navigation is safe-area aware. Toast notifications and reachable content are kept above it.
 
-## JSON backup
+At very narrow widths, matchup cards place the two participant names on the first row and result/status on the second row to avoid squeezing long names.
 
-Choose **JSON backup**, edit the proposed file name if needed, and save the file locally.
+## Result correction
 
-A backup includes:
+Opening a completed match shows its current recorded result. In Win/Loss or Win/Draw/Loss modes, the active choice is highlighted. In Score mode, the current score is shown and focusing a score field selects the existing value for quick replacement.
 
-- schema version
-- event ID
-- event name
-- result settings
-- participants and order
-- rounds and matches
-- recorded results
-- League Desk UI state
-- created / updated timestamps
+## Persistence and privacy
 
-Import validates the document before touching the current event. Invalid or incompatible files are rejected. Replacing an existing event requires confirmation.
+The active event is saved locally in the browser. JSON backup is available for portability and recovery.
 
-## Privacy
+Event names, participants, fixtures, results, progress, standings, and backups are processed locally. Runtime network access remains blocked by Content Security Policy.
 
-Event names, participants, fixtures, results, progress, standings, and backups are processed locally in the browser. Runtime network access remains blocked by Content Security Policy.
-
-## Limitations in v0.5.0
+## Limitations in v0.6.0
 
 Not yet included:
 
 - CSV export
 - standings image export
 - print layout
-- final release-stage mobile/accessibility polish
-- release-candidate screenshots and broader browser/device regression
+- final i18n/accessibility release audit
+- release-candidate screenshots and broad browser/device regression
 
 See `APP_SPEC.md` for the remaining roadmap.
 
