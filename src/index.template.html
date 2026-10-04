@@ -423,6 +423,97 @@
       color: #5d430d;
       font-size: 11px;
     }
+
+    .fixture-view { min-width: 0; }
+    .fixture-hero {
+      padding: clamp(20px,4vw,32px);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .fixture-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .fixture-hero h3 { margin: 16px 0 5px; font-size: clamp(21px,3vw,28px); letter-spacing: -.025em; overflow-wrap: anywhere; }
+    .fixture-hero > p { margin: 0; color: var(--muted); }
+    .fixture-stats {
+      display: grid;
+      grid-template-columns: repeat(3,minmax(0,1fr));
+      gap: 9px;
+      margin: 20px 0 16px;
+    }
+    .fixture-stat {
+      min-width: 0;
+      padding: 12px;
+      border-radius: 11px;
+      background: var(--surface-muted);
+    }
+    .fixture-stat strong { display: block; font-size: 22px; line-height: 1.1; }
+    .fixture-stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .fixture-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .fixtures-section {
+      margin-top: 16px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .rounds-grid {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 12px;
+    }
+    .round-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fbfbf9;
+    }
+    .round-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .round-title { margin: 0; font-size: 14px; }
+    .bye-badge {
+      max-width: 62%;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .match-list { display: grid; gap: 7px; }
+    .match-row {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      padding: 9px 10px;
+      border: 1px solid color-mix(in srgb,var(--line) 82%,transparent);
+      border-radius: 9px;
+      background: var(--surface);
+    }
+    .match-player { min-width: 0; font-size: 12px; font-weight: 700; overflow-wrap: anywhere; }
+    .match-player:last-child { text-align: right; }
+    .versus { color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+
     footer {
       width: min(1120px,100%);
       margin: 0 auto;
@@ -580,6 +671,12 @@
       .ready-summary { grid-template-columns: 1fr; }
       .ready-count { width: 100%; }
       .ready-actions .button { flex: 1 1 100%; }
+      .fixture-stats { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .fixtures-section { padding: 14px; }
+      .rounds-grid { grid-template-columns: 1fr; }
+      .round-head { align-items: flex-start; }
+      .bye-badge { max-width: 58%; }
+      .match-row { gap: 6px; padding-inline: 8px; }
       .app-toast { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: none; }
       #helpDialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
       .app-confirm-dialog {
@@ -714,24 +811,34 @@
       </section>
     </section>
 
-    <section id="readyView" class="ready-view" hidden aria-labelledby="readyTitle">
-      <span class="ready-kicker">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-        <span data-i18n="readyKicker">参加者を確定しました</span>
-      </span>
-      <h3 id="readyTitle"></h3>
-      <p data-i18n="readyLead">参加者の登録は完了です。内容を確認して、必要なら編集に戻れます。</p>
-      <div class="ready-summary">
-        <div>
-          <h4 data-i18n="participants">参加者</h4>
-          <div class="ready-participants" id="readyParticipants"></div>
+    <section id="fixtureView" class="fixture-view" hidden aria-labelledby="fixtureTitle">
+      <div class="fixture-hero">
+        <span class="fixture-kicker">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M7 8h10M7 16h10"/></svg>
+          <span data-i18n="fixtureKicker">対戦表を作成しました</span>
+        </span>
+        <h3 id="fixtureTitle"></h3>
+        <p data-i18n="fixtureLead">全組み合わせを1回ずつ対戦する総当たり表です。</p>
+        <div class="fixture-stats" aria-live="polite">
+          <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
+          <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
+          <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
         </div>
-        <div class="ready-count"><strong id="readyCount">0</strong><span data-i18n="people">人</span></div>
+        <div class="fixture-actions">
+          <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
+        </div>
+        <div class="notice" data-i18n="draftNotice">v0.2.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。</div>
       </div>
-      <div class="ready-actions">
-        <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">編集に戻る</button>
-      </div>
-      <div class="notice" data-i18n="draftNotice">この開発段階では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。</div>
+
+      <section class="fixtures-section" aria-labelledby="fixturesHeading">
+        <div class="panel-head">
+          <div>
+            <h3 id="fixturesHeading" data-i18n="fixturesHeading">対戦表</h3>
+            <p data-i18n="fixturesHeadingLead">ラウンド順は進行の目安です。結果入力は次の開発段階で追加します。</p>
+          </div>
+        </div>
+        <div class="rounds-grid" id="roundsContainer"></div>
+      </section>
     </section>
     <!-- APP:END -->
   </main>
@@ -882,8 +989,8 @@
         ja: {
           brandMeta: '小大会の総当たり運営',
           helpTitle: '使い方と注意事項', close: '閉じる',
-          introTitle: '総当たり大会の準備を、すぐ終わらせる',
-          lead: '大会名と参加者を登録します。参加者は1人ずつでも、複数行をまとめて貼り付けても追加できます。',
+          introTitle: '総当たり大会の対戦表を、すぐ作る',
+          lead: '大会名と参加者を登録すると、全組み合わせの対戦をラウンド別に自動生成します。',
           localBadge: '端末内で処理',
           settingsTitle: '大会設定', settingsLead: 'まず大会名と参加者を登録します。',
           tournamentName: '大会名', tournamentNamePlaceholder: '例：金曜卓球大会', tournamentNameNote: '未入力の場合は「新しい大会」になります。',
@@ -893,33 +1000,35 @@
           emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
           reorderHelp: '矢印で順番を調整できます。', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
-          readyKicker: '参加者を確定しました', readyLead: '参加者の登録は完了です。内容を確認して、必要なら編集に戻れます。',
-          backToEdit: '編集に戻る', draftNotice: 'この開発段階では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。',
+          fixtureKicker: '対戦表を作成しました', fixtureLead: '全組み合わせを1回ずつ対戦する総当たり表です。',
+          matches: '試合', rounds: '巡', fixturesHeading: '対戦表', fixturesHeadingLead: 'ラウンド順は進行の目安です。結果入力は次の開発段階で追加します。',
+          roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs',
+          backToEdit: '参加者を編集', draftNotice: 'v0.2.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
           bulkTooMany: '追加すると64人を超えます。', addedOne: '{name} を追加しました。', addedMany: '{count}人を追加しました。',
           removed: '{name} を削除しました。', moved: '順番を変更しました。', shuffled: '参加者をシャッフルしました。', resetDone: '入力内容をリセットしました。',
-          undo: '元に戻す', undone: '元に戻しました', confirmed: '参加者を確定しました。',
+          undo: '元に戻す', undone: '元に戻しました', confirmed: '対戦表を作成しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。',
           resetTitle: '入力内容をリセットしますか？', resetMessage: '大会名と参加者をすべて消去します。この操作は元に戻せません。', resetAction: 'リセットする',
           confirmTitle: '確認', confirmAction: '実行する', cancel: 'キャンセル',
           removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
           helpBasicsTitle: '基本操作',
           helpStep1: '大会名を入力します。未入力でも利用できます。',
           helpStep2: '参加者を1人ずつ追加するか、複数行をまとめて貼り付けて追加します。',
-          helpStep3: '矢印で順番を整え、必要ならシャッフルします。3人以上になったら「参加者を確定」を押します。',
+          helpStep3: '矢印で順番を整え、必要ならシャッフルします。3人以上で「参加者を確定」を押すと総当たりの対戦表を生成します。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: 'v0.1.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると入力内容は失われます。',
-          helpNoteNames: '同じ参加者名は重複登録できません。参加者名は80文字までです。',
-          helpNoteScope: 'このバージョンは大会作成の基礎段階です。対戦表、結果入力、順位計算はまだ表示しません。',
+          helpNoteNoSave: 'v0.2.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると入力内容は失われます。',
+          helpNoteNames: '同じ参加者名は重複登録できません。参加者名は80文字までです。奇数人数では各巡に1人の「休み」が入ります。',
+          helpNoteScope: 'このバージョンでは総当たり対戦表まで作成できます。結果入力と順位計算はまだありません。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
         },
         en: {
           brandMeta: 'Round-robin desk for small events',
           helpTitle: 'How to use & notes', close: 'Close',
-          introTitle: 'Set up a round-robin event in minutes',
-          lead: 'Enter an event name and participants. Add names one at a time or paste multiple lines at once.',
+          introTitle: 'Build a round-robin fixture list in minutes',
+          lead: 'Enter an event name and participants to generate every matchup, organized into rounds.',
           localBadge: 'Processed on this device',
           settingsTitle: 'Event setup', settingsLead: 'Start with the event name and participants.',
           tournamentName: 'Event name', tournamentNamePlaceholder: 'e.g. Friday Table Tennis', tournamentNameNote: 'If left blank, “New event” is used.',
@@ -929,32 +1038,34 @@
           emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
           reorderHelp: 'Use the arrow buttons to adjust the order.', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
-          readyKicker: 'Participants confirmed', readyLead: 'Participant setup is complete. Review the roster or return to editing if needed.',
-          backToEdit: 'Back to editing', draftNotice: 'This development version does not save event data yet. Reloading the page clears the current draft.',
+          fixtureKicker: 'Fixtures generated', fixtureLead: 'Every participant pair appears exactly once in this round-robin schedule.',
+          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Fixtures', fixturesHeadingLead: 'Round order is a progression guide. Result entry arrives in the next milestone.',
+          roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs',
+          backToEdit: 'Edit participants', draftNotice: 'v0.2.0 does not save event data yet. Reloading the page clears the current event.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
           bulkTooMany: 'Adding these names would exceed 64 participants.', addedOne: 'Added {name}.', addedMany: 'Added {count} participants.',
           removed: 'Removed {name}.', moved: 'Participant order updated.', shuffled: 'Participants shuffled.', resetDone: 'Setup reset.',
-          undo: 'Undo', undone: 'Restored', confirmed: 'Participants confirmed.',
+          undo: 'Undo', undone: 'Restored', confirmed: 'Fixtures generated.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.',
           resetTitle: 'Reset this setup?', resetMessage: 'This removes the event name and all participants. This action cannot be undone.', resetAction: 'Reset',
           confirmTitle: 'Confirm', confirmAction: 'Continue', cancel: 'Cancel',
           removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
           helpBasicsTitle: 'Basics',
           helpStep1: 'Enter an event name. You can also leave it blank.',
           helpStep2: 'Add participants one by one, or paste multiple lines to add them in one step.',
-          helpStep3: 'Adjust the order with the arrow buttons, shuffle if needed, then confirm once at least three participants are present.',
+          helpStep3: 'Adjust the order with the arrow buttons, shuffle if needed, then confirm at three or more participants to generate the round-robin fixtures.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event and participant names are processed in this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'v0.1.0 does not save event data yet. Reloading or closing the tab clears the current draft.',
-          helpNoteNames: 'Duplicate participant names are not allowed. Each name can contain up to 80 characters.',
-          helpNoteScope: 'This version covers event setup only. Fixtures, results, and standings are not shown yet.',
+          helpNoteNoSave: 'v0.2.0 does not save event data yet. Reloading or closing the tab clears the current event.',
+          helpNoteNames: 'Duplicate participant names are not allowed. Each name can contain up to 80 characters. Odd rosters receive one Bye per round.',
+          helpNoteScope: 'This version generates round-robin fixtures. Result entry and standings are not available yet.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
         }
       };
 
       const $ = selector => document.querySelector(selector);
-      const state = { phase: 'setup', tournamentName: '', participants: [] };
+      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [] };
       const storageKeys = { language: `${APP_CONFIG.slug}:language` };
       let language = readStorage(storageKeys.language) || detectLanguage();
 
@@ -1135,25 +1246,152 @@
         return button;
       }
 
-      function renderReady() {
-        const name = state.tournamentName || translate('defaultTournament');
-        setText('#readyTitle', name);
-        setText('#readyCount', new Intl.NumberFormat(language).format(state.participants.length));
-        const root = $('#readyParticipants');
-        root.replaceChildren();
-        state.participants.forEach(participant => {
-          const chip = document.createElement('span');
-          chip.className = 'ready-chip';
-          chip.textContent = participant.name;
-          root.append(chip);
+      function generateRoundRobin(participants) {
+        let rotation = participants.map(participant => participant.id);
+        if (rotation.length % 2 === 1) rotation.push(null);
+        const roundCount = rotation.length - 1;
+        const matchesPerRound = rotation.length / 2;
+        const rounds = [];
+        let order = 1;
+
+        for (let roundIndex = 0; roundIndex < roundCount; roundIndex += 1) {
+          const matches = [];
+          let byeParticipantId = null;
+
+          for (let pairIndex = 0; pairIndex < matchesPerRound; pairIndex += 1) {
+            const participantAId = rotation[pairIndex];
+            const participantBId = rotation[rotation.length - 1 - pairIndex];
+
+            if (participantAId === null || participantBId === null) {
+              byeParticipantId = participantAId === null ? participantBId : participantAId;
+              continue;
+            }
+
+            matches.push({
+              id: createId(),
+              round: roundIndex + 1,
+              order,
+              participantAId,
+              participantBId,
+              status: 'pending',
+              scoreA: null,
+              scoreB: null,
+              result: null,
+              winnerId: null
+            });
+            order += 1;
+          }
+
+          rounds.push({ number: roundIndex + 1, matches, byeParticipantId });
+          rotation = [rotation[0], rotation[rotation.length - 1], ...rotation.slice(1, -1)];
+        }
+
+        return rounds;
+      }
+
+      function validateRoundRobin(rounds, participants) {
+        const participantIds = new Set(participants.map(participant => participant.id));
+        const participantCount = participants.length;
+        const expectedMatches = participantCount * (participantCount - 1) / 2;
+        const expectedRounds = participantCount % 2 === 0 ? participantCount - 1 : participantCount;
+        if (rounds.length !== expectedRounds) return false;
+
+        const seenPairs = new Set();
+        const seenByes = new Set();
+        let matchCount = 0;
+
+        for (const round of rounds) {
+          const active = new Set();
+          for (const match of round.matches) {
+            if (match.participantAId === match.participantBId) return false;
+            if (!participantIds.has(match.participantAId) || !participantIds.has(match.participantBId)) return false;
+            if (active.has(match.participantAId) || active.has(match.participantBId)) return false;
+            active.add(match.participantAId);
+            active.add(match.participantBId);
+
+            const pairKey = [match.participantAId, match.participantBId].sort().join('|');
+            if (seenPairs.has(pairKey)) return false;
+            seenPairs.add(pairKey);
+            matchCount += 1;
+          }
+
+          if (participantCount % 2 === 1) {
+            if (!round.byeParticipantId || !participantIds.has(round.byeParticipantId) || active.has(round.byeParticipantId) || seenByes.has(round.byeParticipantId)) return false;
+            seenByes.add(round.byeParticipantId);
+          } else if (round.byeParticipantId !== null) {
+            return false;
+          }
+        }
+
+        return matchCount === expectedMatches &&
+          seenPairs.size === expectedMatches &&
+          (participantCount % 2 === 0 || seenByes.size === participantCount);
+      }
+
+      function renderFixtures() {
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const matchCount = state.rounds.reduce((sum, round) => sum + round.matches.length, 0);
+        setText('#fixtureTitle', state.tournamentName || translate('defaultTournament'));
+        setText('#fixtureParticipantCount', new Intl.NumberFormat(language).format(state.participants.length));
+        setText('#fixtureMatchCount', new Intl.NumberFormat(language).format(matchCount));
+        setText('#fixtureRoundCount', new Intl.NumberFormat(language).format(state.rounds.length));
+
+        const container = $('#roundsContainer');
+        container.replaceChildren();
+
+        state.rounds.forEach(round => {
+          const card = document.createElement('article');
+          card.className = 'round-card';
+
+          const head = document.createElement('div');
+          head.className = 'round-head';
+
+          const title = document.createElement('h4');
+          title.className = 'round-title';
+          title.textContent = translate('roundLabel', { round: round.number });
+          head.append(title);
+
+          if (round.byeParticipantId) {
+            const byeParticipant = participantById.get(round.byeParticipantId);
+            const bye = document.createElement('span');
+            bye.className = 'bye-badge';
+            bye.textContent = translate('byeLabel', { name: byeParticipant?.name || '' });
+            head.append(bye);
+          }
+
+          const matchList = document.createElement('div');
+          matchList.className = 'match-list';
+
+          round.matches.forEach(match => {
+            const row = document.createElement('div');
+            row.className = 'match-row';
+
+            const participantA = document.createElement('span');
+            participantA.className = 'match-player';
+            participantA.textContent = participantById.get(match.participantAId)?.name || '';
+
+            const versus = document.createElement('span');
+            versus.className = 'versus';
+            versus.textContent = translate('versus');
+
+            const participantB = document.createElement('span');
+            participantB.className = 'match-player';
+            participantB.textContent = participantById.get(match.participantBId)?.name || '';
+
+            row.append(participantA, versus, participantB);
+            matchList.append(row);
+          });
+
+          card.append(head, matchList);
+          container.append(card);
         });
       }
 
       function render() {
         $('#setupView').hidden = state.phase !== 'setup';
-        $('#readyView').hidden = state.phase !== 'ready';
+        $('#fixtureView').hidden = state.phase !== 'fixtures';
         if (state.phase === 'setup') renderRoster();
-        else renderReady();
+        else renderFixtures();
       }
 
       function addParticipant(rawName) {
@@ -1276,6 +1514,7 @@
         state.phase = 'setup';
         state.tournamentName = '';
         state.participants = [];
+        state.rounds = [];
         $('#tournamentName').value = '';
         $('#participantName').value = '';
         $('#bulkParticipants').value = '';
@@ -1289,7 +1528,14 @@
       function confirmParticipants() {
         if (state.participants.length < 3) return;
         state.tournamentName = $('#tournamentName').value.trim().slice(0, 100);
-        state.phase = 'ready';
+        const rounds = generateRoundRobin(state.participants);
+        if (!validateRoundRobin(rounds, state.participants)) {
+          setText('#validationSummary', translate('fixtureError'));
+          showToast(translate('fixtureError'), { tone: 'warning' });
+          return;
+        }
+        state.rounds = rounds;
+        state.phase = 'fixtures';
         render();
         window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
         showToast(translate('confirmed'), { tone: 'success' });
@@ -1307,6 +1553,7 @@
       $('#confirmParticipantsButton').addEventListener('click', confirmParticipants);
       $('#backToEditButton').addEventListener('click', () => {
         state.phase = 'setup';
+        state.rounds = [];
         render();
         $('#tournamentName').value = state.tournamentName;
         window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });

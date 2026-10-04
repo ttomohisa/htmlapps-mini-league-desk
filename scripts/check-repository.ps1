@@ -38,6 +38,7 @@ $required = @(
   "scripts\update-dependency.ps1",
   "scripts\verify-standalone.ps1",
   "scripts\verify-self-extract.ps1",
+  "scripts\test-round-robin.ps1",
   "README.md",
   "README.ja.md",
   "LICENSE",
@@ -122,6 +123,8 @@ if (-not $sourceText.Contains('id="appBrandIcon"')) { throw "src\index.template.
 foreach ($token in @("bytesAsync", "blobUrlAsync", "outputFilename", "window.AppToast")) {
   if (-not $sourceText.Contains($token)) { throw "src\index.template.html is missing required template behavior marker: $token" }
 }
+
+& (Join-Path $Root "scripts\test-round-robin.ps1")
 
 $builderText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
 foreach ($token in @("compressionSetting", "Compress-GzipBytes", "build-size-report.json", "sizeBudget", "DependencyLockPath", "tarballSha256", "__EMBEDDED_ASSET_BUNDLE_JSON__", "AppIconPath", "__APP_ICON_DATA_URI__", "rootHtmlOutputPath", 'StartsWith("htmlapps-"')) {

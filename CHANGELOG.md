@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 - Round Robin / Fixture generation - 2026-10-04
+
+- Added circle-method round-robin fixture generation from the confirmed roster.
+- Added round grouping, total match/round counts, and a dedicated fixture view.
+- Added one localized Bye per round for odd participant counts.
+- Added pending match records compatible with the upcoming result-entry milestone.
+- Added runtime invariant validation before a generated schedule is displayed.
+- Added repository regression tests for all participant counts from 3 through 64, covering pair uniqueness, self-matches, per-round duplication, match totals, and Bye allocation.
+- Updated Japanese / English help, README files, specification, and version metadata for v0.2.0.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.1.0 - Foundation / Event setup - 2026-10-04
 
 - Replaced the starter demo with Mini League Desk.
