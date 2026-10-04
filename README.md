@@ -4,72 +4,137 @@
 
 Mini League Desk is a local-first browser tool for running small round-robin events. It is designed around quickly answering: **who plays next, what is still unfinished, and what are the current standings?**
 
-Current development version: **v0.8.0**
+Current release candidate: **v0.9.0**
 
-## Current features
+## Screenshots
 
-Mini League Desk currently includes:
+### Desktop
 
-- Event setup and three result modes
-- Complete round-robin fixtures
+![Mini League Desk desktop](assets/screenshot-en.png)
+
+### Smartphone
+
+![Mini League Desk smartphone](assets/screenshot-mobile-en.png)
+
+## What it does
+
+- Event setup with an optional event name
+- 3–64 participants
+- Round-robin fixtures with automatic Bye handling for odd rosters
+- Three result modes:
+  - Win / loss
+  - Win / draw / loss
+  - Score entry
 - Result add / edit / removal with Undo
+- Live standings with shared-rank handling
 - Progress / Matches / Standings workflow
-- Per-participant remaining/completed opponents
+- Suggested next match without forcing match order
+- Per-participant remaining and completed opponents
 - Automatic event completion and final standings
-- Local automatic save and JSON backup / restore
-- Smartphone-focused navigation and narrow-screen handling
-- Match Results CSV and Standings CSV
+- Local automatic save
+- JSON backup / restore
+- Match Results CSV
+- Standings CSV
 - Local Canvas Standings PNG
-- Print layout for standings and all match results
+- Print layout for standings and every match
 - Japanese / English UI
-- Keyboard-visible focus and localized accessible labels
-- Dialog focus restoration and accessible selected-state indicators
-- No runtime CDN, API, analytics, telemetry, or external export service
+- Smartphone bottom navigation and narrow-screen layout
+- Keyboard-visible focus, localized accessible labels, and selected-state ARIA
 
-## Accessibility and keyboard operation
+## Ranking rules
 
-v0.8.0 completes the pre-release accessibility pass:
+Win/Loss mode uses win = 1 and loss = 0.
 
-- buttons, inputs, textareas, selects, and summaries show a visible keyboard focus indicator
-- Match filters expose their selected state with `aria-pressed`
-- completed-result winner/draw choices expose the current selection with `aria-pressed`
-- League Desk navigation, progress, and filter accessible names are localized
-- result, export, backup, and help dialogs restore focus to a meaningful control when closed where possible
-- score validation is associated with both score fields
-- standings expose list/listitem semantics
-- forced-colors mode receives explicit border and selected-state support
-- reduced-motion behavior remains supported
+Win/Draw/Loss and Score modes use win = 3, draw = 1, loss = 0.
 
-Japanese and English translation keys are checked for parity in repository verification, and static i18n references are checked against both dictionaries.
+For score-based events, standings sort by:
 
-## Privacy
+1. league points
+2. score difference
+3. score for
 
-Event names, participants, matches, results, standings, saved-event data, and generated JSON/CSV/PNG outputs are processed locally in the browser. The application makes no runtime network requests and keeps `connect-src 'none'`.
+If all active tiebreak values are identical, participants share the same rank. Registration order is never used to create a false sporting rank.
 
-## Export and persistence
+## Local processing and privacy
 
-The active event is saved locally in the browser. JSON backup is available for portability and recovery.
+Event names, participants, fixtures, results, standings, locally saved event data, and generated JSON / CSV / PNG output are processed in the browser.
 
-During an event, Export provides Match Results CSV, Standings CSV, Standings PNG, and a print layout. File-producing exports allow an editable safe filename before saving.
+The app has no runtime CDN, API, analytics, telemetry, or remote-font dependency. The runtime Content Security Policy keeps `connect-src 'none'`.
 
-## Remaining before v1.0.0
+JSON files are only read when you explicitly choose one, and output files are only created when you explicitly export them.
 
-v0.9.0 is the release-candidate milestone and focuses on:
+## Persistence
 
-- broader regression cases
-- README and screenshot finalization
-- standalone / privacy / network checks
-- release-candidate browser/device review
+The active event is saved in browser local storage. A normal reload restores the event, including results and League Desk UI state.
+
+Browser/site data can still be cleared by the browser or operating system, so JSON backup is the portability and recovery path for important events.
+
+## Export
+
+The in-event **Export** action provides:
+
+- Match Results CSV
+- Standings CSV
+- Standings PNG
+- Print
+
+CSV output uses UTF-8 with BOM and protects user-controlled text that begins with common spreadsheet formula prefixes. File-producing exports use an editable, sanitized file name.
+
+## Accessibility and mobile
+
+- Progress / Matches / Standings become fixed bottom tabs on phones
+- safe-area spacing prevents the bottom bar from hiding reachable content
+- 390 CSS px release capture reports no horizontal overflow
+- result controls use mobile-friendly touch targets
+- long participant names wrap safely
+- filters and current-result choices expose selected state with `aria-pressed`
+- dialogs restore focus to a meaningful control where possible
+- reduced-motion and forced-colors handling are included
+
+## v0.9.0 release-candidate verification
+
+Repository verification explicitly checks:
+
+- participant matrices: 3 / 4 / 5 / 8 / 16
+- broader round-robin invariants: 3–64 participants
+- tie / score / shared-rank behavior
+- result edit / remove / Undo
+- event completion and reopen
+- persistence and invalid-import rejection
+- Mobile / UX regression markers
+- Japanese / English i18n parity and accessibility markers
+- CSV / PNG / print export markers
+- current JP/EN desktop and smartphone screenshots
+- favicon / brand color
+- readable standalone and self-extract artifacts
+- repository-root readable HTML
+- CSP and runtime-network blocking
+
+The automated checks do **not** claim a real screen-reader walkthrough, OS print-dialog review, real smartphone-device test, or manual DevTools network-panel inspection.
 
 ## Single HTML / offline use
 
-The build creates `dist/index.html`, `dist/index.self-extract.html`, and `mini-league-desk.html`. The readable HTML is intended to work directly with `file://`.
+The build produces:
+
+- `dist/index.html`
+- `dist/index.self-extract.html`
+- `mini-league-desk.html`
+
+The readable HTML is designed to work directly with `file://`.
 
 ## Browser support
 
-Primary targets: current Chrome and Edge.
+Primary targets:
 
-Best effort: current Firefox, Safari, Chrome for Android, and Safari on iPhone.
+- current Chrome
+- current Edge
+
+Best effort:
+
+- current Firefox
+- current Safari
+- Chrome for Android
+- Safari on iPhone
 
 ## Development
 

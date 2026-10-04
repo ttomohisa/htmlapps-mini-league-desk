@@ -334,6 +334,9 @@ Release-candidate scope:
 - no runtime CDN, API, analytics, telemetry, remote font, or hidden network dependency
 - privacy statements must match the actual local-processing behavior
 - no new tournament format or major feature is added in the release candidate
+- release capture verifies 390 CSS px mobile pages with scrollWidth equal to innerWidth
+- release screenshots are current Mini League Desk UI in Japanese and English on desktop and smartphone
+- RC review fixed a mobile min-content overflow in the event action area before final screenshots
 
 ## 19. v0.9.0 release-candidate acceptance criteria
 
@@ -472,7 +475,7 @@ Do not claim real screen-reader, OS print-dialog, real mobile-device, or manual 
 - keyboard/accessibility audit
 - icon/help/privacy finalization
 
-### v0.9.0 — Release Candidate — in progress
+### v0.9.0 — Release Candidate — implemented
 
 - regression testing
 - 3/4/5/8/16 participant cases
