@@ -38,10 +38,16 @@ jobs:
         shell: pwsh
         run: ./scripts/check-repository.ps1
 
+      - name: Setup Node.js for RC screenshots
+        if: github.event_name == 'pull_request' && github.head_ref == 'release/v0.9.0-rc'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
       - name: Capture RC screenshots
         if: github.event_name == 'pull_request' && github.head_ref == 'release/v0.9.0-rc'
         shell: pwsh
-        run: ./scripts/capture-release-screenshots.ps1
+        run: node ./scripts/capture-release-screenshots.mjs
 
       - name: Upload standalone artifact
         uses: actions/upload-artifact@v7
