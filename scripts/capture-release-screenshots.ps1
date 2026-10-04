@@ -140,7 +140,7 @@ try {
       "--force-device-scale-factor=1",
       "--user-data-dir=$profile",
       "--window-size=$($capture.Width),$($capture.Height)",
-      "--virtual-time-budget=2500",
+      "--virtual-time-budget=6500",
       "--screenshot=$output",
       $url
     )
