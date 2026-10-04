@@ -262,6 +262,45 @@
     .button.danger-ghost { color: var(--danger); }
     .button:disabled { cursor: not-allowed; opacity: .46; }
     .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .result-mode-fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+    .result-mode-fieldset legend { margin-bottom: 8px; font-size: 12px; font-weight: 750; }
+    .result-mode-options { display: grid; gap: 8px; }
+    .result-mode-card {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr);
+      align-items: start;
+      gap: 10px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fbfbf9;
+      cursor: pointer;
+    }
+    .result-mode-card:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+    .result-mode-card input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+    .result-mode-copy { min-width: 0; }
+    .result-mode-copy strong { display: block; font-size: 12px; }
+    .result-mode-copy small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-top: 9px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .check-row input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+
     .section-divider { height: 1px; margin: 20px 0; background: var(--line); }
     .field-error {
       min-height: 18px;
@@ -514,6 +553,142 @@
     .match-player:last-child { text-align: right; }
     .versus { color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
 
+
+    .fixture-mode {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .competition-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.45fr) minmax(280px,.55fr);
+      grid-template-areas: "fixtures standings";
+      gap: 16px;
+      align-items: start;
+      margin-top: 16px;
+    }
+    .fixtures-section { grid-area: fixtures; margin-top: 0; }
+    .standings-section {
+      grid-area: standings;
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: calc(var(--header-height) + 14px);
+    }
+    .standings-list { display: grid; gap: 7px; }
+    .standing-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0,1fr) auto;
+      gap: 9px;
+      align-items: center;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfbf9;
+    }
+    .standing-rank {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--surface-muted);
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .standing-main { min-width: 0; }
+    .standing-name { display: block; overflow-wrap: anywhere; font-size: 12px; font-weight: 800; }
+    .standing-record { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .standing-scoreline { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .standing-points { min-width: 48px; text-align: right; }
+    .standing-points strong { display: block; font-size: 16px; line-height: 1.1; }
+    .standing-points span { color: var(--muted); font-size: 9px; }
+    .standings-empty-note { margin: 0 0 10px; color: var(--muted); font-size: 11px; }
+    .match-row {
+      width: 100%;
+      appearance: none;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .15s ease,background .15s ease,transform .15s ease;
+    }
+    .match-row:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+    .match-row:active { transform: translateY(1px); }
+    .match-row.completed { border-color: color-mix(in srgb,var(--accent) 26%,var(--line)); }
+    .match-side { min-width: 0; }
+    .match-side:last-child { text-align: right; }
+    .match-player { display: block; }
+    .match-outcome { display: block; min-height: 15px; margin-top: 2px; color: var(--muted); font-size: 9px; font-weight: 800; }
+    .match-outcome.win { color: var(--accent); }
+    .match-center { min-width: 56px; text-align: center; }
+    .match-result { display: block; color: var(--text); font-size: 11px; font-weight: 850; white-space: nowrap; }
+    .match-action-label { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .result-dialog { width: min(520px,calc(100% - 28px)); }
+    .result-dialog-meta { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+    .result-choice-grid { display: grid; gap: 8px; margin-top: 16px; }
+    .result-choice {
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+    }
+    .result-choice:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .score-form { margin-top: 16px; }
+    .score-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+      align-items: end;
+      gap: 9px;
+    }
+    .score-field { display: grid; gap: 5px; min-width: 0; }
+    .score-field label { overflow-wrap: anywhere; font-size: 11px; font-weight: 750; }
+    .score-input {
+      width: 100%;
+      min-width: 0;
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfbf9;
+      color: var(--text);
+      font: inherit;
+      font-size: 18px;
+      font-weight: 800;
+      text-align: center;
+    }
+    .score-separator { padding-bottom: 13px; color: var(--muted); font-weight: 800; }
+    .score-error { min-height: 18px; margin-top: 8px; color: var(--danger); font-size: 11px; }
+    .score-submit { width: 100%; margin-top: 8px; }
+    .result-dialog-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .result-dialog-footer .button { min-width: 120px; }
+
     footer {
       width: min(1120px,100%);
       margin: 0 auto;
@@ -650,6 +825,11 @@
       .page-intro { flex-direction: column; gap: 10px; }
       .local-badge { align-self: flex-start; }
       .setup-grid { grid-template-columns: 1fr; }
+      .competition-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: "standings" "fixtures";
+      }
+      .standings-section { position: static; }
     }
     @media (max-width: 520px) {
       :root { --header-height: 58px; }
@@ -677,6 +857,21 @@
       .round-head { align-items: flex-start; }
       .bye-badge { max-width: 58%; }
       .match-row { gap: 6px; padding-inline: 8px; }
+      .fixture-stats { gap: 6px; }
+      .fixture-stat { padding: 9px; }
+      .fixture-stat strong { font-size: 18px; }
+      .standings-section { padding: 14px; }
+      .standing-row { grid-template-columns: 34px minmax(0,1fr) auto; padding: 8px; }
+      .result-dialog {
+        width: 100%;
+        max-width: none;
+        margin: auto 0 0;
+        border-width: 1px 0 0;
+        border-radius: 22px 22px 0 0;
+      }
+      .result-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .result-dialog-footer { flex-direction: column-reverse; align-items: stretch; }
+      .result-dialog-footer .button { width: 100%; }
       .app-toast { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: none; }
       #helpDialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
       .app-confirm-dialog {
@@ -741,6 +936,32 @@
           <input class="text-input" id="tournamentName" type="text" maxlength="100" autocomplete="off" data-i18n-placeholder="tournamentNamePlaceholder" placeholder="例：金曜卓球大会">
           <span class="field-note" data-i18n="tournamentNameNote">未入力の場合は「新しい大会」になります。</span>
         </label>
+
+        <div class="section-divider"></div>
+
+        <fieldset class="result-mode-fieldset">
+          <legend data-i18n="resultModeLegend">結果の記録方法</legend>
+          <div class="result-mode-options">
+            <label class="result-mode-card">
+              <input type="radio" name="resultMode" value="winLoss" checked>
+              <span class="result-mode-copy"><strong data-i18n="modeWinLoss">勝敗だけ</strong><small data-i18n="modeWinLossHelp">勝ち1、負け0で順位を計算します。</small></span>
+            </label>
+            <label class="result-mode-card">
+              <input type="radio" name="resultMode" value="winDrawLoss">
+              <span class="result-mode-copy"><strong data-i18n="modeWinDrawLoss">勝ち・引き分け</strong><small data-i18n="modeWinDrawLossHelp">勝ち3、引き分け1、負け0で順位を計算します。</small></span>
+            </label>
+            <label class="result-mode-card">
+              <input type="radio" name="resultMode" value="score">
+              <span class="result-mode-copy"><strong data-i18n="modeScore">得点を入力</strong><small data-i18n="modeScoreHelp">双方の得点から勝敗と順位を計算します。</small></span>
+            </label>
+          </div>
+          <div id="scoreDrawOption" hidden>
+            <label class="check-row">
+              <input id="scoreDrawsAllowed" type="checkbox" checked>
+              <span data-i18n="scoreDrawsAllowed">同点を引き分けとして認める</span>
+            </label>
+          </div>
+        </fieldset>
 
         <div class="section-divider"></div>
 
@@ -818,7 +1039,8 @@
           <span data-i18n="fixtureKicker">対戦表を作成しました</span>
         </span>
         <h3 id="fixtureTitle"></h3>
-        <p data-i18n="fixtureLead">全組み合わせを1回ずつ対戦する総当たり表です。</p>
+        <p data-i18n="fixtureLead">対戦行を選ぶと結果を入力できます。結果は順位へすぐ反映されます。</p>
+        <div class="fixture-mode"><span data-i18n="resultModeShort">記録方式</span><strong id="fixtureModeLabel"></strong></div>
         <div class="fixture-stats" aria-live="polite">
           <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
           <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
@@ -830,15 +1052,28 @@
         <div class="notice" data-i18n="draftNotice">v0.2.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。</div>
       </div>
 
-      <section class="fixtures-section" aria-labelledby="fixturesHeading">
-        <div class="panel-head">
-          <div>
-            <h3 id="fixturesHeading" data-i18n="fixturesHeading">対戦表</h3>
-            <p data-i18n="fixturesHeadingLead">ラウンド順は進行の目安です。結果入力は次の開発段階で追加します。</p>
+      <div class="competition-grid">
+        <section class="standings-section" aria-labelledby="standingsHeading">
+          <div class="panel-head">
+            <div>
+              <h3 id="standingsHeading" data-i18n="standingsHeading">順位</h3>
+              <p data-i18n="standingsLead">結果を入力すると自動で更新されます。</p>
+            </div>
           </div>
-        </div>
-        <div class="rounds-grid" id="roundsContainer"></div>
-      </section>
+          <p class="standings-empty-note" id="standingsEmptyNote" data-i18n="standingsEmpty">まだ結果がありません。最初の結果を入力すると順位が表示されます。</p>
+          <div class="standings-list" id="standingsList" aria-live="polite"></div>
+        </section>
+
+        <section class="fixtures-section" aria-labelledby="fixturesHeading">
+          <div class="panel-head">
+            <div>
+              <h3 id="fixturesHeading" data-i18n="fixturesHeading">対戦と結果</h3>
+              <p data-i18n="fixturesHeadingLead">任意の対戦から結果を入力・修正できます。</p>
+            </div>
+          </div>
+          <div class="rounds-grid" id="roundsContainer"></div>
+        </section>
+      </div>
     </section>
     <!-- APP:END -->
   </main>
@@ -862,6 +1097,42 @@
       <div class="app-confirm-actions">
         <button class="app-confirm-button" id="appConfirmCancel" type="button">キャンセル</button>
         <button class="app-confirm-button primary" id="appConfirmOk" type="button">実行する</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle">
+    <div class="dialog-header">
+      <h2 id="resultDialogTitle" data-i18n="resultDialogTitle">試合結果</h2>
+      <button class="icon-button" id="closeResultButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <p class="result-dialog-meta" id="resultDialogMeta"></p>
+      <div class="result-choice-grid" id="resultChoicePanel">
+        <button class="result-choice" id="resultAWin" type="button"></button>
+        <button class="result-choice" id="resultDraw" type="button" data-i18n="drawChoice">引き分け</button>
+        <button class="result-choice" id="resultBWin" type="button"></button>
+      </div>
+      <form class="score-form" id="scoreForm" hidden novalidate>
+        <div class="score-grid">
+          <div class="score-field">
+            <label id="scoreALabel" for="scoreA"></label>
+            <input class="score-input" id="scoreA" type="number" min="0" max="999999" step="1" inputmode="numeric" autocomplete="off">
+          </div>
+          <span class="score-separator" aria-hidden="true">—</span>
+          <div class="score-field">
+            <label id="scoreBLabel" for="scoreB"></label>
+            <input class="score-input" id="scoreB" type="number" min="0" max="999999" step="1" inputmode="numeric" autocomplete="off">
+          </div>
+        </div>
+        <div class="score-error" id="scoreError" role="status" aria-live="polite"></div>
+        <button class="button primary score-submit" type="submit" data-i18n="saveResult">結果を記録</button>
+      </form>
+      <div class="result-dialog-footer">
+        <button class="button danger-ghost" id="removeResultButton" type="button" hidden data-i18n="removeResult">結果を取り消す</button>
+        <button class="button" id="cancelResultButton" type="button" data-i18n="cancel">キャンセル</button>
       </div>
     </div>
   </dialog>
@@ -989,83 +1260,85 @@
         ja: {
           brandMeta: '小大会の総当たり運営',
           helpTitle: '使い方と注意事項', close: '閉じる',
-          introTitle: '総当たり大会の対戦表を、すぐ作る',
-          lead: '大会名と参加者を登録すると、全組み合わせの対戦をラウンド別に自動生成します。',
+          introTitle: '結果を入れると、順位がすぐ分かる',
+          lead: '総当たりの対戦表に結果を記録すると、現在の順位をその場で自動計算します。',
           localBadge: '端末内で処理',
           settingsTitle: '大会設定', settingsLead: 'まず大会名と参加者を登録します。',
           tournamentName: '大会名', tournamentNamePlaceholder: '例：金曜卓球大会', tournamentNameNote: '未入力の場合は「新しい大会」になります。',
+          resultModeLegend: '結果の記録方法', resultModeShort: '記録方式', modeWinLoss: '勝敗だけ', modeWinLossHelp: '勝ち1、負け0で順位を計算します。', modeWinDrawLoss: '勝ち・引き分け', modeWinDrawLossHelp: '勝ち3、引き分け1、負け0で順位を計算します。', modeScore: '得点を入力', modeScoreHelp: '双方の得点から勝敗と順位を計算します。', scoreDrawsAllowed: '同点を引き分けとして認める',
           addParticipant: '参加者を追加', participantName: '参加者名', participantPlaceholder: '例：山田', add: '追加',
           bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
           reset: 'すべてリセット', rosterTitle: '参加者一覧', rosterLead: '順番は対戦表生成時の基準として使います。', people: '人',
           emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
           reorderHelp: '矢印で順番を調整できます。', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
-          fixtureKicker: '対戦表を作成しました', fixtureLead: '全組み合わせを1回ずつ対戦する総当たり表です。',
-          matches: '試合', rounds: '巡', fixturesHeading: '対戦表', fixturesHeadingLead: 'ラウンド順は進行の目安です。結果入力は次の開発段階で追加します。',
-          roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs',
+          fixtureKicker: '大会を開始しました', fixtureLead: '対戦行を選ぶと結果を入力できます。結果は順位へすぐ反映されます。',
+          matches: '試合', rounds: '巡', fixturesHeading: '対戦と結果', fixturesHeadingLead: '任意の対戦から結果を入力・修正できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: 'v0.2.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
           bulkTooMany: '追加すると64人を超えます。', addedOne: '{name} を追加しました。', addedMany: '{count}人を追加しました。',
           removed: '{name} を削除しました。', moved: '順番を変更しました。', shuffled: '参加者をシャッフルしました。', resetDone: '入力内容をリセットしました。',
-          undo: '元に戻す', undone: '元に戻しました', confirmed: '対戦表を作成しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。',
+          undo: '元に戻す', undone: '元に戻しました', confirmed: '大会を開始しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。', resultSaved: '試合結果を記録しました。', resultUpdated: '試合結果を修正しました。', resultRemoved: '試合結果を取り消しました。', editSetupTitle: '参加者編集へ戻りますか？', editSetupMessage: '入力済みの試合結果はすべて消えます。参加者と記録方法は編集できます。', editSetupAction: '結果を消して戻る',
           resetTitle: '入力内容をリセットしますか？', resetMessage: '大会名と参加者をすべて消去します。この操作は元に戻せません。', resetAction: 'リセットする',
           confirmTitle: '確認', confirmAction: '実行する', cancel: 'キャンセル',
           removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
           helpBasicsTitle: '基本操作',
-          helpStep1: '大会名を入力します。未入力でも利用できます。',
-          helpStep2: '参加者を1人ずつ追加するか、複数行をまとめて貼り付けて追加します。',
-          helpStep3: '矢印で順番を整え、必要ならシャッフルします。3人以上で「参加者を確定」を押すと総当たりの対戦表を生成します。',
+          helpStep1: '大会名と結果の記録方法を選びます。',
+          helpStep2: '参加者を追加し、3人以上で「参加者を確定」を押して総当たり表を作ります。',
+          helpStep3: '対戦行を選んで結果を入力します。結果の修正・取り消しも同じ画面から行え、順位は自動更新されます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: 'v0.2.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると入力内容は失われます。',
-          helpNoteNames: '同じ参加者名は重複登録できません。参加者名は80文字までです。奇数人数では各巡に1人の「休み」が入ります。',
-          helpNoteScope: 'このバージョンでは総当たり対戦表まで作成できます。結果入力と順位計算はまだありません。',
+          helpNoteNoSave: 'v0.3.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると結果を含む大会内容は失われます。',
+          helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
+          helpNoteScope: '順位は勝点を基準にし、得点入力では勝点→得失点差→得点の順で判定します。完全に同じ場合は同順位です。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
         },
         en: {
           brandMeta: 'Round-robin desk for small events',
           helpTitle: 'How to use & notes', close: 'Close',
-          introTitle: 'Build a round-robin fixture list in minutes',
-          lead: 'Enter an event name and participants to generate every matchup, organized into rounds.',
+          introTitle: 'Enter results and see the standings instantly',
+          lead: 'Record results on the round-robin fixture list and the current standings update immediately.',
           localBadge: 'Processed on this device',
           settingsTitle: 'Event setup', settingsLead: 'Start with the event name and participants.',
           tournamentName: 'Event name', tournamentNamePlaceholder: 'e.g. Friday Table Tennis', tournamentNameNote: 'If left blank, “New event” is used.',
+          resultModeLegend: 'Result entry', resultModeShort: 'Result mode', modeWinLoss: 'Win / loss', modeWinLossHelp: 'A win is 1 point and a loss is 0.', modeWinDrawLoss: 'Win / draw / loss', modeWinDrawLossHelp: 'Win 3, draw 1, loss 0.', modeScore: 'Enter scores', modeScoreHelp: 'Enter both scores to derive the result and standings.', scoreDrawsAllowed: 'Allow tied scores as draws',
           addParticipant: 'Add participant', participantName: 'Participant name', participantPlaceholder: 'e.g. Alex', add: 'Add',
           bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
           reset: 'Reset all', rosterTitle: 'Participants', rosterLead: 'This order will be used as the basis for fixture generation.', people: 'people',
           emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
           reorderHelp: 'Use the arrow buttons to adjust the order.', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
-          fixtureKicker: 'Fixtures generated', fixtureLead: 'Every participant pair appears exactly once in this round-robin schedule.',
-          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Fixtures', fixturesHeadingLead: 'Round order is a progression guide. Result entry arrives in the next milestone.',
-          roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs',
+          fixtureKicker: 'Event started', fixtureLead: 'Choose any matchup to enter a result. Standings update immediately.',
+          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches & results', fixturesHeadingLead: 'Enter or edit results in any matchup.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'v0.2.0 does not save event data yet. Reloading the page clears the current event.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
           bulkTooMany: 'Adding these names would exceed 64 participants.', addedOne: 'Added {name}.', addedMany: 'Added {count} participants.',
           removed: 'Removed {name}.', moved: 'Participant order updated.', shuffled: 'Participants shuffled.', resetDone: 'Setup reset.',
-          undo: 'Undo', undone: 'Restored', confirmed: 'Fixtures generated.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.',
+          undo: 'Undo', undone: 'Restored', confirmed: 'Event started.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.', resultSaved: 'Match result recorded.', resultUpdated: 'Match result updated.', resultRemoved: 'Match result removed.', editSetupTitle: 'Return to participant editing?', editSetupMessage: 'All entered match results will be cleared. You can edit participants and the result mode.', editSetupAction: 'Clear results and edit',
           resetTitle: 'Reset this setup?', resetMessage: 'This removes the event name and all participants. This action cannot be undone.', resetAction: 'Reset',
           confirmTitle: 'Confirm', confirmAction: 'Continue', cancel: 'Cancel',
           removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
           helpBasicsTitle: 'Basics',
-          helpStep1: 'Enter an event name. You can also leave it blank.',
-          helpStep2: 'Add participants one by one, or paste multiple lines to add them in one step.',
-          helpStep3: 'Adjust the order with the arrow buttons, shuffle if needed, then confirm at three or more participants to generate the round-robin fixtures.',
+          helpStep1: 'Choose an event name and result-entry mode.',
+          helpStep2: 'Add participants and confirm at three or more to generate the round-robin fixtures.',
+          helpStep3: 'Choose a matchup to enter, edit, or remove its result. Standings recalculate immediately.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event and participant names are processed in this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'v0.2.0 does not save event data yet. Reloading or closing the tab clears the current event.',
-          helpNoteNames: 'Duplicate participant names are not allowed. Each name can contain up to 80 characters. Odd rosters receive one Bye per round.',
-          helpNoteScope: 'This version generates round-robin fixtures. Result entry and standings are not available yet.',
+          helpNoteNoSave: 'v0.3.0 does not save event data yet. Reloading or closing the tab clears the event including results.',
+          helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
+          helpNoteScope: 'Standings use league points; score mode breaks ties by points, score difference, then score for. Identical active tiebreak values share the same rank.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
         }
       };
 
       const $ = selector => document.querySelector(selector);
-      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [] };
+      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true } };
       const storageKeys = { language: `${APP_CONFIG.slug}:language` };
       let language = readStorage(storageKeys.language) || detectLanguage();
 
@@ -1176,6 +1449,22 @@
       function setText(id, value) { const element = $(id); if (element) element.textContent = value; }
       function setParticipantError(message = '') { setText('#participantError', message); }
       function setBulkError(message = '') { setText('#bulkError', message); }
+      function getResultModeConfig() {
+        if (state.settings.resultMode === 'winLoss') return { winPoints: 1, drawPoints: 0, lossPoints: 0, drawsAllowed: false, scoreBased: false };
+        if (state.settings.resultMode === 'winDrawLoss') return { winPoints: 3, drawPoints: 1, lossPoints: 0, drawsAllowed: true, scoreBased: false };
+        return { winPoints: 3, drawPoints: 1, lossPoints: 0, drawsAllowed: state.settings.scoreDrawsAllowed, scoreBased: true };
+      }
+      function resultModeLabel() {
+        if (state.settings.resultMode === 'winLoss') return translate('modeWinLoss');
+        if (state.settings.resultMode === 'winDrawLoss') return translate('modeWinDrawLoss');
+        return translate('modeScore');
+      }
+      function updateResultModeControls() {
+        document.querySelectorAll('input[name="resultMode"]').forEach(input => { input.checked = input.value === state.settings.resultMode; });
+        $('#scoreDrawsAllowed').checked = state.settings.scoreDrawsAllowed;
+        $('#scoreDrawOption').hidden = state.settings.resultMode !== 'score';
+      }
+      function signedNumber(value) { return value > 0 ? '+' + value : String(value); }
 
       function updateStaticLanguage() {
         document.documentElement.lang = language;
@@ -1186,6 +1475,7 @@
         $('#languageButton').textContent = language === 'ja' ? 'EN' : '日本語';
         $('#languageButton').setAttribute('aria-label', language === 'ja' ? '英語に切り替え' : 'Switch to Japanese');
         document.title = language === 'ja' ? APP_CONFIG.nameJa : APP_CONFIG.name;
+        updateResultModeControls();
         render();
       }
 
@@ -1328,29 +1618,246 @@
           (participantCount % 2 === 0 || seenByes.size === participantCount);
       }
 
+      function allMatches() {
+        return state.rounds.flatMap(round => round.matches);
+      }
+
+      function calculateStandings() {
+        const config = getResultModeConfig();
+        const rows = state.participants.map((participant, index) => ({
+          id: participant.id, name: participant.name, displayOrder: index, played: 0, wins: 0, draws: 0, losses: 0,
+          scoreFor: 0, scoreAgainst: 0, difference: 0, points: 0, rank: null
+        }));
+        const byId = new Map(rows.map(row => [row.id, row]));
+        let completedCount = 0;
+
+        allMatches().forEach(match => {
+          if (match.status !== 'completed') return;
+          const a = byId.get(match.participantAId);
+          const b = byId.get(match.participantBId);
+          if (!a || !b) return;
+          completedCount += 1;
+          a.played += 1;
+          b.played += 1;
+          if (config.scoreBased) {
+            a.scoreFor += match.scoreA; a.scoreAgainst += match.scoreB;
+            b.scoreFor += match.scoreB; b.scoreAgainst += match.scoreA;
+          }
+          if (match.result === 'draw') {
+            a.draws += 1; b.draws += 1;
+            a.points += config.drawPoints; b.points += config.drawPoints;
+          } else if (match.winnerId === a.id) {
+            a.wins += 1; b.losses += 1; a.points += config.winPoints; b.points += config.lossPoints;
+          } else if (match.winnerId === b.id) {
+            b.wins += 1; a.losses += 1; b.points += config.winPoints; a.points += config.lossPoints;
+          }
+        });
+
+        rows.forEach(row => { row.difference = row.scoreFor - row.scoreAgainst; });
+        rows.sort((left, right) => {
+          if (right.points !== left.points) return right.points - left.points;
+          if (config.scoreBased && right.difference !== left.difference) return right.difference - left.difference;
+          if (config.scoreBased && right.scoreFor !== left.scoreFor) return right.scoreFor - left.scoreFor;
+          return left.displayOrder - right.displayOrder;
+        });
+
+        let previousMetrics = null;
+        let previousRank = null;
+        rows.forEach((row, index) => {
+          if (completedCount === 0) { row.rank = null; return; }
+          const metrics = config.scoreBased ? [row.points, row.difference, row.scoreFor] : [row.points];
+          const tied = previousMetrics && metrics.every((value, metricIndex) => value === previousMetrics[metricIndex]);
+          row.rank = tied ? previousRank : index + 1;
+          previousMetrics = metrics;
+          previousRank = row.rank;
+        });
+        return { rows, completedCount };
+      }
+
+      function renderStandings() {
+        const config = getResultModeConfig();
+        const standings = calculateStandings();
+        $('#standingsEmptyNote').hidden = standings.completedCount > 0;
+        const root = $('#standingsList');
+        root.replaceChildren();
+
+        standings.rows.forEach(row => {
+          const item = document.createElement('div');
+          item.className = 'standing-row';
+          const rank = document.createElement('span');
+          rank.className = 'standing-rank';
+          rank.textContent = row.rank === null ? '—' : String(row.rank);
+          const main = document.createElement('div');
+          main.className = 'standing-main';
+          const name = document.createElement('span');
+          name.className = 'standing-name';
+          name.textContent = row.name;
+          const record = document.createElement('span');
+          record.className = 'standing-record';
+          record.textContent = translate(config.drawsAllowed ? 'recordWithDraw' : 'recordNoDraw', { wins: row.wins, draws: row.draws, losses: row.losses });
+          main.append(name, record);
+          if (config.scoreBased) {
+            const scoreline = document.createElement('span');
+            scoreline.className = 'standing-scoreline';
+            scoreline.textContent = translate('scoreStats', { for: row.scoreFor, against: row.scoreAgainst, diff: signedNumber(row.difference) });
+            main.append(scoreline);
+          }
+          const points = document.createElement('div');
+          points.className = 'standing-points';
+          const pointValue = document.createElement('strong');
+          pointValue.textContent = String(row.points);
+          const pointLabel = document.createElement('span');
+          pointLabel.textContent = translate('points');
+          points.append(pointValue, pointLabel);
+          item.append(rank, main, points);
+          root.append(item);
+        });
+      }
+
+      function findMatch(matchId) {
+        for (const round of state.rounds) {
+          const match = round.matches.find(candidate => candidate.id === matchId);
+          if (match) return match;
+        }
+        return null;
+      }
+      function copyResult(match) {
+        return { status: match.status, scoreA: match.scoreA, scoreB: match.scoreB, result: match.result, winnerId: match.winnerId };
+      }
+      function restoreResult(match, snapshot) { Object.assign(match, snapshot); }
+      function clearMatchResult(match) {
+        match.status = 'pending'; match.scoreA = null; match.scoreB = null; match.result = null; match.winnerId = null;
+      }
+      function resultSummary(match) {
+        if (match.status !== 'completed') return translate('versus');
+        if (state.settings.resultMode === 'score') return String(match.scoreA) + ' — ' + String(match.scoreB);
+        return translate('completed');
+      }
+      function outcomeMark(match, participantId) {
+        if (match.status !== 'completed') return '';
+        if (match.result === 'draw') return translate('drawMark');
+        return match.winnerId === participantId ? translate('winMark') : translate('lossMark');
+      }
+
+      let activeMatchId = null;
+
+      function openResultDialog(matchId) {
+        const match = findMatch(matchId);
+        if (!match) return;
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const participantA = participantById.get(match.participantAId);
+        const participantB = participantById.get(match.participantBId);
+        if (!participantA || !participantB) return;
+        activeMatchId = match.id;
+        setText('#resultDialogMeta', translate('resultDialogMeta', { round: match.round, a: participantA.name, b: participantB.name }));
+        setText('#resultAWin', translate('playerWinChoice', { name: participantA.name }));
+        setText('#resultBWin', translate('playerWinChoice', { name: participantB.name }));
+        setText('#scoreALabel', participantA.name);
+        setText('#scoreBLabel', participantB.name);
+        setText('#scoreError', '');
+        const scoreMode = state.settings.resultMode === 'score';
+        $('#resultChoicePanel').hidden = scoreMode;
+        $('#scoreForm').hidden = !scoreMode;
+        $('#resultDraw').hidden = state.settings.resultMode === 'winLoss';
+        $('#removeResultButton').hidden = match.status !== 'completed';
+        if (scoreMode) {
+          $('#scoreA').value = match.status === 'completed' && match.scoreA !== null ? String(match.scoreA) : '';
+          $('#scoreB').value = match.status === 'completed' && match.scoreB !== null ? String(match.scoreB) : '';
+        }
+        const dialog = $('#resultDialog');
+        dialog.showModal();
+        requestAnimationFrame(() => {
+          if (scoreMode) $('#scoreA').focus({ preventScroll: true });
+          else $('#resultAWin').focus({ preventScroll: true });
+        });
+      }
+
+      function closeResultDialog() {
+        activeMatchId = null;
+        if ($('#resultDialog').open) $('#resultDialog').close();
+      }
+
+      function commitMatchResult(match, nextResult) {
+        const before = copyResult(match);
+        const wasCompleted = match.status === 'completed';
+        Object.assign(match, nextResult, { status: 'completed' });
+        closeResultDialog();
+        renderFixtures();
+        renderStandings();
+        showToast(translate(wasCompleted ? 'resultUpdated' : 'resultSaved'), {
+          tone: 'success', actionLabel: translate('undo'), duration: 5000,
+          onAction: () => { restoreResult(match, before); renderFixtures(); renderStandings(); showToast(translate('undone')); }
+        });
+      }
+
+      function commitChoice(choice) {
+        const match = findMatch(activeMatchId);
+        if (!match) return;
+        if (choice === 'draw') {
+          commitMatchResult(match, { scoreA: null, scoreB: null, result: 'draw', winnerId: null });
+          return;
+        }
+        const winnerId = choice === 'a' ? match.participantAId : match.participantBId;
+        commitMatchResult(match, { scoreA: null, scoreB: null, result: 'win', winnerId });
+      }
+
+      function parseScore(input) {
+        const raw = input.value.trim();
+        if (!/^\d+$/.test(raw)) return null;
+        const value = Number(raw);
+        if (!Number.isSafeInteger(value) || value < 0) return null;
+        return value;
+      }
+
+      function submitScoreResult() {
+        const match = findMatch(activeMatchId);
+        if (!match) return;
+        setText('#scoreError', '');
+        const scoreA = parseScore($('#scoreA'));
+        const scoreB = parseScore($('#scoreB'));
+        if (scoreA === null || scoreB === null) { setText('#scoreError', translate('scoreRequired')); return; }
+        if (scoreA > 999999 || scoreB > 999999) { setText('#scoreError', translate('scoreTooLarge')); return; }
+        if (scoreA === scoreB && !state.settings.scoreDrawsAllowed) { setText('#scoreError', translate('scoreDrawNotAllowed')); return; }
+        if (scoreA === scoreB) {
+          commitMatchResult(match, { scoreA, scoreB, result: 'draw', winnerId: null });
+        } else {
+          commitMatchResult(match, { scoreA, scoreB, result: 'win', winnerId: scoreA > scoreB ? match.participantAId : match.participantBId });
+        }
+      }
+
+      function removeActiveResult() {
+        const match = findMatch(activeMatchId);
+        if (!match || match.status !== 'completed') return;
+        const before = copyResult(match);
+        clearMatchResult(match);
+        closeResultDialog();
+        renderFixtures();
+        renderStandings();
+        showToast(translate('resultRemoved'), {
+          actionLabel: translate('undo'), duration: 5000,
+          onAction: () => { restoreResult(match, before); renderFixtures(); renderStandings(); showToast(translate('undone')); }
+        });
+      }
+
       function renderFixtures() {
         const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
-        const matchCount = state.rounds.reduce((sum, round) => sum + round.matches.length, 0);
+        const matchCount = allMatches().length;
         setText('#fixtureTitle', state.tournamentName || translate('defaultTournament'));
+        setText('#fixtureModeLabel', resultModeLabel());
         setText('#fixtureParticipantCount', new Intl.NumberFormat(language).format(state.participants.length));
         setText('#fixtureMatchCount', new Intl.NumberFormat(language).format(matchCount));
         setText('#fixtureRoundCount', new Intl.NumberFormat(language).format(state.rounds.length));
-
         const container = $('#roundsContainer');
         container.replaceChildren();
-
         state.rounds.forEach(round => {
           const card = document.createElement('article');
           card.className = 'round-card';
-
           const head = document.createElement('div');
           head.className = 'round-head';
-
           const title = document.createElement('h4');
           title.className = 'round-title';
           title.textContent = translate('roundLabel', { round: round.number });
           head.append(title);
-
           if (round.byeParticipantId) {
             const byeParticipant = participantById.get(round.byeParticipantId);
             const bye = document.createElement('span');
@@ -1358,30 +1865,48 @@
             bye.textContent = translate('byeLabel', { name: byeParticipant?.name || '' });
             head.append(bye);
           }
-
           const matchList = document.createElement('div');
           matchList.className = 'match-list';
-
           round.matches.forEach(match => {
-            const row = document.createElement('div');
-            row.className = 'match-row';
-
-            const participantA = document.createElement('span');
-            participantA.className = 'match-player';
-            participantA.textContent = participantById.get(match.participantAId)?.name || '';
-
-            const versus = document.createElement('span');
-            versus.className = 'versus';
-            versus.textContent = translate('versus');
-
-            const participantB = document.createElement('span');
-            participantB.className = 'match-player';
-            participantB.textContent = participantById.get(match.participantBId)?.name || '';
-
-            row.append(participantA, versus, participantB);
+            const participantA = participantById.get(match.participantAId);
+            const participantB = participantById.get(match.participantBId);
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'match-row' + (match.status === 'completed' ? ' completed' : '');
+            row.setAttribute('aria-label', translate('resultDialogMeta', { round: match.round, a: participantA?.name || '', b: participantB?.name || '' }));
+            row.addEventListener('click', () => openResultDialog(match.id));
+            const sideA = document.createElement('span');
+            sideA.className = 'match-side';
+            const nameA = document.createElement('span');
+            nameA.className = 'match-player';
+            nameA.textContent = participantA?.name || '';
+            const outcomeA = document.createElement('span');
+            const markA = outcomeMark(match, match.participantAId);
+            outcomeA.className = 'match-outcome' + (markA === translate('winMark') ? ' win' : '');
+            outcomeA.textContent = markA;
+            sideA.append(nameA, outcomeA);
+            const center = document.createElement('span');
+            center.className = 'match-center';
+            const result = document.createElement('span');
+            result.className = 'match-result';
+            result.textContent = resultSummary(match);
+            const action = document.createElement('span');
+            action.className = 'match-action-label';
+            action.textContent = translate(match.status === 'completed' ? 'editResult' : 'enterResult');
+            center.append(result, action);
+            const sideB = document.createElement('span');
+            sideB.className = 'match-side';
+            const nameB = document.createElement('span');
+            nameB.className = 'match-player';
+            nameB.textContent = participantB?.name || '';
+            const outcomeB = document.createElement('span');
+            const markB = outcomeMark(match, match.participantBId);
+            outcomeB.className = 'match-outcome' + (markB === translate('winMark') ? ' win' : '');
+            outcomeB.textContent = markB;
+            sideB.append(nameB, outcomeB);
+            row.append(sideA, center, sideB);
             matchList.append(row);
           });
-
           card.append(head, matchList);
           container.append(card);
         });
@@ -1390,8 +1915,13 @@
       function render() {
         $('#setupView').hidden = state.phase !== 'setup';
         $('#fixtureView').hidden = state.phase !== 'fixtures';
-        if (state.phase === 'setup') renderRoster();
-        else renderFixtures();
+        if (state.phase === 'setup') {
+          updateResultModeControls();
+          renderRoster();
+        } else {
+          renderFixtures();
+          renderStandings();
+        }
       }
 
       function addParticipant(rawName) {
@@ -1515,6 +2045,7 @@
         state.tournamentName = '';
         state.participants = [];
         state.rounds = [];
+        state.settings = { resultMode: 'winLoss', scoreDrawsAllowed: true };
         $('#tournamentName').value = '';
         $('#participantName').value = '';
         $('#bulkParticipants').value = '';
@@ -1551,7 +2082,18 @@
       $('#shuffleButton').addEventListener('click', shuffleParticipants);
       $('#resetButton').addEventListener('click', resetSetup);
       $('#confirmParticipantsButton').addEventListener('click', confirmParticipants);
-      $('#backToEditButton').addEventListener('click', () => {
+      $('#backToEditButton').addEventListener('click', async () => {
+        const hasResults = allMatches().some(match => match.status === 'completed');
+        if (hasResults) {
+          const confirmed = await AppConfirm.ask({
+            title: translate('editSetupTitle'),
+            message: translate('editSetupMessage'),
+            confirmLabel: translate('editSetupAction'),
+            cancelLabel: translate('cancel'),
+            tone: 'danger'
+          });
+          if (!confirmed) return;
+        }
         state.phase = 'setup';
         state.rounds = [];
         render();
@@ -1562,11 +2104,37 @@
         state.tournamentName = event.target.value.trim().slice(0, 100);
         $('#resetButton').disabled = state.participants.length === 0 && !event.target.value.trim();
       });
+      document.querySelectorAll('input[name="resultMode"]').forEach(input => {
+        input.addEventListener('change', () => {
+          if (!input.checked) return;
+          state.settings.resultMode = input.value;
+          updateResultModeControls();
+        });
+      });
+      $('#scoreDrawsAllowed').addEventListener('change', event => {
+        state.settings.scoreDrawsAllowed = event.target.checked;
+      });
 
       $('#languageButton').addEventListener('click', () => {
         language = language === 'ja' ? 'en' : 'ja';
         writeStorage(storageKeys.language, language);
         updateStaticLanguage();
+      });
+
+      $('#resultAWin').addEventListener('click', () => commitChoice('a'));
+      $('#resultDraw').addEventListener('click', () => commitChoice('draw'));
+      $('#resultBWin').addEventListener('click', () => commitChoice('b'));
+      $('#scoreForm').addEventListener('submit', event => { event.preventDefault(); submitScoreResult(); });
+      $('#scoreA').addEventListener('input', () => setText('#scoreError', ''));
+      $('#scoreB').addEventListener('input', () => setText('#scoreError', ''));
+      $('#removeResultButton').addEventListener('click', removeActiveResult);
+      $('#closeResultButton').addEventListener('click', closeResultDialog);
+      $('#cancelResultButton').addEventListener('click', closeResultDialog);
+      $('#resultDialog').addEventListener('close', () => { activeMatchId = null; });
+      $('#resultDialog').addEventListener('click', event => {
+        const dialog = $('#resultDialog');
+        const rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeResultDialog();
       });
 
       const helpDialog = $('#helpDialog');
