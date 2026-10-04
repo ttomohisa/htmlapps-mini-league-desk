@@ -689,6 +689,221 @@
     }
     .result-dialog-footer .button { min-width: 120px; }
 
+
+    .desktop-league-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .desktop-league-nav button {
+      min-height: 36px;
+      padding: 6px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .desktop-league-nav button:hover { border-color: var(--line-strong); background: var(--surface-hover); color: var(--text); }
+    .league-overview-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.25fr) minmax(300px,.75fr);
+      gap: 16px;
+      align-items: start;
+      margin-top: 16px;
+    }
+    .league-page {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      scroll-margin-top: calc(var(--header-height) + 16px);
+    }
+    .league-page.matches-page { margin-top: 16px; }
+    .league-page .panel-head { margin-bottom: 14px; }
+    .progress-summary {
+      display: grid;
+      grid-template-columns: repeat(3,minmax(0,1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .progress-stat {
+      min-width: 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--surface-muted);
+    }
+    .progress-stat strong { display: block; font-size: 19px; line-height: 1.1; }
+    .progress-stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .event-progress {
+      width: 100%;
+      height: 9px;
+      margin: 0 0 16px;
+      accent-color: var(--accent);
+    }
+    .next-match-card {
+      padding: 14px;
+      border: 1px solid color-mix(in srgb,var(--accent) 28%,var(--line));
+      border-radius: 13px;
+      background: var(--accent-soft);
+    }
+    .next-match-card h4,
+    .following-block h4,
+    .participant-match-panel h4,
+    .completion-card h4 { margin: 0; font-size: 12px; }
+    .next-match-button {
+      width: 100%;
+      margin-top: 9px;
+      padding: 13px;
+      border: 1px solid color-mix(in srgb,var(--accent) 32%,var(--line));
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .next-match-button:hover { border-color: var(--accent); }
+    .next-match-round { display: block; color: var(--muted); font-size: 10px; font-weight: 700; }
+    .next-match-names { display: block; margin-top: 3px; overflow-wrap: anywhere; font-size: 15px; }
+    .following-block { margin-top: 14px; }
+    .following-list { display: grid; gap: 7px; margin-top: 8px; }
+    .following-match {
+      width: 100%;
+      min-width: 0;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fbfbf9;
+      color: var(--text);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: left;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+    .following-match:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+    .progress-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .completion-card {
+      padding: 16px;
+      border: 1px solid color-mix(in srgb,var(--accent) 28%,var(--line));
+      border-radius: 13px;
+      background: var(--accent-soft);
+    }
+    .completion-card > p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .completion-standings { display: grid; gap: 5px; margin-top: 12px; }
+    .completion-standing {
+      display: grid;
+      grid-template-columns: 30px minmax(0,1fr) auto;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 9px;
+      border-radius: 9px;
+      background: var(--surface);
+      font-size: 11px;
+    }
+    .completion-standing strong:first-child { text-align: center; }
+    .completion-standing span { min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+    .completion-standing strong:last-child { white-space: nowrap; }
+    .match-page-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .match-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .match-filter {
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .match-filter:hover,
+    .match-filter.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .match-filter-count { margin-left: 4px; font-variant-numeric: tabular-nums; }
+    .match-filter-empty {
+      padding: 22px 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 11px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+    .participant-match-panel {
+      margin-bottom: 14px;
+      padding: 13px;
+      border-radius: 12px;
+      background: var(--surface-muted);
+    }
+    .participant-selector {
+      display: grid;
+      grid-template-columns: auto minmax(0,260px);
+      align-items: center;
+      gap: 9px;
+      margin-top: 9px;
+    }
+    .participant-selector label { font-size: 11px; font-weight: 750; }
+    .participant-select {
+      width: 100%;
+      min-width: 0;
+      min-height: 40px;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+    }
+    .opponent-columns {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 9px;
+      margin-top: 11px;
+    }
+    .opponent-group {
+      min-width: 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--surface);
+    }
+    .opponent-group strong { display: block; margin-bottom: 6px; font-size: 10px; color: var(--muted); }
+    .opponent-list { display: grid; gap: 5px; }
+    .opponent-match {
+      width: 100%;
+      min-width: 0;
+      padding: 7px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfbf9;
+      color: var(--text);
+      font: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: left;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+    .opponent-match:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+    .opponent-empty { color: var(--muted); font-size: 10px; }
+    .app-mobile-bottom-bar { display: none; }
+    .app-mobile-page { display: block; }
+    :root { --app-mobile-bottom-bar-height: 74px; }
+
     footer {
       width: min(1120px,100%);
       margin: 0 auto;
@@ -830,6 +1045,7 @@
         grid-template-areas: "standings" "fixtures";
       }
       .standings-section { position: static; }
+      .league-overview-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
       :root { --header-height: 58px; }
@@ -885,6 +1101,67 @@
       .app-confirm-actions { grid-template-columns: 1fr; gap: 10px; }
       .app-confirm-button { min-height: 48px; font-size: 14px; }
     }
+
+    @media (max-width: 600px) {
+      body.has-mobile-bottom-bar {
+        padding-bottom: calc(var(--app-mobile-bottom-bar-height) + env(safe-area-inset-bottom));
+      }
+      body.has-mobile-page-tabs .app-mobile-page { display: none; }
+      body.has-mobile-page-tabs .app-mobile-page.is-mobile-active { display: block; }
+      .desktop-league-nav { display: none; }
+      .league-overview-grid { display: block; margin-top: 12px; }
+      .league-page { padding: 14px; }
+      .league-page.matches-page { margin-top: 0; }
+      .app-mobile-bottom-bar {
+        position: fixed;
+        z-index: 80;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 4px;
+        padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+        border-top: 1px solid color-mix(in srgb,var(--line) 82%,transparent);
+        background: rgba(255,255,255,.94);
+        box-shadow: 0 -8px 24px rgba(20,22,20,.06);
+        backdrop-filter: blur(18px) saturate(1.35);
+      }
+      .app-mobile-bottom-item {
+        min-width: 0;
+        min-height: 54px;
+        padding: 5px 4px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: var(--muted);
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 3px;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 750;
+        line-height: 1.15;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .app-mobile-bottom-item svg { width: 21px; height: 21px; }
+      .app-mobile-bottom-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .app-mobile-bottom-item:hover,
+      .app-mobile-bottom-item:focus-visible,
+      .app-mobile-bottom-item.is-active,
+      .app-mobile-bottom-item[aria-current="page"] {
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .participant-selector { grid-template-columns: 1fr; gap: 5px; }
+      .opponent-columns { grid-template-columns: 1fr; }
+      .progress-summary { gap: 6px; }
+      .progress-stat { padding: 8px; }
+      .progress-stat strong { font-size: 17px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
@@ -896,7 +1173,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.1.0</span></p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.4.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
@@ -1036,10 +1313,10 @@
       <div class="fixture-hero">
         <span class="fixture-kicker">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M7 8h10M7 16h10"/></svg>
-          <span data-i18n="fixtureKicker">対戦表を作成しました</span>
+          <span data-i18n="fixtureKicker">大会を進行中</span>
         </span>
         <h3 id="fixtureTitle"></h3>
-        <p data-i18n="fixtureLead">対戦行を選ぶと結果を入力できます。結果は順位へすぐ反映されます。</p>
+        <p data-i18n="fixtureLead">次の試合、残りの対戦、現在順位をここから確認できます。</p>
         <div class="fixture-mode"><span data-i18n="resultModeShort">記録方式</span><strong id="fixtureModeLabel"></strong></div>
         <div class="fixture-stats" aria-live="polite">
           <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
@@ -1049,11 +1326,52 @@
         <div class="fixture-actions">
           <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
         </div>
-        <div class="notice" data-i18n="draftNotice">v0.2.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。</div>
+        <div class="desktop-league-nav" aria-label="League desk sections">
+          <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
+          <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
+          <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
+        </div>
+        <div class="notice" data-i18n="draftNotice">v0.4.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると結果を含む大会内容は消えます。</div>
       </div>
 
-      <div class="competition-grid">
-        <section class="standings-section" aria-labelledby="standingsHeading">
+      <div class="league-overview-grid">
+        <section id="progressPage" class="league-page app-mobile-page is-mobile-active" aria-labelledby="progressHeading">
+          <div class="panel-head">
+            <div>
+              <h3 id="progressHeading" data-i18n="progressHeading">進行</h3>
+              <p data-i18n="progressLead">次に行う試合と大会の進み具合を確認します。</p>
+            </div>
+          </div>
+          <div class="progress-summary" aria-live="polite">
+            <div class="progress-stat"><strong id="progressCompleted">0</strong><span data-i18n="completedMatches">完了</span></div>
+            <div class="progress-stat"><strong id="progressRemaining">0</strong><span data-i18n="remainingMatches">未実施</span></div>
+            <div class="progress-stat"><strong id="progressPercent">0%</strong><span data-i18n="progressPercentLabel">進行率</span></div>
+          </div>
+          <progress class="event-progress" id="eventProgress" max="100" value="0" aria-label="Event progress"></progress>
+          <div id="progressActiveState">
+            <div class="next-match-card">
+              <h4 data-i18n="nextMatch">次の試合</h4>
+              <button class="next-match-button" id="nextMatchButton" type="button"></button>
+            </div>
+            <div class="following-block" id="followingBlock">
+              <h4 data-i18n="followingMatches">その次</h4>
+              <div class="following-list" id="followingMatches"></div>
+            </div>
+            <div class="progress-actions">
+              <button class="button" id="viewPendingButton" type="button"><span data-i18n="viewPending">未実施試合を見る</span> <span id="viewPendingCount"></span></button>
+            </div>
+          </div>
+          <div class="completion-card" id="completionState" hidden>
+            <h4 data-i18n="eventComplete">全試合が終了しました</h4>
+            <p data-i18n="eventCompleteLead">最終順位が確定しました。</p>
+            <div class="completion-standings" id="completionStandings"></div>
+            <div class="progress-actions">
+              <button class="button primary" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="standingsPage" class="league-page app-mobile-page standings-page" aria-labelledby="standingsHeading">
           <div class="panel-head">
             <div>
               <h3 id="standingsHeading" data-i18n="standingsHeading">順位</h3>
@@ -1063,20 +1381,61 @@
           <p class="standings-empty-note" id="standingsEmptyNote" data-i18n="standingsEmpty">まだ結果がありません。最初の結果を入力すると順位が表示されます。</p>
           <div class="standings-list" id="standingsList" aria-live="polite"></div>
         </section>
+      </div>
 
-        <section class="fixtures-section" aria-labelledby="fixturesHeading">
-          <div class="panel-head">
-            <div>
-              <h3 id="fixturesHeading" data-i18n="fixturesHeading">対戦と結果</h3>
-              <p data-i18n="fixturesHeadingLead">任意の対戦から結果を入力・修正できます。</p>
+      <section id="matchesPage" class="league-page app-mobile-page matches-page" aria-labelledby="fixturesHeading">
+        <div class="panel-head">
+          <div>
+            <h3 id="fixturesHeading" data-i18n="fixturesHeading">対戦</h3>
+            <p data-i18n="fixturesHeadingLead">未実施・完了を切り替え、任意の試合から結果を入力できます。</p>
+          </div>
+        </div>
+        <div class="participant-match-panel">
+          <h4 data-i18n="participantMatchesHeading">参加者別の対戦状況</h4>
+          <div class="participant-selector">
+            <label for="participantMatchSelect" data-i18n="participantSelectLabel">参加者</label>
+            <select class="participant-select" id="participantMatchSelect"></select>
+          </div>
+          <div class="opponent-columns">
+            <div class="opponent-group">
+              <strong><span data-i18n="remainingOpponents">未実施</span> <span id="participantPendingCount">0</span></strong>
+              <div class="opponent-list" id="participantPendingList"></div>
+            </div>
+            <div class="opponent-group">
+              <strong><span data-i18n="completedOpponents">完了</span> <span id="participantCompletedCount">0</span></strong>
+              <div class="opponent-list" id="participantCompletedList"></div>
             </div>
           </div>
-          <div class="rounds-grid" id="roundsContainer"></div>
-        </section>
-      </div>
+        </div>
+        <div class="match-page-toolbar">
+          <div class="match-filters" role="group" aria-label="Match filter">
+            <button class="match-filter is-active" type="button" data-match-filter="all"><span data-i18n="filterAll">すべて</span><span class="match-filter-count" id="filterAllCount">0</span></button>
+            <button class="match-filter" type="button" data-match-filter="pending"><span data-i18n="filterPending">未実施</span><span class="match-filter-count" id="filterPendingCount">0</span></button>
+            <button class="match-filter" type="button" data-match-filter="completed"><span data-i18n="filterCompleted">完了</span><span class="match-filter-count" id="filterCompletedCount">0</span></button>
+          </div>
+        </div>
+        <div class="rounds-grid" id="roundsContainer"></div>
+        <div class="match-filter-empty" id="matchFilterEmpty" hidden data-i18n="filterEmpty">該当する試合はありません。</div>
+      </section>
     </section>
     <!-- APP:END -->
   </main>
+
+
+  <nav class="app-mobile-bottom-bar" id="leagueBottomBar" aria-label="League navigation" hidden>
+    <button class="app-mobile-bottom-item is-active" type="button" data-mobile-key="progress" data-mobile-page-target="progressPage" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7"/></svg>
+      <span data-i18n="navProgress">進行</span>
+    </button>
+    <button class="app-mobile-bottom-item" type="button" data-mobile-key="matches" data-mobile-page-target="matchesPage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5h10M7 12h10M7 19h10"/><circle cx="4" cy="5" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="19" r="1"/></svg>
+      <span data-i18n="navMatches">対戦</span>
+    </button>
+    <button class="app-mobile-bottom-item" type="button" data-mobile-key="standings" data-mobile-page-target="standingsPage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V10h4v10M14 20V4h4v16M3 20h18"/></svg>
+      <span data-i18n="navStandings">順位</span>
+    </button>
+  </nav>
 
   <footer><span>Mini League Desk</span> · MIT License · <span data-i18n="footer">ブラウザだけで使える小大会運営ツール</span></footer>
 
@@ -1272,10 +1631,11 @@
           emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
           reorderHelp: '矢印で順番を調整できます。', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
-          fixtureKicker: '大会を開始しました', fixtureLead: '対戦行を選ぶと結果を入力できます。結果は順位へすぐ反映されます。',
-          matches: '試合', rounds: '巡', fixturesHeading: '対戦と結果', fixturesHeadingLead: '任意の対戦から結果を入力・修正できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
+          matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
-          backToEdit: '参加者を編集', draftNotice: 'v0.2.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。',
+          backToEdit: '参加者を編集', draftNotice: 'v0.4.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると結果を含む大会内容は消えます。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
@@ -1288,10 +1648,10 @@
           helpBasicsTitle: '基本操作',
           helpStep1: '大会名と結果の記録方法を選びます。',
           helpStep2: '参加者を追加し、3人以上で「参加者を確定」を押して総当たり表を作ります。',
-          helpStep3: '対戦行を選んで結果を入力します。結果の修正・取り消しも同じ画面から行え、順位は自動更新されます。',
+          helpStep3: '大会開始後は「進行」で次の試合、「対戦」で未実施・完了や参加者別の残り対戦、「順位」で現在順位を確認できます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: 'v0.3.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると結果を含む大会内容は失われます。',
+          helpNoteNoSave: 'v0.4.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると結果を含む大会内容は失われます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
           helpNoteScope: '順位は勝点を基準にし、得点入力では勝点→得失点差→得点の順で判定します。完全に同じ場合は同順位です。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
@@ -1311,10 +1671,11 @@
           emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
           reorderHelp: 'Use the arrow buttons to adjust the order.', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
-          fixtureKicker: 'Event started', fixtureLead: 'Choose any matchup to enter a result. Standings update immediately.',
-          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches & results', fixturesHeadingLead: 'Enter or edit results in any matchup.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
+          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
-          backToEdit: 'Edit participants', draftNotice: 'v0.2.0 does not save event data yet. Reloading the page clears the current event.',
+          backToEdit: 'Edit participants', draftNotice: 'v0.4.0 does not save event data yet. Reloading clears the event including results.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
@@ -1327,10 +1688,10 @@
           helpBasicsTitle: 'Basics',
           helpStep1: 'Choose an event name and result-entry mode.',
           helpStep2: 'Add participants and confirm at three or more to generate the round-robin fixtures.',
-          helpStep3: 'Choose a matchup to enter, edit, or remove its result. Standings recalculate immediately.',
+          helpStep3: 'After starting, use Progress for what is next, Matches for pending/completed and participant-specific remaining opponents, and Standings for the current table.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event and participant names are processed in this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'v0.3.0 does not save event data yet. Reloading or closing the tab clears the event including results.',
+          helpNoteNoSave: 'v0.4.0 does not save event data yet. Reloading or closing the tab clears the event including results.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
           helpNoteScope: 'Standings use league points; score mode breaks ties by points, score difference, then score for. Identical active tiebreak values share the same rank.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
@@ -1338,7 +1699,7 @@
       };
 
       const $ = selector => document.querySelector(selector);
-      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true } };
+      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', participantFocusId: '', activePage: 'progress' } };
       const storageKeys = { language: `${APP_CONFIG.slug}:language` };
       let language = readStorage(storageKeys.language) || detectLanguage();
 
@@ -1472,6 +1833,55 @@
           state.settings.scoreDrawsAllowed !== true;
       }
       function updateResetButton() { $('#resetButton').disabled = !setupHasChanges(); }
+
+      // Adapted from components/mobile-bottom-bar.html.
+      const AppMobileBottomBar = (() => {
+        function mount(root, options = {}) {
+          if (!(root instanceof HTMLElement)) throw new TypeError('A mobile bottom bar root element is required.');
+          const buttons = Array.from(root.querySelectorAll('.app-mobile-bottom-item'));
+          const mobileQuery = window.matchMedia?.('(max-width: 600px)') || null;
+          const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+          let currentPageKey = null;
+          function setActive(key) {
+            buttons.forEach(button => {
+              const active = button.dataset.mobileKey === key;
+              button.classList.toggle('is-active', active);
+              if (active) button.setAttribute('aria-current', 'page');
+              else button.removeAttribute('aria-current');
+            });
+          }
+          function showPage(keyOrId, showOptions = {}) {
+            const button = buttons.find(candidate => candidate.dataset.mobileKey === keyOrId || candidate.dataset.mobilePageTarget === keyOrId);
+            if (!button) return false;
+            buttons.forEach(candidate => {
+              const page = document.getElementById(candidate.dataset.mobilePageTarget);
+              page?.classList.toggle('is-mobile-active', candidate === button);
+            });
+            const key = button.dataset.mobileKey || button.dataset.mobilePageTarget;
+            currentPageKey = key;
+            state.ui.activePage = key;
+            setActive(key);
+            if (mobileQuery?.matches && showOptions.scroll !== false) {
+              const page = document.getElementById(button.dataset.mobilePageTarget);
+              const topTarget = document.getElementById(options.pageTopTarget || '') || page;
+              if (topTarget) {
+                const top = Math.max(0, topTarget.getBoundingClientRect().top + window.scrollY - (options.pageTopOffset || 0));
+                window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+              }
+            }
+            return true;
+          }
+          root.addEventListener('click', event => {
+            const button = event.target.closest('.app-mobile-bottom-item');
+            if (!button || !root.contains(button)) return;
+            showPage(button.dataset.mobileKey || button.dataset.mobilePageTarget);
+          });
+          showPage(options.initialPage || 'progress', { scroll: false });
+          return Object.freeze({ showPage, setActive, currentPage: () => currentPageKey });
+        }
+        return Object.freeze({ mount });
+      })();
+      window.AppMobileBottomBar = AppMobileBottomBar;
 
       function updateStaticLanguage() {
         document.documentElement.lang = language;
@@ -1627,6 +2037,142 @@
 
       function allMatches() {
         return state.rounds.flatMap(round => round.matches);
+      }
+
+
+      function matchParticipants(match) {
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        return { a: participantById.get(match.participantAId) || null, b: participantById.get(match.participantBId) || null };
+      }
+      function matchLabel(match) {
+        const people = matchParticipants(match);
+        return (people.a?.name || '') + ' vs ' + (people.b?.name || '');
+      }
+      function eventProgressSnapshot() {
+        const matches = allMatches().slice().sort((a, b) => a.order - b.order);
+        const completed = matches.filter(match => match.status === 'completed');
+        const pending = matches.filter(match => match.status === 'pending');
+        const percent = matches.length ? Math.round(completed.length / matches.length * 100) : 0;
+        return { matches, completed, pending, percent, complete: matches.length > 0 && pending.length === 0 };
+      }
+      function showLeaguePage(key, options = {}) {
+        const pageId = key === 'matches' ? 'matchesPage' : key === 'standings' ? 'standingsPage' : 'progressPage';
+        if (window.matchMedia?.('(max-width: 600px)').matches) {
+          leagueMobileBar?.showPage(key, options);
+          return;
+        }
+        document.getElementById(pageId)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      }
+      function setMatchFilter(filter) {
+        if (!['all', 'pending', 'completed'].includes(filter)) return;
+        state.ui.matchFilter = filter;
+        renderFixtures();
+      }
+      function renderProgress() {
+        const snapshot = eventProgressSnapshot();
+        setText('#progressCompleted', new Intl.NumberFormat(language).format(snapshot.completed.length));
+        setText('#progressRemaining', new Intl.NumberFormat(language).format(snapshot.pending.length));
+        setText('#progressPercent', snapshot.percent + '%');
+        $('#eventProgress').value = snapshot.percent;
+        setText('#viewPendingCount', '(' + new Intl.NumberFormat(language).format(snapshot.pending.length) + ')');
+        $('#progressActiveState').hidden = snapshot.complete;
+        $('#completionState').hidden = !snapshot.complete;
+        if (!snapshot.complete) {
+          const next = snapshot.pending[0] || null;
+          const nextButton = $('#nextMatchButton');
+          if (next) {
+            const people = matchParticipants(next);
+            nextButton.disabled = false;
+            nextButton.replaceChildren();
+            const round = document.createElement('span');
+            round.className = 'next-match-round';
+            round.textContent = translate('roundLabel', { round: next.round });
+            const names = document.createElement('span');
+            names.className = 'next-match-names';
+            names.textContent = (people.a?.name || '') + ' vs ' + (people.b?.name || '');
+            nextButton.append(round, names);
+            nextButton.onclick = () => openResultDialog(next.id);
+          } else {
+            nextButton.disabled = true;
+            nextButton.textContent = '—';
+            nextButton.onclick = null;
+          }
+          const following = snapshot.pending.slice(1, 3);
+          $('#followingBlock').hidden = following.length === 0;
+          const followingRoot = $('#followingMatches');
+          followingRoot.replaceChildren();
+          following.forEach(match => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'following-match';
+            button.textContent = translate('roundLabel', { round: match.round }) + ' · ' + matchLabel(match);
+            button.addEventListener('click', () => openResultDialog(match.id));
+            followingRoot.append(button);
+          });
+        }
+        const completionRoot = $('#completionStandings');
+        completionRoot.replaceChildren();
+        if (snapshot.complete) {
+          calculateStandings().rows.forEach(row => {
+            const item = document.createElement('div');
+            item.className = 'completion-standing';
+            const rank = document.createElement('strong');
+            rank.textContent = String(row.rank ?? '—');
+            const name = document.createElement('span');
+            name.textContent = row.name;
+            const points = document.createElement('strong');
+            points.textContent = row.points + ' ' + translate('points');
+            item.append(rank, name, points);
+            completionRoot.append(item);
+          });
+        }
+      }
+      function renderParticipantMatchStatus() {
+        const select = $('#participantMatchSelect');
+        const previous = state.ui.participantFocusId;
+        select.replaceChildren();
+        state.participants.forEach(participant => {
+          const option = document.createElement('option');
+          option.value = participant.id;
+          option.textContent = participant.name;
+          select.append(option);
+        });
+        if (!state.participants.some(participant => participant.id === previous)) state.ui.participantFocusId = state.participants[0]?.id || '';
+        select.value = state.ui.participantFocusId;
+        const participantId = state.ui.participantFocusId;
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const relevant = allMatches().filter(match => match.participantAId === participantId || match.participantBId === participantId).sort((a, b) => a.order - b.order);
+        const pending = relevant.filter(match => match.status === 'pending');
+        const completed = relevant.filter(match => match.status === 'completed');
+        setText('#participantPendingCount', '(' + pending.length + ')');
+        setText('#participantCompletedCount', '(' + completed.length + ')');
+        function renderOpponentList(root, matches) {
+          root.replaceChildren();
+          if (!matches.length) {
+            const empty = document.createElement('span');
+            empty.className = 'opponent-empty';
+            empty.textContent = translate('opponentNone');
+            root.append(empty);
+            return;
+          }
+          matches.forEach(match => {
+            const opponentId = match.participantAId === participantId ? match.participantBId : match.participantAId;
+            const opponent = participantById.get(opponentId);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'opponent-match';
+            button.textContent = translate('roundLabel', { round: match.round }) + ' · ' + (opponent?.name || '');
+            button.addEventListener('click', () => openResultDialog(match.id));
+            root.append(button);
+          });
+        }
+        renderOpponentList($('#participantPendingList'), pending);
+        renderOpponentList($('#participantCompletedList'), completed);
+      }
+      function renderEventViews() {
+        renderProgress();
+        renderEventViews();
+        renderParticipantMatchStatus();
       }
 
       function calculateStandings() {
@@ -1789,11 +2335,10 @@
         const wasCompleted = match.status === 'completed';
         Object.assign(match, nextResult, { status: 'completed' });
         closeResultDialog();
-        renderFixtures();
-        renderStandings();
+        renderEventViews();
         showToast(translate(wasCompleted ? 'resultUpdated' : 'resultSaved'), {
           tone: 'success', actionLabel: translate('undo'), duration: 5000,
-          onAction: () => { restoreResult(match, before); renderFixtures(); renderStandings(); showToast(translate('undone')); }
+          onAction: () => { restoreResult(match, before); renderEventViews(); showToast(translate('undone')); }
         });
       }
 
@@ -1838,22 +2383,28 @@
         const before = copyResult(match);
         clearMatchResult(match);
         closeResultDialog();
-        renderFixtures();
-        renderStandings();
+        renderEventViews();
         showToast(translate('resultRemoved'), {
           actionLabel: translate('undo'), duration: 5000,
-          onAction: () => { restoreResult(match, before); renderFixtures(); renderStandings(); showToast(translate('undone')); }
+          onAction: () => { restoreResult(match, before); renderEventViews(); showToast(translate('undone')); }
         });
       }
 
       function renderFixtures() {
         const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
-        const matchCount = allMatches().length;
+        const snapshot = eventProgressSnapshot();
+        const matchCount = snapshot.matches.length;
         setText('#fixtureTitle', state.tournamentName || translate('defaultTournament'));
         setText('#fixtureModeLabel', resultModeLabel());
         setText('#fixtureParticipantCount', new Intl.NumberFormat(language).format(state.participants.length));
         setText('#fixtureMatchCount', new Intl.NumberFormat(language).format(matchCount));
         setText('#fixtureRoundCount', new Intl.NumberFormat(language).format(state.rounds.length));
+        setText('#filterAllCount', String(snapshot.matches.length));
+        setText('#filterPendingCount', String(snapshot.pending.length));
+        setText('#filterCompletedCount', String(snapshot.completed.length));
+        document.querySelectorAll('[data-match-filter]').forEach(button => {
+          button.classList.toggle('is-active', button.dataset.matchFilter === state.ui.matchFilter);
+        });
         const container = $('#roundsContainer');
         container.replaceChildren();
         state.rounds.forEach(round => {
@@ -1874,7 +2425,8 @@
           }
           const matchList = document.createElement('div');
           matchList.className = 'match-list';
-          round.matches.forEach(match => {
+          const visibleMatches = round.matches.filter(match => state.ui.matchFilter === 'all' || match.status === state.ui.matchFilter);
+          visibleMatches.forEach(match => {
             const participantA = participantById.get(match.participantAId);
             const participantB = participantById.get(match.participantBId);
             const row = document.createElement('button');
@@ -1915,19 +2467,24 @@
             matchList.append(row);
           });
           card.append(head, matchList);
-          container.append(card);
+          if (visibleMatches.length > 0 || state.ui.matchFilter === 'all') container.append(card);
         });
+        $('#matchFilterEmpty').hidden = container.childElementCount > 0;
       }
 
       function render() {
+        const inEvent = state.phase === 'fixtures';
         $('#setupView').hidden = state.phase !== 'setup';
-        $('#fixtureView').hidden = state.phase !== 'fixtures';
+        $('#fixtureView').hidden = !inEvent;
+        $('#leagueBottomBar').hidden = !inEvent;
+        document.body.classList.toggle('has-mobile-bottom-bar', inEvent);
+        document.body.classList.toggle('has-mobile-page-tabs', inEvent);
         if (state.phase === 'setup') {
           updateResultModeControls();
           renderRoster();
         } else {
-          renderFixtures();
-          renderStandings();
+          renderEventViews();
+          leagueMobileBar?.showPage(state.ui.activePage || 'progress', { scroll: false });
         }
       }
 
@@ -2053,6 +2610,7 @@
         state.participants = [];
         state.rounds = [];
         state.settings = { resultMode: 'winLoss', scoreDrawsAllowed: true };
+        state.ui = { matchFilter: 'all', participantFocusId: '', activePage: 'progress' };
         $('#tournamentName').value = '';
         $('#participantName').value = '';
         $('#bulkParticipants').value = '';
@@ -2073,6 +2631,9 @@
           return;
         }
         state.rounds = rounds;
+        state.ui.matchFilter = 'all';
+        state.ui.participantFocusId = state.participants[0]?.id || '';
+        state.ui.activePage = 'progress';
         state.phase = 'fixtures';
         render();
         window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -2124,6 +2685,27 @@
         updateResetButton();
       });
 
+
+      document.querySelectorAll('[data-match-filter]').forEach(button => {
+        button.addEventListener('click', () => setMatchFilter(button.dataset.matchFilter));
+      });
+      $('#participantMatchSelect').addEventListener('change', event => {
+        state.ui.participantFocusId = event.target.value;
+        renderParticipantMatchStatus();
+      });
+      $('#viewPendingButton').addEventListener('click', () => {
+        setMatchFilter('pending');
+        showLeaguePage('matches');
+      });
+      $('#viewFinalStandingsButton').addEventListener('click', () => showLeaguePage('standings'));
+      document.querySelectorAll('[data-league-section]').forEach(button => {
+        button.addEventListener('click', () => {
+          const pageId = button.dataset.leagueSection;
+          const key = pageId === 'matchesPage' ? 'matches' : pageId === 'standingsPage' ? 'standings' : 'progress';
+          showLeaguePage(key);
+        });
+      });
+
       $('#languageButton').addEventListener('click', () => {
         language = language === 'ja' ? 'en' : 'ja';
         writeStorage(storageKeys.language, language);
@@ -2157,6 +2739,12 @@
       // File export starts in a later milestone; keep the runtime free of inactive export controls.
       const outputFilename = null;
       void outputFilename;
+
+      let leagueMobileBar = AppMobileBottomBar.mount($('#leagueBottomBar'), {
+        initialPage: 'progress',
+        pageTopTarget: 'fixtureView',
+        pageTopOffset: 12
+      });
 
       $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
       updateStaticLanguage();
