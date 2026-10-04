@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.6.0
+- **Current app version:** v0.7.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.6.0 stores the active event locally in addition to the language preference.
+- Current v0.7.0 stores the active event locally in addition to the language preference.
 
 ## 5. Event setup
 
@@ -294,7 +294,7 @@ Provide explicit JSON export and import.
 
 JSON export is the portability/backup path when browser site data is cleared or another device is used.
 
-## 17. Exports — v0.7.0 target
+## 17. Exports — v0.7.0
 
 ### CSV
 
@@ -315,69 +315,85 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.6.0
+## 18. Current implementation milestone: v0.7.0
 
-v0.6.0 focuses on smartphone operation and interaction polish without expanding tournament scope.
+v0.7.0 adds local export and print workflows without introducing runtime network dependencies.
 
 Implemented behavior:
 
-- all setup, League Desk, result, standings, persistence, and JSON backup behavior from v0.1.0–v0.5.0
-- existing smartphone Progress / Matches / Standings bottom tabs retained and hardened
-- content receives safe bottom spacing while the fixed mobile navigation is active
-- toast notifications move above the mobile bottom bar instead of overlapping it
-- result dialog controls are larger on phones
-- score inputs use larger mobile-friendly targets and select the existing value when focused for fast correction
-- editing a completed non-score match shows the currently recorded result and highlights the active winner/draw choice
-- editing a score result shows the currently recorded score before correction
-- JSON backup dialog becomes a mobile bottom sheet with full-width actions
-- data-management buttons wrap safely on narrow screens
-- 380px-and-narrower matchup cards use a two-row layout so long participant names have more horizontal room
-- participant reorder controls expand to 44px touch targets on very narrow screens
-- completion standings reflow on narrow screens
-- empty match-filter states include a direct Show all matches recovery action
-- Japanese and English help text explains the smartphone tab workflow
-- no runtime network
+- all setup, League Desk, result, standings, persistence, JSON backup, and mobile UX behavior from v0.1.0–v0.6.0
+- event-level Export action during an active event
+- completion-state Export action after all matches finish
+- editable export filename stem before file-producing actions
+- unsafe filename characters are replaced locally and extensions are added per selected format
+- match-results CSV containing round, global order, both participants, status, optional scores, result, and winner
+- standings CSV with columns matched to the active result mode
+- UTF-8 BOM CSV output for spreadsheet compatibility
+- user-controlled CSV text that begins with formula-trigger characters is prefixed to reduce spreadsheet formula execution risk
+- standings PNG rendered locally with Canvas at 1200px width
+- PNG includes event name, result mode, rank, participant, record, points, and score difference when score mode is active
+- print layout contains standings and every round/match result
+- print CSS hides application chrome and prints only the generated print sheet
+- completion screen exposes export once final standings exist
+- Japanese and English export UI
+- no runtime CDN or external export service
 
-Not implemented in v0.6.0:
+Not implemented in v0.7.0:
 
-- CSV/image/print exports
-- final i18n/accessibility release audit
-- release-candidate screenshots and broad browser/device regression
+- final bilingual copy review
+- final keyboard/accessibility audit
+- release-candidate screenshots and broad device/browser regression
 
-## 19. v0.6.0 acceptance criteria
+## 19. v0.7.0 acceptance criteria
 
-### Smartphone layout
+### File naming
 
-- Main event workflow remains usable at 320 CSS px without requiring page-level horizontal scrolling from normal content.
-- Progress / Matches / Standings bottom navigation remains safe-area aware.
-- Reachable content and toast notifications are not hidden behind the bottom navigation.
-- At 380 CSS px and below, matchup rows give both participant names a dedicated half-width row and move result/status beneath them.
-- Very long participant names wrap instead of forcing layout overflow.
-- Reorder/delete controls retain practical touch targets on narrow screens.
-- Result and backup dialogs fit the phone viewport and keep their actions reachable.
+- Every file-producing export opens the export dialog first.
+- The filename stem is editable before saving.
+- Unsafe filename characters are replaced.
+- The selected export adds its own descriptive suffix and extension.
+- Output stays local to the browser.
 
-### Result entry
+### Match results CSV
 
-- Winner/draw buttons are at least 56px high on phones.
-- Score fields are at least 56px high on phones.
-- Opening a completed non-score result clearly indicates the currently recorded choice.
-- Opening a completed score result shows the current score.
-- Focusing an existing score selects it to make correction faster.
-- The existing result add/edit/remove/Undo behavior remains unchanged.
+- Contains one row per generated match in global order.
+- Includes round, order, participant A/B, pending/completed state, score fields where applicable, result, and winner.
+- Pending matches remain distinguishable from completed draws.
+- Participant text beginning with `=`, `+`, `-`, or `@` is protected before CSV serialization.
+- CSV uses UTF-8 BOM and quoted cells.
 
-### States / recovery
+### Standings CSV
 
-- Empty match-filter views provide an explicit action to return to All matches.
-- Completed-event state remains reachable and readable on narrow screens.
-- Persistence and backup error states remain visible above fixed mobile UI.
+- Uses the same `calculateStandings()` result as the visible UI.
+- Includes rank, participant, played, wins, losses, and league points.
+- Includes draws only when the active result mode supports draws.
+- Includes score for, score against, and difference only in score mode.
+- Shared ranks are preserved.
+
+### Standings PNG
+
+- Generated entirely with Canvas in the browser.
+- Uses Browser Kitty brand color `#16624F`.
+- Includes event name and result mode.
+- Includes all participants in ranking order.
+- Long participant names are limited to a bounded number of rendered lines.
+- Score mode includes score difference.
+- PNG encoding failure produces a visible error rather than an empty file.
+
+### Print
+
+- Print sheet includes standings and every generated match grouped by round.
+- Print layout does not print the normal application header, dialogs, mobile navigation, or controls.
+- User-entered content is inserted using textContent rather than raw HTML.
+- Printing does not alter event data.
 
 ### Regression / build
 
-- Existing round-robin, result/standings, League Desk, and persistence tests continue to pass.
-- Mobile/UX regression checks cover narrow-layout markers, touch-target sizes, result-current-state UI, bottom-bar/toast separation, and empty-filter recovery.
+- Existing round-robin, result/standings, League Desk, persistence, and Mobile/UX tests continue to pass.
+- Export regression checks cover safe filenames, CSV formula protection, UTF-8 BOM, Canvas PNG generation, print-sheet isolation, and outputFilename usage.
 - Runtime communication remains blocked.
 - PowerShell syntax preflight and repository check must pass.
-- Do not claim real-device/manual-network verification unless it was actually performed.
+- Do not claim real-device/manual-print/manual-download verification unless it was actually performed.
 
 ## 20. Planned development sequence
 
@@ -420,7 +436,7 @@ Not implemented in v0.6.0:
 - long-name and narrow-width hardening
 - empty/completed/error state polish
 
-### v0.7.0 — Export
+### v0.7.0 — Export — implemented
 
 - CSV
 - standings image
