@@ -210,7 +210,8 @@ try {
   await capture({ name:"screenshot-mobile-en.png", language:"en", width:390, height:844, mobile:true });
 } finally {
   try { cdp?.close(); } catch {}
-  browser.kill();
+  try { browser.kill(); } catch {}
   server.close();
-  fs.rmSync(profile, { recursive: true, force: true });
+  await sleep(800);
+  try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch {}
 }
