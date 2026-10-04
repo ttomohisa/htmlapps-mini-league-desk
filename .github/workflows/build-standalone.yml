@@ -38,6 +38,11 @@ jobs:
         shell: pwsh
         run: ./scripts/check-repository.ps1
 
+      - name: Capture RC screenshots
+        if: github.event_name == 'pull_request' && github.head_ref == 'release/v0.9.0-rc'
+        shell: pwsh
+        run: ./scripts/capture-release-screenshots.ps1
+
       - name: Upload standalone artifact
         uses: actions/upload-artifact@v7
         with:
@@ -49,5 +54,6 @@ jobs:
             dist/dependency-manifest.json
             dist/self-extract-manifest.json
             dist/.nojekyll
+            release-screenshots/*.png
           if-no-files-found: error
           retention-days: 14
