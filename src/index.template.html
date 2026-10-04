@@ -2456,6 +2456,308 @@
         $('#exportBackupButton').disabled = disabled;
       }
 
+
+      function safeOutputStem(value) {
+        let stem = String(value || '').trim()
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, ' ')
+          .replace(/[. ]+$/g, '')
+          .replace(/\.(csv|png|json)$/i, '')
+          .slice(0, 96);
+        if (!stem) stem = 'mini-league-desk';
+        return stem;
+      }
+      function defaultOutputFilename() {
+        const date = new Date().toISOString().slice(0, 10);
+        const eventPart = (state.tournamentName || 'mini-league-desk')
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60) || 'mini-league-desk';
+        return safeOutputStem(eventPart + '-' + date);
+      }
+      function makeOutputFilename(suffix, extension) {
+        const stem = safeOutputStem($('#outputFilename').value || defaultOutputFilename());
+        outputFilename = stem + '-' + suffix + '.' + extension;
+        return outputFilename;
+      }
+      function openExportDialog() {
+        if (state.phase !== 'fixtures') return;
+        $('#outputFilename').value = defaultOutputFilename();
+        $('#exportDialog').showModal();
+        requestAnimationFrame(() => $('#outputFilename').select());
+      }
+      function closeExportDialog() {
+        if ($('#exportDialog').open) $('#exportDialog').close();
+      }
+      function downloadBlobFile(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.rel = 'noopener';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        closeExportDialog();
+        showToast(translate('exportSaved'), { tone: 'success' });
+      }
+      function spreadsheetSafeValue(value) {
+        if (value === null || value === undefined) return '';
+        if (typeof value !== 'string') return value;
+        return /^[=+\-@]/.test(value) ? "'" + value : value;
+      }
+      function csvCell(value) {
+        const text = String(spreadsheetSafeValue(value));
+        return '"' + text.replaceAll('"', '""') + '"';
+      }
+      function csvText(rows) {
+        return '\uFEFF' + rows.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+      }
+      function exportMatchesCsv() {
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const rows = [[
+          translate('csvRound'), translate('csvOrder'), translate('csvPlayerA'), translate('csvPlayerB'),
+          translate('csvStatus'), translate('csvScoreA'), translate('csvScoreB'), translate('csvResult'), translate('csvWinner')
+        ]];
+        allMatches().slice().sort((a, b) => a.order - b.order).forEach(match => {
+          const completed = match.status === 'completed';
+          const winner = completed && match.winnerId ? participantById.get(match.winnerId)?.name || '' : '';
+          rows.push([
+            match.round,
+            match.order,
+            participantById.get(match.participantAId)?.name || '',
+            participantById.get(match.participantBId)?.name || '',
+            translate(completed ? 'csvCompleted' : 'csvPending'),
+            state.settings.resultMode === 'score' && completed ? match.scoreA : '',
+            state.settings.resultMode === 'score' && completed ? match.scoreB : '',
+            completed ? (match.result === 'draw' ? translate('drawChoice') : translate('winMark')) : '',
+            winner
+          ]);
+        });
+        const blob = new Blob([csvText(rows)], { type: 'text/csv;charset=utf-8' });
+        downloadBlobFile(blob, makeOutputFilename('matches', 'csv'));
+      }
+      function standingsCsvRows() {
+        const config = getResultModeConfig();
+        const standings = calculateStandings().rows;
+        const header = [
+          translate('csvRank'), translate('csvParticipant'), translate('csvPlayed'), translate('csvWins')
+        ];
+        if (config.drawsAllowed) header.push(translate('csvDraws'));
+        header.push(translate('csvLosses'), translate('points'));
+        if (config.scoreBased) header.push(translate('csvScoreFor'), translate('csvScoreAgainst'), translate('csvDifference'));
+
+        const rows = [header];
+        standings.forEach(row => {
+          const values = [
+            row.rank ?? '',
+            row.name,
+            row.played,
+            row.wins
+          ];
+          if (config.drawsAllowed) values.push(row.draws);
+          values.push(row.losses, row.points);
+          if (config.scoreBased) values.push(row.scoreFor, row.scoreAgainst, row.difference);
+          rows.push(values);
+        });
+        return rows;
+      }
+      function exportStandingsCsv() {
+        const blob = new Blob([csvText(standingsCsvRows())], { type: 'text/csv;charset=utf-8' });
+        downloadBlobFile(blob, makeOutputFilename('standings', 'csv'));
+      }
+      function drawWrappedCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 2) {
+        const chars = Array.from(String(text));
+        const lines = [];
+        let current = '';
+        for (const char of chars) {
+          const next = current + char;
+          if (current && ctx.measureText(next).width > maxWidth) {
+            lines.push(current);
+            current = char;
+            if (lines.length === maxLines - 1) break;
+          } else {
+            current = next;
+          }
+        }
+        if (current && lines.length < maxLines) {
+          const consumed = lines.join('').length + current.length;
+          let finalLine = current;
+          if (consumed < chars.length) {
+            while (finalLine && ctx.measureText(finalLine + '…').width > maxWidth) finalLine = finalLine.slice(0, -1);
+            finalLine += '…';
+          }
+          lines.push(finalLine);
+        }
+        lines.slice(0, maxLines).forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+      }
+      async function exportStandingsPng() {
+        try {
+          const config = getResultModeConfig();
+          const standings = calculateStandings().rows;
+          const width = 1200;
+          const rowHeight = 82;
+          const top = 230;
+          const height = Math.max(420, top + standings.length * rowHeight + 70);
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('canvas unavailable');
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.fillStyle = '#16624F';
+          ctx.fillRect(0, 0, width, 18);
+
+          ctx.fillStyle = '#151715';
+          ctx.font = '700 44px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.textBaseline = 'top';
+          drawWrappedCanvasText(ctx, state.tournamentName || translate('defaultTournament'), 64, 54, 1072, 52, 2);
+
+          ctx.fillStyle = '#626760';
+          ctx.font = '500 22px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.fillText(resultModeLabel(), 64, 166);
+
+          ctx.fillStyle = '#f1f4f1';
+          ctx.fillRect(48, 204, 1104, 48);
+          ctx.fillStyle = '#4a4f49';
+          ctx.font = '700 20px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.fillText(translate('csvRank'), 70, 217);
+          ctx.fillText(translate('csvParticipant'), 160, 217);
+          ctx.fillText(config.drawsAllowed ? 'W-D-L' : 'W-L', 720, 217);
+          if (config.scoreBased) ctx.fillText(translate('csvDifference'), 900, 217);
+          ctx.fillText(translate('points'), 1070, 217);
+
+          standings.forEach((row, index) => {
+            const y = 252 + index * rowHeight;
+            if (index % 2 === 1) {
+              ctx.fillStyle = '#fafbf9';
+              ctx.fillRect(48, y, 1104, rowHeight);
+            }
+            ctx.strokeStyle = '#e2e5df';
+            ctx.beginPath();
+            ctx.moveTo(48, y + rowHeight);
+            ctx.lineTo(1152, y + rowHeight);
+            ctx.stroke();
+
+            ctx.fillStyle = '#16624F';
+            ctx.font = '800 28px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.fillText(row.rank === null ? '—' : String(row.rank), 72, y + 24);
+
+            ctx.fillStyle = '#151715';
+            ctx.font = '700 24px system-ui, -apple-system, "Segoe UI", sans-serif';
+            drawWrappedCanvasText(ctx, row.name, 160, y + 13, 510, 28, 2);
+
+            ctx.fillStyle = '#4a4f49';
+            ctx.font = '600 22px system-ui, -apple-system, "Segoe UI", sans-serif';
+            const record = config.drawsAllowed
+              ? row.wins + '-' + row.draws + '-' + row.losses
+              : row.wins + '-' + row.losses;
+            ctx.fillText(record, 720, y + 26);
+            if (config.scoreBased) ctx.fillText(signedNumber(row.difference), 900, y + 26);
+
+            ctx.fillStyle = '#151715';
+            ctx.font = '800 28px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(String(row.points), 1120, y + 22);
+            ctx.textAlign = 'left';
+          });
+
+          ctx.fillStyle = '#777b75';
+          ctx.font = '500 16px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.fillText('Mini League Desk', 64, height - 38);
+
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          if (!blob) throw new Error('PNG encoding failed');
+          downloadBlobFile(blob, makeOutputFilename('standings', 'png'));
+        } catch {
+          showToast(translate('exportImageError'), { tone: 'warning', duration: 6000 });
+        }
+      }
+      function appendPrintCell(row, tagName, text) {
+        const cell = document.createElement(tagName);
+        cell.textContent = String(text);
+        row.append(cell);
+      }
+      function buildPrintSheet() {
+        const sheet = $('#printSheet');
+        sheet.replaceChildren();
+
+        const title = document.createElement('h1');
+        title.className = 'print-title';
+        title.textContent = state.tournamentName || translate('defaultTournament');
+        const meta = document.createElement('p');
+        meta.className = 'print-meta';
+        meta.textContent = resultModeLabel() + ' · ' + new Intl.DateTimeFormat(language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
+        sheet.append(title, meta);
+
+        const standingsSection = document.createElement('section');
+        standingsSection.className = 'print-section';
+        const standingsHeading = document.createElement('h2');
+        standingsHeading.textContent = translate('printStandings');
+        standingsSection.append(standingsHeading);
+
+        const standingsTable = document.createElement('table');
+        standingsTable.className = 'print-table';
+        const standingsRows = standingsCsvRows();
+        standingsRows.forEach((values, index) => {
+          const row = document.createElement('tr');
+          values.forEach(value => appendPrintCell(row, index === 0 ? 'th' : 'td', value));
+          standingsTable.append(row);
+        });
+        standingsSection.append(standingsTable);
+        sheet.append(standingsSection);
+
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const resultsSection = document.createElement('section');
+        resultsSection.className = 'print-section';
+        const resultsHeading = document.createElement('h2');
+        resultsHeading.textContent = translate('printResults');
+        resultsSection.append(resultsHeading);
+
+        state.rounds.forEach(round => {
+          const block = document.createElement('div');
+          block.className = 'print-round';
+          const heading = document.createElement('h3');
+          heading.textContent = translate('roundLabel', { round: round.number });
+          block.append(heading);
+
+          const table = document.createElement('table');
+          table.className = 'print-table';
+          const header = document.createElement('tr');
+          [translate('csvPlayerA'), translate('csvPlayerB'), translate('csvStatus'), translate('csvResult')].forEach(value => appendPrintCell(header, 'th', value));
+          table.append(header);
+
+          round.matches.forEach(match => {
+            const row = document.createElement('tr');
+            const completed = match.status === 'completed';
+            let result = '';
+            if (completed && state.settings.resultMode === 'score') result = String(match.scoreA) + ' — ' + String(match.scoreB);
+            else if (completed && match.result === 'draw') result = translate('drawChoice');
+            else if (completed && match.winnerId) result = participantById.get(match.winnerId)?.name || '';
+            [
+              participantById.get(match.participantAId)?.name || '',
+              participantById.get(match.participantBId)?.name || '',
+              translate(completed ? 'csvCompleted' : 'csvPending'),
+              result
+            ].forEach(value => appendPrintCell(row, 'td', value));
+            table.append(row);
+          });
+          block.append(table);
+          resultsSection.append(block);
+        });
+        sheet.append(resultsSection);
+      }
+      function printEvent() {
+        closeExportDialog();
+        buildPrintSheet();
+        window.print();
+      }
+
       function updateStaticLanguage() {
         document.documentElement.lang = language;
         document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = translate(element.dataset.i18n); });
@@ -3339,6 +3641,24 @@
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeBackupExportDialog();
       });
 
+
+      $('#openExportButton').addEventListener('click', openExportDialog);
+      $('#completionExportButton').addEventListener('click', openExportDialog);
+      $('#closeExportButton').addEventListener('click', closeExportDialog);
+      $('#exportDialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        closeExportDialog();
+      });
+      $('#exportDialog').addEventListener('click', event => {
+        const dialog = $('#exportDialog');
+        const rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeExportDialog();
+      });
+      $('#exportMatchesCsvButton').addEventListener('click', exportMatchesCsv);
+      $('#exportStandingsCsvButton').addEventListener('click', exportStandingsCsv);
+      $('#exportStandingsPngButton').addEventListener('click', exportStandingsPng);
+      $('#printEventButton').addEventListener('click', printEvent);
+
       $('#languageButton').addEventListener('click', () => {
         language = language === 'ja' ? 'en' : 'ja';
         writeStorage(storageKeys.language, language);
@@ -3371,9 +3691,7 @@
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) helpDialog.close();
       });
 
-      // File export starts in a later milestone; keep the runtime free of inactive export controls.
-      const outputFilename = null;
-      void outputFilename;
+      let outputFilename = '';
 
       let leagueMobileBar = AppMobileBottomBar.mount($('#leagueBottomBar'), {
         initialPage: 'progress',
