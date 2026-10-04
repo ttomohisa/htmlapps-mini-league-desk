@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.0 - Release Candidate - 2026-10-04
+
+- Froze feature scope for the release candidate.
+- Added an explicit 3 / 4 / 5 / 8 / 16 participant RC matrix on top of the existing 3..64 invariant suite.
+- Added release-candidate checks for screenshots, favicon, README references, standalone artifacts, CSP, and external runtime resources.
+- Replaced the original template/starter screenshots with current Mini League Desk screenshots.
+- Added Japanese and English desktop and smartphone screenshots.
+- Fixed a mobile min-content overflow found during 390 CSS px release capture.
+- Verified release capture at 390 CSS px with scrollWidth equal to innerWidth.
+- Finalized Japanese / English README content for the release candidate.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.8.0 - i18n / Accessibility / Polish - 2026-10-04
 
 - Localized League Desk navigation, event-progress, and match-filter accessible names.

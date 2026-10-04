@@ -1152,7 +1152,31 @@
       .export-grid { grid-template-columns: 1fr; }
       .backup-dialog-actions { flex-direction: column-reverse; }
       .backup-dialog-actions .button { width: 100%; min-height: 48px; }
-      .data-actions .button { flex: 1 1 150px; }
+      .fixture-view,
+      .fixture-hero,
+      .league-overview-grid,
+      .league-page,
+      .fixtures-section,
+      .data-actions,
+      .fixture-actions,
+      .notice {
+        min-width: 0;
+        max-width: 100%;
+      }
+      .fixture-actions.data-actions {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        width: 100%;
+      }
+      .fixture-actions.data-actions .button {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .data-actions .button { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+      .notice { overflow-wrap: anywhere; }
       .app-toast { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: none; }
       body.has-mobile-bottom-bar .app-toast { bottom: calc(var(--app-mobile-bottom-bar-height) + 12px + env(safe-area-inset-bottom)); }
       #helpDialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
@@ -1231,6 +1255,7 @@
 
     @media (max-width: 380px) {
       .main { padding-inline: 10px; }
+      .fixture-actions.data-actions { grid-template-columns: 1fr; }
       .panel, .league-page, .fixtures-section { padding: 12px; }
       .fixture-hero { padding: 16px 12px; }
       .fixture-stat { padding: 8px 6px; text-align: center; }
@@ -1314,7 +1339,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.8.0</span></p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.9.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
