@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0 - Export - 2026-10-04
+
+- Added editable local export dialog available during an event and from the completed-event state.
+- Added UTF-8 BOM match-results CSV with spreadsheet formula-prefix protection.
+- Added mode-aware standings CSV using the same standings calculation as the UI.
+- Added local Canvas standings PNG generation with Browser Kitty branding.
+- Added print-only standings and full match-results layout.
+- Added safe filename handling with format-specific suffixes and extensions.
+- Added export regression checks and updated Japanese / English documentation and version metadata.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.6.0 - Mobile / UX - 2026-10-04
 
 - Hardened smartphone bottom-tab spacing and moved event toasts above the fixed navigation.

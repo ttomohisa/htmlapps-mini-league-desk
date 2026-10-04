@@ -4,60 +4,65 @@
 
 Mini League Desk is a local-first browser tool for running small round-robin events. It is designed around quickly answering: **who plays next, what is still unfinished, and what are the current standings?**
 
-Current development version: **v0.6.0**
+Current development version: **v0.7.0**
 
 ## Current features
 
-v0.6.0 keeps the existing League Desk and persistence features, with a stronger smartphone workflow:
+v0.7.0 adds local result export to the existing League Desk workflow:
 
 - Event setup and three result modes
-- Complete round-robin fixture generation
+- Complete round-robin fixtures
 - Result add / edit / removal with Undo
 - Progress / Matches / Standings workflow
-- Per-participant pending/completed opponents
-- Automatic event completion and final standings
-- Local automatic save and JSON backup / restore
-- Smartphone fixed bottom tabs for Progress / Matches / Standings
-- Narrow-screen matchup cards that reflow participant names before result/status
-- Larger result controls and score fields on phones
-- Current-result highlighting when editing completed matches
-- Fast score correction by selecting the existing score on focus
-- Toasts positioned above the mobile bottom navigation
-- Mobile bottom-sheet JSON backup dialog
-- Empty match-filter recovery with **Show all matches**
+- Per-participant remaining/completed opponents
+- Automatic local save and JSON backup / restore
+- Smartphone-focused result entry and navigation
+- **Match results CSV**
+- **Standings CSV**
+- **Standings PNG**
+- **Print layout for standings and all match results**
+- Editable safe filename before file downloads
 - Japanese / English UI
-- No runtime CDN, API, analytics, or telemetry
+- No runtime CDN, API, analytics, telemetry, or external export service
 
-## Smartphone workflow
+## Export
 
-On phones, the event is split into three bottom-tab pages:
+Open **Export** during an event or from the completed-event card.
 
-- **Progress** — next match, following matches, completed/pending counts, completion state
-- **Matches** — filters, participant-specific remaining/completed opponents, result entry
-- **Standings** — current ranking
+### Match results CSV
 
-The fixed bottom navigation is safe-area aware. Toast notifications and reachable content are kept above it.
+Contains every match in generated order with round, order, participants, status, optional score, result, and winner.
 
-At very narrow widths, matchup cards place the two participant names on the first row and result/status on the second row to avoid squeezing long names.
+CSV is written as UTF-8 with BOM. User-controlled text that begins with common spreadsheet formula prefixes is protected before serialization.
 
-## Result correction
+### Standings CSV
 
-Opening a completed match shows its current recorded result. In Win/Loss or Win/Draw/Loss modes, the active choice is highlighted. In Score mode, the current score is shown and focusing a score field selects the existing value for quick replacement.
+Uses the same standings calculation shown in the app. The columns adapt to the active result mode, including score statistics only when relevant.
+
+### Standings PNG
+
+Creates a 1200px-wide shareable image entirely with the browser Canvas API. It includes the event name, result mode, participant order, rank, record, points, and score difference for score-based events.
+
+### Print
+
+Builds a print-only sheet containing the standings and every round's match results. The normal app UI, dialogs, and mobile navigation are hidden from print.
+
+## File names
+
+The export dialog proposes an event/date-based file name. Edit it before saving if desired. Unsafe filename characters are replaced locally; each export adds its own suffix and extension.
 
 ## Persistence and privacy
 
-The active event is saved locally in the browser. JSON backup is available for portability and recovery.
+The active event is saved locally in the browser. JSON backup remains available for portability and recovery.
 
-Event names, participants, fixtures, results, progress, standings, and backups are processed locally. Runtime network access remains blocked by Content Security Policy.
+Event data and generated exports are processed locally. Runtime network access remains blocked by Content Security Policy.
 
-## Limitations in v0.6.0
+## Limitations in v0.7.0
 
-Not yet included:
+Not yet completed:
 
-- CSV export
-- standings image export
-- print layout
-- final i18n/accessibility release audit
+- final bilingual copy review
+- final keyboard/accessibility audit
 - release-candidate screenshots and broad browser/device regression
 
 See `APP_SPEC.md` for the remaining roadmap.

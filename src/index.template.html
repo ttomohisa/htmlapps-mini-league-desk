@@ -939,6 +939,25 @@
     }
     .save-status svg { width: 14px; height: 14px; color: var(--accent); }
 
+
+    .export-dialog { width: min(560px,calc(100% - 28px)); }
+    .export-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 16px; }
+    .export-option {
+      min-height: 72px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .export-option:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .export-option strong { display: block; font-size: 12px; }
+    .export-option span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .print-sheet { display: none; }
+
     footer {
       width: min(1120px,100%);
       margin: 0 auto;
@@ -1126,8 +1145,11 @@
       .score-submit { min-height: 50px; }
       .result-dialog-footer { flex-direction: column-reverse; align-items: stretch; }
       .result-dialog-footer .button { width: 100%; min-height: 48px; }
-      .backup-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 22px 22px 0 0; }
-      .backup-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .backup-dialog,
+      .export-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 22px 22px 0 0; }
+      .backup-dialog .dialog-body,
+      .export-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .export-grid { grid-template-columns: 1fr; }
       .backup-dialog-actions { flex-direction: column-reverse; }
       .backup-dialog-actions .button { width: 100%; min-height: 48px; }
       .data-actions .button { flex: 1 1 150px; }
@@ -1232,6 +1254,28 @@
       .completion-standing strong:last-child { grid-column: 2; justify-self: start; }
     }
 
+
+    @media print {
+      @page { size: auto; margin: 12mm; }
+      body { background: #fff !important; color: #111 !important; }
+      body > *:not(#printSheet) { display: none !important; }
+      #printSheet {
+        display: block !important;
+        width: 100%;
+        color: #111;
+        font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+      }
+      .print-title { margin: 0 0 4px; font-size: 22pt; }
+      .print-meta { margin: 0 0 16px; color: #555; font-size: 9pt; }
+      .print-section { margin-top: 16px; }
+      .print-section h2 { margin: 0 0 8px; font-size: 14pt; }
+      .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 8.5pt; }
+      .print-table th, .print-table td { padding: 5px 6px; border: 1px solid #bbb; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+      .print-table th { background: #f1f2ef !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-round { margin-top: 12px; break-inside: avoid; }
+      .print-round h3 { margin: 0 0 5px; font-size: 10pt; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
@@ -1243,7 +1287,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.6.0</span></p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.7.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
@@ -1403,6 +1447,7 @@
           <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
           <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
           <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+          <button class="button primary" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
         </div>
         <div class="desktop-league-nav" aria-label="League desk sections">
           <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
@@ -1445,6 +1490,7 @@
             <div class="completion-standings" id="completionStandings"></div>
             <div class="progress-actions">
               <button class="button primary" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
+              <button class="button" id="completionExportButton" type="button" data-i18n="exportOpen">出力</button>
             </div>
           </div>
         </section>
@@ -1564,6 +1610,41 @@
     </form>
   </dialog>
 
+
+  <dialog class="export-dialog" id="exportDialog" aria-labelledby="exportTitle">
+    <div class="dialog-header">
+      <h2 id="exportTitle" data-i18n="exportTitle">大会結果を出力</h2>
+      <button class="icon-button" id="closeExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="backup-field">
+        <label for="outputFilename" data-i18n="exportFilename">ファイル名</label>
+        <input id="outputFilename" type="text" maxlength="120" autocomplete="off">
+      </div>
+      <p class="backup-help" data-i18n="exportFilenameHelp">拡張子は選んだ形式に合わせて自動で付けます。</p>
+      <div class="export-grid">
+        <button class="export-option" id="exportMatchesCsvButton" type="button">
+          <strong data-i18n="exportMatchesCsv">対戦結果CSV</strong>
+          <span data-i18n="exportMatchesCsvHelp">全試合の状態・結果・得点を保存</span>
+        </button>
+        <button class="export-option" id="exportStandingsCsvButton" type="button">
+          <strong data-i18n="exportStandingsCsv">順位CSV</strong>
+          <span data-i18n="exportStandingsCsvHelp">現在の順位表を保存</span>
+        </button>
+        <button class="export-option" id="exportStandingsPngButton" type="button">
+          <strong data-i18n="exportStandingsPng">順位表PNG</strong>
+          <span data-i18n="exportStandingsPngHelp">共有しやすい順位表画像を保存</span>
+        </button>
+        <button class="export-option" id="printEventButton" type="button">
+          <strong data-i18n="exportPrint">印刷</strong>
+          <span data-i18n="exportPrintHelp">順位と全対戦結果を印刷</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle">
     <div class="dialog-header">
       <h2 id="resultDialogTitle" data-i18n="resultDialogTitle">試合結果</h2>
@@ -1631,6 +1712,8 @@
       <!-- APP:HELP:END -->
     </div>
   </dialog>
+
+  <section class="print-sheet" id="printSheet" aria-hidden="true"></section>
 
   <script>
     (() => {
@@ -1741,7 +1824,7 @@
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
           fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
           matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
-          navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
@@ -1761,7 +1844,7 @@
           helpNotesTitle: '注意事項',
           helpNoteNoSave: 'v0.5.0では大会内容をこの端末に自動保存します。JSONバックアップで別のブラウザや端末へ移すこともできます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
-          helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。順位は勝点を基準にし、得点入力では勝点→得失点差→得点の順で判定します。',
+          helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。大会中はCSV・順位PNG・印刷で結果を出力できます。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
         },
         en: {
@@ -1781,7 +1864,7 @@
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
           fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
           matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
-          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
@@ -1801,7 +1884,7 @@
           helpNotesTitle: 'Notes',
           helpNoteNoSave: 'v0.5.0 saves the event automatically on this device. JSON backup can also move the event to another browser or device.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
-          helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. Score mode ranks by points, score difference, then score for; identical active tiebreak values share a rank.',
+          helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. During an event you can export CSV files, a standings PNG, or a print layout.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
         }
       };
@@ -2294,6 +2377,7 @@
           .slice(0, 60) || 'mini-league-desk';
         return safeBackupFilename(eventPart + '-' + date + '.json');
       }
+
       function openBackupExportDialog() {
         if (!meaningfulEventState()) return;
         persistEvent();
@@ -2371,6 +2455,308 @@
         const disabled = !meaningfulEventState();
         $('#setupExportBackupButton').disabled = disabled;
         $('#exportBackupButton').disabled = disabled;
+      }
+
+
+      function safeOutputStem(value) {
+        let stem = String(value || '').trim()
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, ' ')
+          .replace(/[. ]+$/g, '')
+          .replace(/\.(csv|png|json)$/i, '')
+          .slice(0, 96);
+        if (!stem) stem = 'mini-league-desk';
+        return stem;
+      }
+      function defaultOutputFilename() {
+        const date = new Date().toISOString().slice(0, 10);
+        const eventPart = (state.tournamentName || 'mini-league-desk')
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60) || 'mini-league-desk';
+        return safeOutputStem(eventPart + '-' + date);
+      }
+      function makeOutputFilename(suffix, extension) {
+        const stem = safeOutputStem($('#outputFilename').value || defaultOutputFilename());
+        outputFilename = stem + '-' + suffix + '.' + extension;
+        return outputFilename;
+      }
+      function openExportDialog() {
+        if (state.phase !== 'fixtures') return;
+        $('#outputFilename').value = defaultOutputFilename();
+        $('#exportDialog').showModal();
+        requestAnimationFrame(() => $('#outputFilename').select());
+      }
+      function closeExportDialog() {
+        if ($('#exportDialog').open) $('#exportDialog').close();
+      }
+      function downloadBlobFile(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.rel = 'noopener';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        closeExportDialog();
+        showToast(translate('exportSaved'), { tone: 'success' });
+      }
+      function spreadsheetSafeValue(value) {
+        if (value === null || value === undefined) return '';
+        if (typeof value !== 'string') return value;
+        return /^[=+\-@]/.test(value) ? "'" + value : value;
+      }
+      function csvCell(value) {
+        const text = String(spreadsheetSafeValue(value));
+        return '"' + text.replaceAll('"', '""') + '"';
+      }
+      function csvText(rows) {
+        return '\uFEFF' + rows.map(row => row.map(csvCell).join(',')).join('\r\n') + '\r\n';
+      }
+      function exportMatchesCsv() {
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const rows = [[
+          translate('csvRound'), translate('csvOrder'), translate('csvPlayerA'), translate('csvPlayerB'),
+          translate('csvStatus'), translate('csvScoreA'), translate('csvScoreB'), translate('csvResult'), translate('csvWinner')
+        ]];
+        allMatches().slice().sort((a, b) => a.order - b.order).forEach(match => {
+          const completed = match.status === 'completed';
+          const winner = completed && match.winnerId ? participantById.get(match.winnerId)?.name || '' : '';
+          rows.push([
+            match.round,
+            match.order,
+            participantById.get(match.participantAId)?.name || '',
+            participantById.get(match.participantBId)?.name || '',
+            translate(completed ? 'csvCompleted' : 'csvPending'),
+            state.settings.resultMode === 'score' && completed ? match.scoreA : '',
+            state.settings.resultMode === 'score' && completed ? match.scoreB : '',
+            completed ? (match.result === 'draw' ? translate('drawChoice') : translate('winMark')) : '',
+            winner
+          ]);
+        });
+        const blob = new Blob([csvText(rows)], { type: 'text/csv;charset=utf-8' });
+        downloadBlobFile(blob, makeOutputFilename('matches', 'csv'));
+      }
+      function standingsCsvRows() {
+        const config = getResultModeConfig();
+        const standings = calculateStandings().rows;
+        const header = [
+          translate('csvRank'), translate('csvParticipant'), translate('csvPlayed'), translate('csvWins')
+        ];
+        if (config.drawsAllowed) header.push(translate('csvDraws'));
+        header.push(translate('csvLosses'), translate('points'));
+        if (config.scoreBased) header.push(translate('csvScoreFor'), translate('csvScoreAgainst'), translate('csvDifference'));
+
+        const rows = [header];
+        standings.forEach(row => {
+          const values = [
+            row.rank ?? '',
+            row.name,
+            row.played,
+            row.wins
+          ];
+          if (config.drawsAllowed) values.push(row.draws);
+          values.push(row.losses, row.points);
+          if (config.scoreBased) values.push(row.scoreFor, row.scoreAgainst, row.difference);
+          rows.push(values);
+        });
+        return rows;
+      }
+      function exportStandingsCsv() {
+        const blob = new Blob([csvText(standingsCsvRows())], { type: 'text/csv;charset=utf-8' });
+        downloadBlobFile(blob, makeOutputFilename('standings', 'csv'));
+      }
+      function drawWrappedCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 2) {
+        const chars = Array.from(String(text));
+        const lines = [];
+        let current = '';
+        for (const char of chars) {
+          const next = current + char;
+          if (current && ctx.measureText(next).width > maxWidth) {
+            lines.push(current);
+            current = char;
+            if (lines.length === maxLines - 1) break;
+          } else {
+            current = next;
+          }
+        }
+        if (current && lines.length < maxLines) {
+          const consumed = lines.join('').length + current.length;
+          let finalLine = current;
+          if (consumed < chars.length) {
+            while (finalLine && ctx.measureText(finalLine + '…').width > maxWidth) finalLine = finalLine.slice(0, -1);
+            finalLine += '…';
+          }
+          lines.push(finalLine);
+        }
+        lines.slice(0, maxLines).forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+      }
+      async function exportStandingsPng() {
+        try {
+          const config = getResultModeConfig();
+          const standings = calculateStandings().rows;
+          const width = 1200;
+          const rowHeight = 82;
+          const top = 230;
+          const height = Math.max(420, top + standings.length * rowHeight + 70);
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('canvas unavailable');
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.fillStyle = '#16624F';
+          ctx.fillRect(0, 0, width, 18);
+
+          ctx.fillStyle = '#151715';
+          ctx.font = '700 44px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.textBaseline = 'top';
+          drawWrappedCanvasText(ctx, state.tournamentName || translate('defaultTournament'), 64, 54, 1072, 52, 2);
+
+          ctx.fillStyle = '#626760';
+          ctx.font = '500 22px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.fillText(resultModeLabel(), 64, 166);
+
+          ctx.fillStyle = '#f1f4f1';
+          ctx.fillRect(48, 204, 1104, 48);
+          ctx.fillStyle = '#4a4f49';
+          ctx.font = '700 20px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.fillText(translate('csvRank'), 70, 217);
+          ctx.fillText(translate('csvParticipant'), 160, 217);
+          ctx.fillText(config.drawsAllowed ? 'W-D-L' : 'W-L', 720, 217);
+          if (config.scoreBased) ctx.fillText(translate('csvDifference'), 900, 217);
+          ctx.fillText(translate('points'), 1070, 217);
+
+          standings.forEach((row, index) => {
+            const y = 252 + index * rowHeight;
+            if (index % 2 === 1) {
+              ctx.fillStyle = '#fafbf9';
+              ctx.fillRect(48, y, 1104, rowHeight);
+            }
+            ctx.strokeStyle = '#e2e5df';
+            ctx.beginPath();
+            ctx.moveTo(48, y + rowHeight);
+            ctx.lineTo(1152, y + rowHeight);
+            ctx.stroke();
+
+            ctx.fillStyle = '#16624F';
+            ctx.font = '800 28px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.fillText(row.rank === null ? '—' : String(row.rank), 72, y + 24);
+
+            ctx.fillStyle = '#151715';
+            ctx.font = '700 24px system-ui, -apple-system, "Segoe UI", sans-serif';
+            drawWrappedCanvasText(ctx, row.name, 160, y + 13, 510, 28, 2);
+
+            ctx.fillStyle = '#4a4f49';
+            ctx.font = '600 22px system-ui, -apple-system, "Segoe UI", sans-serif';
+            const record = config.drawsAllowed
+              ? row.wins + '-' + row.draws + '-' + row.losses
+              : row.wins + '-' + row.losses;
+            ctx.fillText(record, 720, y + 26);
+            if (config.scoreBased) ctx.fillText(signedNumber(row.difference), 900, y + 26);
+
+            ctx.fillStyle = '#151715';
+            ctx.font = '800 28px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(String(row.points), 1120, y + 22);
+            ctx.textAlign = 'left';
+          });
+
+          ctx.fillStyle = '#777b75';
+          ctx.font = '500 16px system-ui, -apple-system, "Segoe UI", sans-serif';
+          ctx.fillText('Mini League Desk', 64, height - 38);
+
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          if (!blob) throw new Error('PNG encoding failed');
+          downloadBlobFile(blob, makeOutputFilename('standings', 'png'));
+        } catch {
+          showToast(translate('exportImageError'), { tone: 'warning', duration: 6000 });
+        }
+      }
+      function appendPrintCell(row, tagName, text) {
+        const cell = document.createElement(tagName);
+        cell.textContent = String(text);
+        row.append(cell);
+      }
+      function buildPrintSheet() {
+        const sheet = $('#printSheet');
+        sheet.replaceChildren();
+
+        const title = document.createElement('h1');
+        title.className = 'print-title';
+        title.textContent = state.tournamentName || translate('defaultTournament');
+        const meta = document.createElement('p');
+        meta.className = 'print-meta';
+        meta.textContent = resultModeLabel() + ' · ' + new Intl.DateTimeFormat(language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
+        sheet.append(title, meta);
+
+        const standingsSection = document.createElement('section');
+        standingsSection.className = 'print-section';
+        const standingsHeading = document.createElement('h2');
+        standingsHeading.textContent = translate('printStandings');
+        standingsSection.append(standingsHeading);
+
+        const standingsTable = document.createElement('table');
+        standingsTable.className = 'print-table';
+        const standingsRows = standingsCsvRows();
+        standingsRows.forEach((values, index) => {
+          const row = document.createElement('tr');
+          values.forEach(value => appendPrintCell(row, index === 0 ? 'th' : 'td', value));
+          standingsTable.append(row);
+        });
+        standingsSection.append(standingsTable);
+        sheet.append(standingsSection);
+
+        const participantById = new Map(state.participants.map(participant => [participant.id, participant]));
+        const resultsSection = document.createElement('section');
+        resultsSection.className = 'print-section';
+        const resultsHeading = document.createElement('h2');
+        resultsHeading.textContent = translate('printResults');
+        resultsSection.append(resultsHeading);
+
+        state.rounds.forEach(round => {
+          const block = document.createElement('div');
+          block.className = 'print-round';
+          const heading = document.createElement('h3');
+          heading.textContent = translate('roundLabel', { round: round.number });
+          block.append(heading);
+
+          const table = document.createElement('table');
+          table.className = 'print-table';
+          const header = document.createElement('tr');
+          [translate('csvPlayerA'), translate('csvPlayerB'), translate('csvStatus'), translate('csvResult')].forEach(value => appendPrintCell(header, 'th', value));
+          table.append(header);
+
+          round.matches.forEach(match => {
+            const row = document.createElement('tr');
+            const completed = match.status === 'completed';
+            let result = '';
+            if (completed && state.settings.resultMode === 'score') result = String(match.scoreA) + ' — ' + String(match.scoreB);
+            else if (completed && match.result === 'draw') result = translate('drawChoice');
+            else if (completed && match.winnerId) result = participantById.get(match.winnerId)?.name || '';
+            [
+              participantById.get(match.participantAId)?.name || '',
+              participantById.get(match.participantBId)?.name || '',
+              translate(completed ? 'csvCompleted' : 'csvPending'),
+              result
+            ].forEach(value => appendPrintCell(row, 'td', value));
+            table.append(row);
+          });
+          block.append(table);
+          resultsSection.append(block);
+        });
+        sheet.append(resultsSection);
+      }
+      function printEvent() {
+        closeExportDialog();
+        buildPrintSheet();
+        window.print();
       }
 
       function updateStaticLanguage() {
@@ -3231,6 +3617,7 @@
       });
 
 
+
       $('#setupExportBackupButton').addEventListener('click', openBackupExportDialog);
       $('#exportBackupButton').addEventListener('click', openBackupExportDialog);
       $('#setupImportBackupButton').addEventListener('click', () => $('#backupFileInput').click());
@@ -3255,6 +3642,24 @@
         const rect = dialog.getBoundingClientRect();
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeBackupExportDialog();
       });
+
+
+      $('#openExportButton').addEventListener('click', openExportDialog);
+      $('#completionExportButton').addEventListener('click', openExportDialog);
+      $('#closeExportButton').addEventListener('click', closeExportDialog);
+      $('#exportDialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        closeExportDialog();
+      });
+      $('#exportDialog').addEventListener('click', event => {
+        const dialog = $('#exportDialog');
+        const rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeExportDialog();
+      });
+      $('#exportMatchesCsvButton').addEventListener('click', exportMatchesCsv);
+      $('#exportStandingsCsvButton').addEventListener('click', exportStandingsCsv);
+      $('#exportStandingsPngButton').addEventListener('click', exportStandingsPng);
+      $('#printEventButton').addEventListener('click', printEvent);
 
       $('#languageButton').addEventListener('click', () => {
         language = language === 'ja' ? 'en' : 'ja';
@@ -3288,9 +3693,7 @@
         if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) helpDialog.close();
       });
 
-      // File export starts in a later milestone; keep the runtime free of inactive export controls.
-      const outputFilename = null;
-      void outputFilename;
+      let outputFilename = '';
 
       let leagueMobileBar = AppMobileBottomBar.mount($('#leagueBottomBar'), {
         initialPage: 'progress',
