@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.8.0
+- **Current app version:** v0.9.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.8.0 stores the active event locally in addition to the language preference.
+- Current v0.9.0 stores the active event locally in addition to the language preference.
 
 ## 5. Event setup
 
@@ -315,84 +315,108 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.8.0
+## 18. Current implementation milestone: v0.9.0 Release Candidate
 
-v0.8.0 performs the final bilingual, accessibility, and interaction-polish pass before the release candidate.
+v0.9.0 is the release candidate. Feature scope is frozen; changes in this milestone should be regression fixes, release documentation, screenshots, or verification improvements.
 
-Implemented behavior:
+Release-candidate scope:
 
-- all setup, League Desk, results, standings, persistence, mobile, and export behavior from v0.1.0–v0.7.0
-- Japanese and English translation dictionaries are treated as one parity-checked contract
-- every static `data-i18n`, `data-i18n-title`, `data-i18n-aria-label`, and `data-i18n-placeholder` reference is checked against both language dictionaries
-- event navigation, event-progress, and match-filter accessible names are localized instead of hard-coded in English
-- match-filter visual selection is mirrored with `aria-pressed`
-- result-choice current selection is mirrored with `aria-pressed`
-- result, JSON-backup, and export dialogs expose relevant descriptions with `aria-describedby`
-- score fields reference the shared validation status
-- dialogs remember the control that opened them and restore focus when practical
-- result dialogs preferentially return focus to the corresponding match after close, including after a re-render
-- help dialog moves focus to its close action when opened
-- standings rows expose list/listitem semantics
-- `select` elements receive the same visible `:focus-visible` treatment as other form controls
-- forced-colors support preserves visible borders and active-state outlines
-- static help fallback content now matches the implemented app instead of old early-development copy
-- privacy copy explicitly covers event data plus JSON/CSV/PNG output generation
-- version-specific persistence wording was removed from help text so the help does not immediately become stale
-- standings PNG record headings use localized labels instead of fixed W-D-L / W-L text
-- no runtime network
+- all v0.1.0–v0.8.0 functionality remains enabled
+- explicit regression coverage for 3, 4, 5, 8, and 16 participant events
+- existing 3..64 round-robin invariant coverage remains required
+- tie, score, result editing/removal, completion/reopen, persistence, malformed import, export, mobile, and accessibility regressions remain required
+- Japanese and English README content is aligned with the actual application
+- favicon is the Mini League Desk icon and keeps Browser Kitty brand color `#16624F`
+- release screenshots represent the current Mini League Desk UI rather than template/starter content
+- desktop and smartphone screenshots are maintained for Japanese and English
+- readable standalone, self-extract standalone, and repository-root readable HTML remain the required release artifacts
+- runtime CSP keeps `connect-src 'none'`
+- no runtime CDN, API, analytics, telemetry, remote font, or hidden network dependency
+- privacy statements must match the actual local-processing behavior
+- no new tournament format or major feature is added in the release candidate
 
-Not implemented in v0.8.0:
+## 19. v0.9.0 release-candidate acceptance criteria
 
-- release-candidate screenshots and broader browser/device regression
-- v1.0.0 release-only fixes and final release assets
+### Core event matrix
 
-## 19. v0.8.0 acceptance criteria
+Explicitly verify the following participant counts in addition to the broader 3..64 invariant suite:
 
-### Bilingual consistency
+| Participants | Expected matches | Expected rounds | Bye behavior |
+| ---: | ---: | ---: | --- |
+| 3 | 3 | 3 | one per round |
+| 4 | 6 | 3 | none |
+| 5 | 10 | 5 | one per round |
+| 8 | 28 | 7 | none |
+| 16 | 120 | 15 | none |
 
-- Japanese and English translation key sets are identical.
-- Every static i18n key referenced by HTML exists in both dictionaries.
-- Event navigation, progress, filter labels, help, privacy, export UI, and dialog copy are available in both languages.
-- No user-facing accessibility label for the League Desk navigation/filter/progress controls is fixed to one language.
-- Static fallback help text describes the current product behavior.
+For each case:
 
-### Keyboard / focus
+- every unordered pair appears exactly once
+- no participant plays themself
+- no participant appears twice in one round
+- odd counts have complete single-Bye coverage
+- even counts have no Bye
 
-- All native interactive controls remain keyboard reachable.
-- `select` controls have a visible focus indicator.
-- Match-result, export, backup, and help dialogs restore focus to a meaningful control after close where the target still exists.
-- Result entry returns focus to the relevant match when possible.
-- Native Escape behavior remains available for dialogs.
-- Reduced-motion handling remains intact.
+### Results / standings / completion
 
-### Accessible state
+- Win/Loss, Win/Draw/Loss, and Score modes retain their v0.3.0 behavior.
+- Shared-rank handling remains intact.
+- Score-mode points → difference → score-for ordering remains intact.
+- Result add/edit/remove and Undo still recalculate standings and progress.
+- Completing all matches enters the completion state.
+- Removing or undoing one result after completion reopens the event.
 
-- Match-filter buttons expose selected state with `aria-pressed`.
-- Result winner/draw choices expose the current recorded selection with `aria-pressed`.
-- Score validation is associated with both score inputs.
-- Dynamic standings use list/listitem semantics in addition to visual ordering.
-- State remains understandable without depending on color alone.
+### Persistence / import
 
-### Visual accessibility / polish
+- A valid saved event round-trips without changing result mode, UI state, completed/pending matches, or scores.
+- Unsupported schema versions are rejected.
+- Duplicate participant IDs are rejected.
+- Unknown participant references in matches are rejected.
+- Invalid import data does not overwrite the current valid event.
 
-- Focus indicators remain visible on buttons, inputs, textareas, selects, and summaries.
-- Forced-colors mode keeps important borders and selected-state outlines visible.
-- Existing smartphone safe-area, bottom-navigation, long-name, and dialog protections remain intact.
-- PNG labels use localized terminology.
+### Exports
 
-### Privacy / help
+- Match CSV, standings CSV, standings PNG, and print markers remain present.
+- CSV formula-prefix protection remains enabled.
+- CSV output keeps a UTF-8 BOM.
+- Print output remains isolated from the interactive UI.
+- File-producing exports continue to sanitize output names.
 
-- Help states that event and export data are processed locally.
-- No claim of server upload is introduced.
-- Runtime CSP continues to block connections with `connect-src 'none'`.
-- Help avoids obsolete milestone-specific wording.
+### Mobile / i18n / accessibility
 
-### Regression / build
+- 320–380px narrow-layout protections remain present.
+- mobile bottom navigation and toast separation remain present.
+- Japanese and English translation-key parity remains enforced.
+- static i18n references resolve in both languages.
+- focus-visible, aria-pressed, dialog focus restoration, and forced-colors protections remain present.
 
-- Existing round-robin, result/standings, League Desk, persistence, Mobile/UX, and Export tests continue to pass.
-- i18n/accessibility regression checks validate language-key parity, static i18n references, localized ARIA markers, focus-restoration markers, selected-state ARIA, forced-colors support, and current help fallback copy.
-- PowerShell syntax preflight and repository check must pass.
-- Do not claim real screen-reader or real-device accessibility verification unless it was actually performed.
+### Release assets and documentation
+
+- `assets/favicon.svg` exists and is the Mini League Desk icon.
+- `assets/screenshot.png` is the current Japanese desktop screenshot.
+- `assets/screenshot-mobile.png` is the current Japanese smartphone screenshot.
+- `assets/screenshot-en.png` is the current English desktop screenshot.
+- `assets/screenshot-mobile-en.png` is the current English smartphone screenshot.
+- Japanese README references the Japanese screenshots.
+- English README references the English screenshots.
+- screenshots must not contain template/starter application UI.
+
+### Standalone / privacy / network
+
+- PowerShell syntax/encoding preflight passes.
+- repository check passes.
+- readable standalone build passes.
+- self-extract build/verification passes when enabled.
+- repository-root HTML equals the readable standalone build.
+- CSP contains `connect-src 'none'`.
+- source has no external runtime script, stylesheet, image, frame, font, API, analytics, or telemetry dependency.
+- README privacy claims remain consistent with source and CSP.
+
+### Verification claims
+
+Automated checks may be reported as passed only when their CI jobs pass.
+
+Do not claim real screen-reader, OS print-dialog, real mobile-device, or manual DevTools network-panel verification unless it was actually performed.
 
 ## 20. Planned development sequence
 
@@ -448,7 +472,7 @@ Not implemented in v0.8.0:
 - keyboard/accessibility audit
 - icon/help/privacy finalization
 
-### v0.9.0 — Release Candidate
+### v0.9.0 — Release Candidate — in progress
 
 - regression testing
 - 3/4/5/8/16 participant cases
