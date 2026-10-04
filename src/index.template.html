@@ -1465,6 +1465,13 @@
         $('#scoreDrawOption').hidden = state.settings.resultMode !== 'score';
       }
       function signedNumber(value) { return value > 0 ? '+' + value : String(value); }
+      function setupHasChanges() {
+        return state.participants.length > 0 ||
+          Boolean($('#tournamentName').value.trim()) ||
+          state.settings.resultMode !== 'winLoss' ||
+          state.settings.scoreDrawsAllowed !== true;
+      }
+      function updateResetButton() { $('#resetButton').disabled = !setupHasChanges(); }
 
       function updateStaticLanguage() {
         document.documentElement.lang = language;
@@ -1485,7 +1492,7 @@
         $('#emptyRoster').hidden = count > 0;
         $('#rosterWithData').hidden = count === 0;
         $('#shuffleButton').disabled = count < 2;
-        $('#resetButton').disabled = count === 0 && !$('#tournamentName').value.trim();
+        updateResetButton();
 
         const list = $('#rosterList');
         list.replaceChildren();
@@ -2032,7 +2039,7 @@
       }
 
       async function resetSetup() {
-        if (!state.participants.length && !$('#tournamentName').value.trim()) return;
+        if (!setupHasChanges()) return;
         const confirmed = await AppConfirm.ask({
           title: translate('resetTitle'),
           message: translate('resetMessage'),
@@ -2102,17 +2109,19 @@
       });
       $('#tournamentName').addEventListener('input', event => {
         state.tournamentName = event.target.value.trim().slice(0, 100);
-        $('#resetButton').disabled = state.participants.length === 0 && !event.target.value.trim();
+        updateResetButton();
       });
       document.querySelectorAll('input[name="resultMode"]').forEach(input => {
         input.addEventListener('change', () => {
           if (!input.checked) return;
           state.settings.resultMode = input.value;
           updateResultModeControls();
+          updateResetButton();
         });
       });
       $('#scoreDrawsAllowed').addEventListener('change', event => {
         state.settings.scoreDrawsAllowed = event.target.checked;
+        updateResetButton();
       });
 
       $('#languageButton').addEventListener('click', () => {
