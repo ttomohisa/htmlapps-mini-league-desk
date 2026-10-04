@@ -1927,6 +1927,7 @@
             currentPageKey = key;
             state.ui.activePage = key;
             setActive(key);
+            persistEvent();
             if (mobileQuery?.matches && showOptions.scroll !== false) {
               const page = document.getElementById(button.dataset.mobilePageTarget);
               const topTarget = document.getElementById(options.pageTopTarget || '') || page;
@@ -1948,6 +1949,372 @@
         return Object.freeze({ mount });
       })();
       window.AppMobileBottomBar = AppMobileBottomBar;
+
+
+      function defaultSettings() {
+        return { resultMode: 'winLoss', scoreDrawsAllowed: true };
+      }
+      function defaultUi() {
+        return { matchFilter: 'all', participantFocusId: '', activePage: 'progress' };
+      }
+      function meaningfulEventState() {
+        const defaults = defaultSettings();
+        return state.phase === 'fixtures' ||
+          state.participants.length > 0 ||
+          Boolean(state.tournamentName) ||
+          state.settings.resultMode !== defaults.resultMode ||
+          state.settings.scoreDrawsAllowed !== defaults.scoreDrawsAllowed;
+      }
+      function ensureEventMeta() {
+        const now = new Date().toISOString();
+        if (!state.meta.eventId) state.meta.eventId = createId();
+        if (!state.meta.createdAt) state.meta.createdAt = now;
+        if (!state.meta.updatedAt) state.meta.updatedAt = now;
+      }
+      function buildEventDocument({ touchUpdated = false } = {}) {
+        ensureEventMeta();
+        if (touchUpdated) state.meta.updatedAt = new Date().toISOString();
+        return {
+          format: 'mini-league-desk',
+          schemaVersion: SCHEMA_VERSION,
+          appVersion: APP_CONFIG.version,
+          event: {
+            id: state.meta.eventId,
+            name: state.tournamentName,
+            phase: state.phase,
+            settings: {
+              resultMode: state.settings.resultMode,
+              scoreDrawsAllowed: state.settings.scoreDrawsAllowed
+            },
+            participants: state.participants.map(participant => ({ id: participant.id, name: participant.name })),
+            rounds: state.rounds.map(round => ({
+              number: round.number,
+              byeParticipantId: round.byeParticipantId,
+              matches: round.matches.map(match => ({
+                id: match.id,
+                round: match.round,
+                order: match.order,
+                participantAId: match.participantAId,
+                participantBId: match.participantBId,
+                status: match.status,
+                scoreA: match.scoreA,
+                scoreB: match.scoreB,
+                result: match.result,
+                winnerId: match.winnerId
+              }))
+            })),
+            ui: {
+              matchFilter: state.ui.matchFilter,
+              participantFocusId: state.ui.participantFocusId,
+              activePage: state.ui.activePage
+            },
+            createdAt: state.meta.createdAt,
+            updatedAt: state.meta.updatedAt
+          }
+        };
+      }
+      function persistEvent() {
+        if (!persistenceReady) return true;
+        if (!meaningfulEventState()) {
+          removeStorage(storageKeys.event);
+          return true;
+        }
+        const documentValue = buildEventDocument({ touchUpdated: true });
+        const ok = writeStorage(storageKeys.event, JSON.stringify(documentValue));
+        if (!ok && !persistenceWarningShown) {
+          persistenceWarningShown = true;
+          showToast(translate('saveFailed'), { tone: 'warning', duration: 7000 });
+        }
+        return ok;
+      }
+      function clearPersistedEvent() {
+        return removeStorage(storageKeys.event);
+      }
+      function isPlainObject(value) {
+        return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+      }
+      function isIsoDate(value) {
+        return typeof value === 'string' && value.length > 0 && Number.isFinite(Date.parse(value));
+      }
+      function normalizeImportedEvent(documentValue) {
+        if (!isPlainObject(documentValue) || documentValue.format !== 'mini-league-desk') {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (documentValue.schemaVersion !== SCHEMA_VERSION) {
+          return { ok: false, reason: 'incompatible' };
+        }
+        const event = documentValue.event;
+        if (!isPlainObject(event) || typeof event.id !== 'string' || !event.id || typeof event.name !== 'string' || event.name.length > 100) {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!['setup', 'fixtures'].includes(event.phase) || !isPlainObject(event.settings)) {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!['winLoss', 'winDrawLoss', 'score'].includes(event.settings.resultMode) || typeof event.settings.scoreDrawsAllowed !== 'boolean') {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!Array.isArray(event.participants) || event.participants.length > 64) {
+          return { ok: false, reason: 'invalid' };
+        }
+
+        const participantIds = new Set();
+        const participantNames = new Set();
+        const participants = [];
+        for (const participant of event.participants) {
+          if (!isPlainObject(participant) || typeof participant.id !== 'string' || !participant.id || typeof participant.name !== 'string') {
+            return { ok: false, reason: 'invalid' };
+          }
+          const normalizedName = normalizeName(participant.name);
+          if (!normalizedName || [...normalizedName].length > 80 || participantIds.has(participant.id) || participantNames.has(nameKey(normalizedName))) {
+            return { ok: false, reason: 'invalid' };
+          }
+          participantIds.add(participant.id);
+          participantNames.add(nameKey(normalizedName));
+          participants.push({ id: participant.id, name: normalizedName });
+        }
+
+        const rounds = [];
+        if (event.phase === 'fixtures') {
+          if (participants.length < 3 || !Array.isArray(event.rounds)) return { ok: false, reason: 'invalid' };
+          const seenMatchIds = new Set();
+          const seenOrders = new Set();
+
+          for (const round of event.rounds) {
+            if (!isPlainObject(round) || !Number.isInteger(round.number) || round.number < 1 || !Array.isArray(round.matches)) {
+              return { ok: false, reason: 'invalid' };
+            }
+            const matches = [];
+            for (const match of round.matches) {
+              if (!isPlainObject(match) ||
+                  typeof match.id !== 'string' || !match.id ||
+                  seenMatchIds.has(match.id) ||
+                  !Number.isInteger(match.round) || match.round !== round.number ||
+                  !Number.isInteger(match.order) || match.order < 1 || seenOrders.has(match.order) ||
+                  !participantIds.has(match.participantAId) ||
+                  !participantIds.has(match.participantBId) ||
+                  match.participantAId === match.participantBId ||
+                  !['pending', 'completed'].includes(match.status)) {
+                return { ok: false, reason: 'invalid' };
+              }
+              seenMatchIds.add(match.id);
+              seenOrders.add(match.order);
+
+              const normalized = {
+                id: match.id,
+                round: match.round,
+                order: match.order,
+                participantAId: match.participantAId,
+                participantBId: match.participantBId,
+                status: match.status,
+                scoreA: match.scoreA ?? null,
+                scoreB: match.scoreB ?? null,
+                result: match.result ?? null,
+                winnerId: match.winnerId ?? null
+              };
+
+              if (normalized.status === 'pending') {
+                normalized.scoreA = null;
+                normalized.scoreB = null;
+                normalized.result = null;
+                normalized.winnerId = null;
+              } else if (event.settings.resultMode === 'score') {
+                if (!Number.isInteger(normalized.scoreA) || !Number.isInteger(normalized.scoreB) ||
+                    normalized.scoreA < 0 || normalized.scoreB < 0 ||
+                    normalized.scoreA > 999999 || normalized.scoreB > 999999) {
+                  return { ok: false, reason: 'invalid' };
+                }
+                if (normalized.scoreA === normalized.scoreB) {
+                  if (!event.settings.scoreDrawsAllowed || normalized.result !== 'draw' || normalized.winnerId !== null) {
+                    return { ok: false, reason: 'invalid' };
+                  }
+                } else {
+                  const expectedWinner = normalized.scoreA > normalized.scoreB ? normalized.participantAId : normalized.participantBId;
+                  if (normalized.result !== 'win' || normalized.winnerId !== expectedWinner) {
+                    return { ok: false, reason: 'invalid' };
+                  }
+                }
+              } else {
+                if (normalized.scoreA !== null || normalized.scoreB !== null) return { ok: false, reason: 'invalid' };
+                if (normalized.result === 'draw') {
+                  if (event.settings.resultMode !== 'winDrawLoss' || normalized.winnerId !== null) return { ok: false, reason: 'invalid' };
+                } else if (normalized.result === 'win') {
+                  if (![normalized.participantAId, normalized.participantBId].includes(normalized.winnerId)) return { ok: false, reason: 'invalid' };
+                } else {
+                  return { ok: false, reason: 'invalid' };
+                }
+              }
+              matches.push(normalized);
+            }
+            const byeParticipantId = round.byeParticipantId ?? null;
+            if (byeParticipantId !== null && !participantIds.has(byeParticipantId)) return { ok: false, reason: 'invalid' };
+            rounds.push({ number: round.number, matches, byeParticipantId });
+          }
+          if (!validateRoundRobin(rounds, participants)) return { ok: false, reason: 'invalid' };
+        }
+
+        if (event.phase === 'setup' && event.rounds != null && (!Array.isArray(event.rounds) || event.rounds.length > 0)) {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!isIsoDate(event.createdAt) || !isIsoDate(event.updatedAt)) return { ok: false, reason: 'invalid' };
+
+        const rawUi = isPlainObject(event.ui) ? event.ui : {};
+        const ui = defaultUi();
+        if (['all', 'pending', 'completed'].includes(rawUi.matchFilter)) ui.matchFilter = rawUi.matchFilter;
+        if (typeof rawUi.participantFocusId === 'string' && participantIds.has(rawUi.participantFocusId)) ui.participantFocusId = rawUi.participantFocusId;
+        if (['progress', 'matches', 'standings'].includes(rawUi.activePage)) ui.activePage = rawUi.activePage;
+        if (!ui.participantFocusId) ui.participantFocusId = participants[0]?.id || '';
+
+        return {
+          ok: true,
+          value: {
+            phase: event.phase,
+            tournamentName: event.name.trim().slice(0, 100),
+            participants,
+            rounds: event.phase === 'fixtures' ? rounds : [],
+            settings: {
+              resultMode: event.settings.resultMode,
+              scoreDrawsAllowed: event.settings.scoreDrawsAllowed
+            },
+            ui,
+            meta: {
+              eventId: event.id,
+              createdAt: new Date(event.createdAt).toISOString(),
+              updatedAt: new Date(event.updatedAt).toISOString()
+            }
+          }
+        };
+      }
+      function applyEventState(nextState) {
+        state.phase = nextState.phase;
+        state.tournamentName = nextState.tournamentName;
+        state.participants = nextState.participants;
+        state.rounds = nextState.rounds;
+        state.settings = nextState.settings;
+        state.ui = nextState.ui;
+        state.meta = nextState.meta;
+        $('#tournamentName').value = state.tournamentName;
+        $('#participantName').value = '';
+        $('#bulkParticipants').value = '';
+        setParticipantError('');
+        setBulkError('');
+        updateResultModeControls();
+      }
+      function restorePersistedEvent() {
+        const raw = readStorage(storageKeys.event);
+        if (!raw) return false;
+        try {
+          const parsed = JSON.parse(raw);
+          const normalized = normalizeImportedEvent(parsed);
+          if (!normalized.ok) {
+            startupNoticeKey = normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid';
+            return false;
+          }
+          applyEventState(normalized.value);
+          startupNoticeKey = 'backupRestored';
+          return true;
+        } catch {
+          startupNoticeKey = 'backupInvalid';
+          return false;
+        }
+      }
+      function safeBackupFilename(value) {
+        let filename = String(value || '').trim()
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, ' ')
+          .replace(/[. ]+$/g, '')
+          .slice(0, 110);
+        if (!filename) filename = 'mini-league-desk-backup';
+        if (!filename.toLowerCase().endsWith('.json')) filename += '.json';
+        return filename;
+      }
+      function defaultBackupFilename() {
+        const date = new Date().toISOString().slice(0, 10);
+        const eventPart = (state.tournamentName || 'mini-league-desk')
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60) || 'mini-league-desk';
+        return safeBackupFilename(eventPart + '-' + date + '.json');
+      }
+      function openBackupExportDialog() {
+        if (!meaningfulEventState()) return;
+        persistEvent();
+        $('#backupFilename').value = defaultBackupFilename();
+        $('#backupExportDialog').showModal();
+        requestAnimationFrame(() => $('#backupFilename').select());
+      }
+      function closeBackupExportDialog() {
+        if ($('#backupExportDialog').open) $('#backupExportDialog').close();
+      }
+      function downloadBackup() {
+        if (!meaningfulEventState()) return;
+        persistEvent();
+        const documentValue = buildEventDocument({ touchUpdated: false });
+        const filename = safeBackupFilename($('#backupFilename').value);
+        const blob = new Blob([JSON.stringify(documentValue, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.rel = 'noopener';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        closeBackupExportDialog();
+        showToast(translate('backupSaved'), { tone: 'success' });
+      }
+      async function importBackupFile(file) {
+        let parsed;
+        try {
+          if (!(file instanceof File) || file.size > 5 * 1024 * 1024) throw new Error('invalid file');
+          parsed = JSON.parse(await file.text());
+        } catch {
+          showToast(translate('backupReadError'), { tone: 'warning', duration: 6000 });
+          return;
+        }
+
+        const normalized = normalizeImportedEvent(parsed);
+        if (!normalized.ok) {
+          showToast(translate(normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid'), { tone: 'warning', duration: 6000 });
+          return;
+        }
+
+        if (meaningfulEventState()) {
+          const confirmed = await AppConfirm.ask({
+            title: translate('backupReplaceTitle'),
+            message: translate('backupReplaceMessage'),
+            confirmLabel: translate('backupReplaceAction'),
+            cancelLabel: translate('cancel'),
+            tone: 'danger'
+          });
+          if (!confirmed) return;
+        }
+
+        const before = meaningfulEventState() ? JSON.parse(JSON.stringify(buildEventDocument({ touchUpdated: false }))) : null;
+        applyEventState(normalized.value);
+        render();
+        persistEvent();
+        showToast(translate('backupImported'), {
+          tone: 'success',
+          actionLabel: before ? translate('undo') : '',
+          duration: 6000,
+          onAction: before ? () => {
+            const previous = normalizeImportedEvent(before);
+            if (!previous.ok) return;
+            applyEventState(previous.value);
+            render();
+            persistEvent();
+            showToast(translate('undone'));
+          } : null
+        });
+      }
+      function updateBackupButtons() {
+        const disabled = !meaningfulEventState();
+        $('#setupExportBackupButton').disabled = disabled;
+        $('#exportBackupButton').disabled = disabled;
+      }
 
       function updateStaticLanguage() {
         document.documentElement.lang = language;
@@ -2004,6 +2371,8 @@
         $('#confirmParticipantsButton').disabled = !canConfirm;
         setText('#startHelp', translate(canConfirm ? 'readyToConfirm' : 'needThree'));
         setText('#validationSummary', '');
+        updateBackupButtons();
+        persistEvent();
       }
 
       function createActionButton(action, label, disabled, danger = false) {
@@ -2133,6 +2502,7 @@
         if (!['all', 'pending', 'completed'].includes(filter)) return;
         state.ui.matchFilter = filter;
         renderFixtures();
+        persistEvent();
       }
       function renderProgress() {
         const snapshot = eventProgressSnapshot();
@@ -2240,6 +2610,8 @@
         renderFixtures();
         renderStandings();
         renderParticipantMatchStatus();
+        updateBackupButtons();
+        persistEvent();
       }
 
       function calculateStandings() {
@@ -2677,7 +3049,9 @@
         state.participants = [];
         state.rounds = [];
         state.settings = { resultMode: 'winLoss', scoreDrawsAllowed: true };
-        state.ui = { matchFilter: 'all', participantFocusId: '', activePage: 'progress' };
+        state.ui = defaultUi();
+        state.meta = { eventId: '', createdAt: '', updatedAt: '' };
+        clearPersistedEvent();
         $('#tournamentName').value = '';
         $('#participantName').value = '';
         $('#bulkParticipants').value = '';
@@ -2691,6 +3065,7 @@
       function confirmParticipants() {
         if (state.participants.length < 3) return;
         state.tournamentName = $('#tournamentName').value.trim().slice(0, 100);
+        ensureEventMeta();
         const rounds = generateRoundRobin(state.participants);
         if (!validateRoundRobin(rounds, state.participants)) {
           setText('#validationSummary', translate('fixtureError'));
@@ -2738,6 +3113,8 @@
       $('#tournamentName').addEventListener('input', event => {
         state.tournamentName = event.target.value.trim().slice(0, 100);
         updateResetButton();
+        updateBackupButtons();
+        persistEvent();
       });
       document.querySelectorAll('input[name="resultMode"]').forEach(input => {
         input.addEventListener('change', () => {
@@ -2745,11 +3122,14 @@
           state.settings.resultMode = input.value;
           updateResultModeControls();
           updateResetButton();
+          updateBackupButtons();
+          persistEvent();
         });
       });
       $('#scoreDrawsAllowed').addEventListener('change', event => {
         state.settings.scoreDrawsAllowed = event.target.checked;
         updateResetButton();
+        persistEvent();
       });
 
 
@@ -2759,6 +3139,7 @@
       $('#participantMatchSelect').addEventListener('change', event => {
         state.ui.participantFocusId = event.target.value;
         renderParticipantMatchStatus();
+        persistEvent();
       });
       $('#viewPendingButton').addEventListener('click', () => {
         setMatchFilter('pending');
@@ -2771,6 +3152,32 @@
           const key = pageId === 'matchesPage' ? 'matches' : pageId === 'standingsPage' ? 'standings' : 'progress';
           showLeaguePage(key);
         });
+      });
+
+
+      $('#setupExportBackupButton').addEventListener('click', openBackupExportDialog);
+      $('#exportBackupButton').addEventListener('click', openBackupExportDialog);
+      $('#setupImportBackupButton').addEventListener('click', () => $('#backupFileInput').click());
+      $('#importBackupButton').addEventListener('click', () => $('#backupFileInput').click());
+      $('#backupFileInput').addEventListener('change', async event => {
+        const file = event.target.files?.[0] || null;
+        event.target.value = '';
+        if (file) await importBackupFile(file);
+      });
+      $('#backupExportForm').addEventListener('submit', event => {
+        event.preventDefault();
+        downloadBackup();
+      });
+      $('#closeBackupExportButton').addEventListener('click', closeBackupExportDialog);
+      $('#cancelBackupExportButton').addEventListener('click', closeBackupExportDialog);
+      $('#backupExportDialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        closeBackupExportDialog();
+      });
+      $('#backupExportDialog').addEventListener('click', event => {
+        const dialog = $('#backupExportDialog');
+        const rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeBackupExportDialog();
       });
 
       $('#languageButton').addEventListener('click', () => {
@@ -2813,9 +3220,16 @@
         pageTopOffset: 12
       });
 
+      restorePersistedEvent();
+      persistenceReady = true;
       $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
       updateStaticLanguage();
-      render();
+      if (startupNoticeKey) {
+        queueMicrotask(() => showToast(translate(startupNoticeKey), {
+          tone: startupNoticeKey === 'backupRestored' ? 'success' : 'warning',
+          duration: 5500
+        }));
+      }
     })();
   </script>
 </body>
