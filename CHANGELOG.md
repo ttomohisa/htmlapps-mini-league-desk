@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 - Persistence / JSON Backup - 2026-10-04
+
+- Added schemaVersion 1 event persistence using browser local storage.
+- Added event ID, createdAt, and updatedAt metadata.
+- Added automatic save/restore for setup, fixtures, results, and League Desk UI state.
+- Added JSON backup export with editable sanitized filenames.
+- Added JSON import with strict validation before state replacement.
+- Added incompatible-schema and malformed-data rejection without overwriting the current event.
+- Added replacement confirmation and Undo after successful import.
+- Added visible fallback guidance when browser local storage cannot save.
+- Added persistence regression tests and updated Japanese / English documentation and version metadata.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.4.0 - League Desk - 2026-10-04
 
 - Added Progress / Matches / Standings as the primary in-event workflow.

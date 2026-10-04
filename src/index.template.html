@@ -904,6 +904,34 @@
     .app-mobile-page { display: block; }
     :root { --app-mobile-bottom-bar-height: 74px; }
 
+
+    .data-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .backup-dialog { width: min(500px,calc(100% - 28px)); }
+    .backup-dialog .dialog-body { padding-top: 18px; }
+    .backup-field { display: grid; gap: 6px; }
+    .backup-field label { font-size: 12px; font-weight: 750; }
+    .backup-field input {
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfbf9;
+      color: var(--text);
+      font: inherit;
+    }
+    .backup-help { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .backup-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .save-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .save-status svg { width: 14px; height: 14px; color: var(--accent); }
+
     footer {
       width: min(1120px,100%);
       margin: 0 auto;
@@ -1270,6 +1298,12 @@
 
         <div class="button-row">
           <button class="button danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
+          <button class="button" id="setupExportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
+          <button class="button" id="setupImportBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+        </div>
+        <div class="save-status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"/><path d="M8 4v6h8V4M8 17h8"/></svg>
+          <span data-i18n="autosaveStatus">入力内容はこの端末に自動保存されます。</span>
         </div>
       </section>
 
@@ -1323,15 +1357,17 @@
           <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
           <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
         </div>
-        <div class="fixture-actions">
+        <div class="fixture-actions data-actions">
           <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
+          <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
+          <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
         </div>
         <div class="desktop-league-nav" aria-label="League desk sections">
           <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
           <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
           <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
         </div>
-        <div class="notice" data-i18n="draftNotice">v0.4.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると結果を含む大会内容は消えます。</div>
+        <div class="notice" data-i18n="draftNotice">大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。</div>
       </div>
 
       <div class="league-overview-grid">
@@ -1458,6 +1494,29 @@
         <button class="app-confirm-button primary" id="appConfirmOk" type="button">実行する</button>
       </div>
     </div>
+  </dialog>
+
+
+  <input id="backupFileInput" type="file" accept="application/json,.json" hidden>
+
+  <dialog class="backup-dialog" id="backupExportDialog" aria-labelledby="backupExportTitle">
+    <div class="dialog-header">
+      <h2 id="backupExportTitle" data-i18n="backupExportTitle">JSONバックアップを保存</h2>
+      <button class="icon-button" id="closeBackupExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+    <form class="dialog-body" id="backupExportForm">
+      <div class="backup-field">
+        <label for="backupFilename" data-i18n="backupFilename">ファイル名</label>
+        <input id="backupFilename" type="text" maxlength="120" autocomplete="off">
+      </div>
+      <p class="backup-help" data-i18n="backupFilenameHelp">大会名・参加者・対戦・結果・設定をJSONとして保存します。</p>
+      <div class="backup-dialog-actions">
+        <button class="button" id="cancelBackupExportButton" type="button" data-i18n="cancel">キャンセル</button>
+        <button class="button primary" type="submit" data-i18n="backupDownload">保存</button>
+      </div>
+    </form>
   </dialog>
 
   <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle">
@@ -1627,7 +1686,7 @@
           resultModeLegend: '結果の記録方法', resultModeShort: '記録方式', modeWinLoss: '勝敗だけ', modeWinLossHelp: '勝ち1、負け0で順位を計算します。', modeWinDrawLoss: '勝ち・引き分け', modeWinDrawLossHelp: '勝ち3、引き分け1、負け0で順位を計算します。', modeScore: '得点を入力', modeScoreHelp: '双方の得点から勝敗と順位を計算します。', scoreDrawsAllowed: '同点を引き分けとして認める',
           addParticipant: '参加者を追加', participantName: '参加者名', participantPlaceholder: '例：山田', add: '追加',
           bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
-          reset: 'すべてリセット', rosterTitle: '参加者一覧', rosterLead: '順番は対戦表生成時の基準として使います。', people: '人',
+          reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '順番は対戦表生成時の基準として使います。', people: '人',
           emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
           reorderHelp: '矢印で順番を調整できます。', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
@@ -1635,13 +1694,13 @@
           matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
           navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
-          backToEdit: '参加者を編集', draftNotice: 'v0.4.0では大会内容の自動保存はまだ行いません。ページを再読み込みすると結果を含む大会内容は消えます。',
+          backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
           bulkTooMany: '追加すると64人を超えます。', addedOne: '{name} を追加しました。', addedMany: '{count}人を追加しました。',
           removed: '{name} を削除しました。', moved: '順番を変更しました。', shuffled: '参加者をシャッフルしました。', resetDone: '入力内容をリセットしました。',
-          undo: '元に戻す', undone: '元に戻しました', confirmed: '大会を開始しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。', resultSaved: '試合結果を記録しました。', resultUpdated: '試合結果を修正しました。', resultRemoved: '試合結果を取り消しました。', editSetupTitle: '参加者編集へ戻りますか？', editSetupMessage: '入力済みの試合結果はすべて消えます。参加者と記録方法は編集できます。', editSetupAction: '結果を消して戻る',
+          undo: '元に戻す', undone: '元に戻しました', confirmed: '大会を開始しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。', resultSaved: '試合結果を記録しました。', resultUpdated: '試合結果を修正しました。', resultRemoved: '試合結果を取り消しました。', editSetupTitle: '参加者編集へ戻りますか？', editSetupMessage: '入力済みの試合結果はすべて消えます。参加者と記録方法は編集できます。', editSetupAction: '結果を消して戻る', backupExportTitle: 'JSONバックアップを保存', backupFilename: 'ファイル名', backupFilenameHelp: '大会名・参加者・対戦・結果・設定をJSONとして保存します。', backupDownload: '保存', backupSaved: 'JSONバックアップを保存しました。', backupImported: 'JSONバックアップを読み込みました。', backupRestored: '前回の大会を復元しました。', backupInvalid: 'このファイルはMini League Deskの有効なバックアップではありません。', backupIncompatible: 'このバックアップは現在のデータ形式に対応していません。', backupReadError: 'JSONバックアップを読み込めませんでした。', backupReplaceTitle: '現在の大会を置き換えますか？', backupReplaceMessage: '現在の大会内容を、読み込んだバックアップで置き換えます。', backupReplaceAction: '置き換える', saveFailed: '端末への自動保存に失敗しました。JSONバックアップを保存してください。',
           resetTitle: '入力内容をリセットしますか？', resetMessage: '大会名と参加者をすべて消去します。この操作は元に戻せません。', resetAction: 'リセットする',
           confirmTitle: '確認', confirmAction: '実行する', cancel: 'キャンセル',
           removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
@@ -1651,7 +1710,7 @@
           helpStep3: '大会開始後は「進行」で次の試合、「対戦」で未実施・完了や参加者別の残り対戦、「順位」で現在順位を確認できます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: 'v0.4.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると結果を含む大会内容は失われます。',
+          helpNoteNoSave: 'v0.5.0では大会内容をこの端末に自動保存します。JSONバックアップで別のブラウザや端末へ移すこともできます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
           helpNoteScope: '順位は勝点を基準にし、得点入力では勝点→得失点差→得点の順で判定します。完全に同じ場合は同順位です。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
@@ -1667,7 +1726,7 @@
           resultModeLegend: 'Result entry', resultModeShort: 'Result mode', modeWinLoss: 'Win / loss', modeWinLossHelp: 'A win is 1 point and a loss is 0.', modeWinDrawLoss: 'Win / draw / loss', modeWinDrawLossHelp: 'Win 3, draw 1, loss 0.', modeScore: 'Enter scores', modeScoreHelp: 'Enter both scores to derive the result and standings.', scoreDrawsAllowed: 'Allow tied scores as draws',
           addParticipant: 'Add participant', participantName: 'Participant name', participantPlaceholder: 'e.g. Alex', add: 'Add',
           bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
-          reset: 'Reset all', rosterTitle: 'Participants', rosterLead: 'This order will be used as the basis for fixture generation.', people: 'people',
+          reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'This order will be used as the basis for fixture generation.', people: 'people',
           emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
           reorderHelp: 'Use the arrow buttons to adjust the order.', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
@@ -1675,13 +1734,13 @@
           matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
           navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
-          backToEdit: 'Edit participants', draftNotice: 'v0.4.0 does not save event data yet. Reloading clears the event including results.',
+          backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
           bulkTooMany: 'Adding these names would exceed 64 participants.', addedOne: 'Added {name}.', addedMany: 'Added {count} participants.',
           removed: 'Removed {name}.', moved: 'Participant order updated.', shuffled: 'Participants shuffled.', resetDone: 'Setup reset.',
-          undo: 'Undo', undone: 'Restored', confirmed: 'Event started.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.', resultSaved: 'Match result recorded.', resultUpdated: 'Match result updated.', resultRemoved: 'Match result removed.', editSetupTitle: 'Return to participant editing?', editSetupMessage: 'All entered match results will be cleared. You can edit participants and the result mode.', editSetupAction: 'Clear results and edit',
+          undo: 'Undo', undone: 'Restored', confirmed: 'Event started.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.', resultSaved: 'Match result recorded.', resultUpdated: 'Match result updated.', resultRemoved: 'Match result removed.', editSetupTitle: 'Return to participant editing?', editSetupMessage: 'All entered match results will be cleared. You can edit participants and the result mode.', editSetupAction: 'Clear results and edit', backupExportTitle: 'Save JSON backup', backupFilename: 'File name', backupFilenameHelp: 'Saves the event name, participants, fixtures, results, and settings as JSON.', backupDownload: 'Save', backupSaved: 'JSON backup saved.', backupImported: 'JSON backup imported.', backupRestored: 'Previous event restored.', backupInvalid: 'This file is not a valid Mini League Desk backup.', backupIncompatible: 'This backup uses an unsupported data format.', backupReadError: 'The JSON backup could not be read.', backupReplaceTitle: 'Replace the current event?', backupReplaceMessage: 'The current event will be replaced by the imported backup.', backupReplaceAction: 'Replace', saveFailed: 'Automatic device save failed. Save a JSON backup to protect this event.',
           resetTitle: 'Reset this setup?', resetMessage: 'This removes the event name and all participants. This action cannot be undone.', resetAction: 'Reset',
           confirmTitle: 'Confirm', confirmAction: 'Continue', cancel: 'Cancel',
           removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
@@ -1691,7 +1750,7 @@
           helpStep3: 'After starting, use Progress for what is next, Matches for pending/completed and participant-specific remaining opponents, and Standings for the current table.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event and participant names are processed in this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'v0.4.0 does not save event data yet. Reloading or closing the tab clears the event including results.',
+          helpNoteNoSave: 'v0.5.0 saves the event automatically on this device. JSON backup can also move the event to another browser or device.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
           helpNoteScope: 'Standings use league points; score mode breaks ties by points, score difference, then score for. Identical active tiebreak values share the same rank.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
@@ -1699,15 +1758,22 @@
       };
 
       const $ = selector => document.querySelector(selector);
-      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', participantFocusId: '', activePage: 'progress' } };
-      const storageKeys = { language: `${APP_CONFIG.slug}:language` };
+      const SCHEMA_VERSION = 1;
+      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', participantFocusId: '', activePage: 'progress' }, meta: { eventId: '', createdAt: '', updatedAt: '' } };
+      const storageKeys = { language: `${APP_CONFIG.slug}:language`, event: `${APP_CONFIG.slug}:active-event:v${SCHEMA_VERSION}` };
+      let persistenceReady = false;
+      let persistenceWarningShown = false;
+      let startupNoticeKey = '';
       let language = readStorage(storageKeys.language) || detectLanguage();
 
       function readStorage(key) {
         try { return localStorage.getItem(key); } catch { return null; }
       }
       function writeStorage(key, value) {
-        try { localStorage.setItem(key, value); } catch { }
+        try { localStorage.setItem(key, value); return true; } catch { return false; }
+      }
+      function removeStorage(key) {
+        try { localStorage.removeItem(key); return true; } catch { return false; }
       }
       function detectLanguage() {
         if (APP_CONFIG.defaultLanguage === 'ja' || APP_CONFIG.defaultLanguage === 'en') return APP_CONFIG.defaultLanguage;
@@ -1861,6 +1927,7 @@
             currentPageKey = key;
             state.ui.activePage = key;
             setActive(key);
+            persistEvent();
             if (mobileQuery?.matches && showOptions.scroll !== false) {
               const page = document.getElementById(button.dataset.mobilePageTarget);
               const topTarget = document.getElementById(options.pageTopTarget || '') || page;
@@ -1882,6 +1949,380 @@
         return Object.freeze({ mount });
       })();
       window.AppMobileBottomBar = AppMobileBottomBar;
+
+
+      function defaultSettings() {
+        return { resultMode: 'winLoss', scoreDrawsAllowed: true };
+      }
+      function defaultUi() {
+        return { matchFilter: 'all', participantFocusId: '', activePage: 'progress' };
+      }
+      function meaningfulEventState() {
+        const defaults = defaultSettings();
+        return state.phase === 'fixtures' ||
+          state.participants.length > 0 ||
+          Boolean(state.tournamentName) ||
+          state.settings.resultMode !== defaults.resultMode ||
+          state.settings.scoreDrawsAllowed !== defaults.scoreDrawsAllowed;
+      }
+      function ensureEventMeta() {
+        const now = new Date().toISOString();
+        if (!state.meta.eventId) state.meta.eventId = createId();
+        if (!state.meta.createdAt) state.meta.createdAt = now;
+        if (!state.meta.updatedAt) state.meta.updatedAt = now;
+      }
+      function buildEventDocument({ touchUpdated = false } = {}) {
+        ensureEventMeta();
+        if (touchUpdated) state.meta.updatedAt = new Date().toISOString();
+        return {
+          format: 'mini-league-desk',
+          schemaVersion: SCHEMA_VERSION,
+          appVersion: APP_CONFIG.version,
+          event: {
+            id: state.meta.eventId,
+            name: state.tournamentName,
+            phase: state.phase,
+            settings: {
+              resultMode: state.settings.resultMode,
+              scoreDrawsAllowed: state.settings.scoreDrawsAllowed
+            },
+            participants: state.participants.map(participant => ({ id: participant.id, name: participant.name })),
+            rounds: state.rounds.map(round => ({
+              number: round.number,
+              byeParticipantId: round.byeParticipantId,
+              matches: round.matches.map(match => ({
+                id: match.id,
+                round: match.round,
+                order: match.order,
+                participantAId: match.participantAId,
+                participantBId: match.participantBId,
+                status: match.status,
+                scoreA: match.scoreA,
+                scoreB: match.scoreB,
+                result: match.result,
+                winnerId: match.winnerId
+              }))
+            })),
+            ui: {
+              matchFilter: state.ui.matchFilter,
+              participantFocusId: state.ui.participantFocusId,
+              activePage: state.ui.activePage
+            },
+            createdAt: state.meta.createdAt,
+            updatedAt: state.meta.updatedAt
+          }
+        };
+      }
+      function persistEvent() {
+        if (!persistenceReady) return true;
+        if (!meaningfulEventState()) {
+          removeStorage(storageKeys.event);
+          return true;
+        }
+        const documentValue = buildEventDocument({ touchUpdated: true });
+        const ok = writeStorage(storageKeys.event, JSON.stringify(documentValue));
+        if (!ok && !persistenceWarningShown) {
+          persistenceWarningShown = true;
+          showToast(translate('saveFailed'), { tone: 'warning', duration: 7000 });
+        }
+        return ok;
+      }
+      function clearPersistedEvent() {
+        return removeStorage(storageKeys.event);
+      }
+      function isPlainObject(value) {
+        return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+      }
+      function isIsoDate(value) {
+        return typeof value === 'string' && value.length > 0 && Number.isFinite(Date.parse(value));
+      }
+      function normalizeImportedEvent(documentValue) {
+        if (!isPlainObject(documentValue) || documentValue.format !== 'mini-league-desk') {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (documentValue.schemaVersion !== SCHEMA_VERSION) {
+          return { ok: false, reason: 'incompatible' };
+        }
+        const event = documentValue.event;
+        if (!isPlainObject(event) || typeof event.id !== 'string' || !event.id || typeof event.name !== 'string' || event.name.length > 100) {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!['setup', 'fixtures'].includes(event.phase) || !isPlainObject(event.settings)) {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!['winLoss', 'winDrawLoss', 'score'].includes(event.settings.resultMode) || typeof event.settings.scoreDrawsAllowed !== 'boolean') {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!Array.isArray(event.participants) || event.participants.length > 64) {
+          return { ok: false, reason: 'invalid' };
+        }
+
+        const participantIds = new Set();
+        const participantNames = new Set();
+        const participants = [];
+        for (const participant of event.participants) {
+          if (!isPlainObject(participant) || typeof participant.id !== 'string' || !participant.id || typeof participant.name !== 'string') {
+            return { ok: false, reason: 'invalid' };
+          }
+          const normalizedName = normalizeName(participant.name);
+          if (!normalizedName || [...normalizedName].length > 80 || participantIds.has(participant.id) || participantNames.has(nameKey(normalizedName))) {
+            return { ok: false, reason: 'invalid' };
+          }
+          participantIds.add(participant.id);
+          participantNames.add(nameKey(normalizedName));
+          participants.push({ id: participant.id, name: normalizedName });
+        }
+
+        const rounds = [];
+        if (event.phase === 'fixtures') {
+          if (participants.length < 3 || !Array.isArray(event.rounds)) return { ok: false, reason: 'invalid' };
+          const seenMatchIds = new Set();
+          const seenOrders = new Set();
+          const seenRoundNumbers = new Set();
+
+          for (const round of event.rounds) {
+            if (!isPlainObject(round) || !Number.isInteger(round.number) || round.number < 1 ||
+                seenRoundNumbers.has(round.number) || round.number !== rounds.length + 1 || !Array.isArray(round.matches)) {
+              return { ok: false, reason: 'invalid' };
+            }
+            seenRoundNumbers.add(round.number);
+            const matches = [];
+            for (const match of round.matches) {
+              if (!isPlainObject(match) ||
+                  typeof match.id !== 'string' || !match.id ||
+                  seenMatchIds.has(match.id) ||
+                  !Number.isInteger(match.round) || match.round !== round.number ||
+                  !Number.isInteger(match.order) || match.order < 1 || seenOrders.has(match.order) ||
+                  !participantIds.has(match.participantAId) ||
+                  !participantIds.has(match.participantBId) ||
+                  match.participantAId === match.participantBId ||
+                  !['pending', 'completed'].includes(match.status)) {
+                return { ok: false, reason: 'invalid' };
+              }
+              seenMatchIds.add(match.id);
+              seenOrders.add(match.order);
+
+              const normalized = {
+                id: match.id,
+                round: match.round,
+                order: match.order,
+                participantAId: match.participantAId,
+                participantBId: match.participantBId,
+                status: match.status,
+                scoreA: match.scoreA ?? null,
+                scoreB: match.scoreB ?? null,
+                result: match.result ?? null,
+                winnerId: match.winnerId ?? null
+              };
+
+              if (normalized.status === 'pending') {
+                normalized.scoreA = null;
+                normalized.scoreB = null;
+                normalized.result = null;
+                normalized.winnerId = null;
+              } else if (event.settings.resultMode === 'score') {
+                if (!Number.isInteger(normalized.scoreA) || !Number.isInteger(normalized.scoreB) ||
+                    normalized.scoreA < 0 || normalized.scoreB < 0 ||
+                    normalized.scoreA > 999999 || normalized.scoreB > 999999) {
+                  return { ok: false, reason: 'invalid' };
+                }
+                if (normalized.scoreA === normalized.scoreB) {
+                  if (!event.settings.scoreDrawsAllowed || normalized.result !== 'draw' || normalized.winnerId !== null) {
+                    return { ok: false, reason: 'invalid' };
+                  }
+                } else {
+                  const expectedWinner = normalized.scoreA > normalized.scoreB ? normalized.participantAId : normalized.participantBId;
+                  if (normalized.result !== 'win' || normalized.winnerId !== expectedWinner) {
+                    return { ok: false, reason: 'invalid' };
+                  }
+                }
+              } else {
+                if (normalized.scoreA !== null || normalized.scoreB !== null) return { ok: false, reason: 'invalid' };
+                if (normalized.result === 'draw') {
+                  if (event.settings.resultMode !== 'winDrawLoss' || normalized.winnerId !== null) return { ok: false, reason: 'invalid' };
+                } else if (normalized.result === 'win') {
+                  if (![normalized.participantAId, normalized.participantBId].includes(normalized.winnerId)) return { ok: false, reason: 'invalid' };
+                } else {
+                  return { ok: false, reason: 'invalid' };
+                }
+              }
+              matches.push(normalized);
+            }
+            const byeParticipantId = round.byeParticipantId ?? null;
+            if (byeParticipantId !== null && !participantIds.has(byeParticipantId)) return { ok: false, reason: 'invalid' };
+            rounds.push({ number: round.number, matches, byeParticipantId });
+          }
+          if (!validateRoundRobin(rounds, participants)) return { ok: false, reason: 'invalid' };
+          const expectedMatchCount = participants.length * (participants.length - 1) / 2;
+          if (seenOrders.size !== expectedMatchCount) return { ok: false, reason: 'invalid' };
+          for (let order = 1; order <= expectedMatchCount; order += 1) {
+            if (!seenOrders.has(order)) return { ok: false, reason: 'invalid' };
+          }
+        }
+
+        if (event.phase === 'setup' && event.rounds != null && (!Array.isArray(event.rounds) || event.rounds.length > 0)) {
+          return { ok: false, reason: 'invalid' };
+        }
+        if (!isIsoDate(event.createdAt) || !isIsoDate(event.updatedAt)) return { ok: false, reason: 'invalid' };
+
+        const rawUi = isPlainObject(event.ui) ? event.ui : {};
+        const ui = defaultUi();
+        if (['all', 'pending', 'completed'].includes(rawUi.matchFilter)) ui.matchFilter = rawUi.matchFilter;
+        if (typeof rawUi.participantFocusId === 'string' && participantIds.has(rawUi.participantFocusId)) ui.participantFocusId = rawUi.participantFocusId;
+        if (['progress', 'matches', 'standings'].includes(rawUi.activePage)) ui.activePage = rawUi.activePage;
+        if (!ui.participantFocusId) ui.participantFocusId = participants[0]?.id || '';
+
+        return {
+          ok: true,
+          value: {
+            phase: event.phase,
+            tournamentName: event.name.trim().slice(0, 100),
+            participants,
+            rounds: event.phase === 'fixtures' ? rounds : [],
+            settings: {
+              resultMode: event.settings.resultMode,
+              scoreDrawsAllowed: event.settings.scoreDrawsAllowed
+            },
+            ui,
+            meta: {
+              eventId: event.id,
+              createdAt: new Date(event.createdAt).toISOString(),
+              updatedAt: new Date(event.updatedAt).toISOString()
+            }
+          }
+        };
+      }
+      function applyEventState(nextState) {
+        state.phase = nextState.phase;
+        state.tournamentName = nextState.tournamentName;
+        state.participants = nextState.participants;
+        state.rounds = nextState.rounds;
+        state.settings = nextState.settings;
+        state.ui = nextState.ui;
+        state.meta = nextState.meta;
+        $('#tournamentName').value = state.tournamentName;
+        $('#participantName').value = '';
+        $('#bulkParticipants').value = '';
+        setParticipantError('');
+        setBulkError('');
+        updateResultModeControls();
+      }
+      function restorePersistedEvent() {
+        const raw = readStorage(storageKeys.event);
+        if (!raw) return false;
+        try {
+          const parsed = JSON.parse(raw);
+          const normalized = normalizeImportedEvent(parsed);
+          if (!normalized.ok) {
+            startupNoticeKey = normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid';
+            return false;
+          }
+          applyEventState(normalized.value);
+          startupNoticeKey = 'backupRestored';
+          return true;
+        } catch {
+          startupNoticeKey = 'backupInvalid';
+          return false;
+        }
+      }
+      function safeBackupFilename(value) {
+        let filename = String(value || '').trim()
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, ' ')
+          .replace(/[. ]+$/g, '')
+          .slice(0, 110);
+        if (!filename) filename = 'mini-league-desk-backup';
+        if (!filename.toLowerCase().endsWith('.json')) filename += '.json';
+        return filename;
+      }
+      function defaultBackupFilename() {
+        const date = new Date().toISOString().slice(0, 10);
+        const eventPart = (state.tournamentName || 'mini-league-desk')
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60) || 'mini-league-desk';
+        return safeBackupFilename(eventPart + '-' + date + '.json');
+      }
+      function openBackupExportDialog() {
+        if (!meaningfulEventState()) return;
+        persistEvent();
+        $('#backupFilename').value = defaultBackupFilename();
+        $('#backupExportDialog').showModal();
+        requestAnimationFrame(() => $('#backupFilename').select());
+      }
+      function closeBackupExportDialog() {
+        if ($('#backupExportDialog').open) $('#backupExportDialog').close();
+      }
+      function downloadBackup() {
+        if (!meaningfulEventState()) return;
+        persistEvent();
+        const documentValue = buildEventDocument({ touchUpdated: false });
+        const filename = safeBackupFilename($('#backupFilename').value);
+        const blob = new Blob([JSON.stringify(documentValue, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.rel = 'noopener';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        closeBackupExportDialog();
+        showToast(translate('backupSaved'), { tone: 'success' });
+      }
+      async function importBackupFile(file) {
+        let parsed;
+        try {
+          if (!(file instanceof File) || file.size > 5 * 1024 * 1024) throw new Error('invalid file');
+          parsed = JSON.parse(await file.text());
+        } catch {
+          showToast(translate('backupReadError'), { tone: 'warning', duration: 6000 });
+          return;
+        }
+
+        const normalized = normalizeImportedEvent(parsed);
+        if (!normalized.ok) {
+          showToast(translate(normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid'), { tone: 'warning', duration: 6000 });
+          return;
+        }
+
+        if (meaningfulEventState()) {
+          const confirmed = await AppConfirm.ask({
+            title: translate('backupReplaceTitle'),
+            message: translate('backupReplaceMessage'),
+            confirmLabel: translate('backupReplaceAction'),
+            cancelLabel: translate('cancel'),
+            tone: 'danger'
+          });
+          if (!confirmed) return;
+        }
+
+        const before = meaningfulEventState() ? JSON.parse(JSON.stringify(buildEventDocument({ touchUpdated: false }))) : null;
+        applyEventState(normalized.value);
+        render();
+        persistEvent();
+        showToast(translate('backupImported'), {
+          tone: 'success',
+          actionLabel: before ? translate('undo') : '',
+          duration: 6000,
+          onAction: before ? () => {
+            const previous = normalizeImportedEvent(before);
+            if (!previous.ok) return;
+            applyEventState(previous.value);
+            render();
+            persistEvent();
+            showToast(translate('undone'));
+          } : null
+        });
+      }
+      function updateBackupButtons() {
+        const disabled = !meaningfulEventState();
+        $('#setupExportBackupButton').disabled = disabled;
+        $('#exportBackupButton').disabled = disabled;
+      }
 
       function updateStaticLanguage() {
         document.documentElement.lang = language;
@@ -1938,6 +2379,8 @@
         $('#confirmParticipantsButton').disabled = !canConfirm;
         setText('#startHelp', translate(canConfirm ? 'readyToConfirm' : 'needThree'));
         setText('#validationSummary', '');
+        updateBackupButtons();
+        persistEvent();
       }
 
       function createActionButton(action, label, disabled, danger = false) {
@@ -2067,6 +2510,7 @@
         if (!['all', 'pending', 'completed'].includes(filter)) return;
         state.ui.matchFilter = filter;
         renderFixtures();
+        persistEvent();
       }
       function renderProgress() {
         const snapshot = eventProgressSnapshot();
@@ -2174,6 +2618,8 @@
         renderFixtures();
         renderStandings();
         renderParticipantMatchStatus();
+        updateBackupButtons();
+        persistEvent();
       }
 
       function calculateStandings() {
@@ -2611,7 +3057,9 @@
         state.participants = [];
         state.rounds = [];
         state.settings = { resultMode: 'winLoss', scoreDrawsAllowed: true };
-        state.ui = { matchFilter: 'all', participantFocusId: '', activePage: 'progress' };
+        state.ui = defaultUi();
+        state.meta = { eventId: '', createdAt: '', updatedAt: '' };
+        clearPersistedEvent();
         $('#tournamentName').value = '';
         $('#participantName').value = '';
         $('#bulkParticipants').value = '';
@@ -2625,6 +3073,7 @@
       function confirmParticipants() {
         if (state.participants.length < 3) return;
         state.tournamentName = $('#tournamentName').value.trim().slice(0, 100);
+        ensureEventMeta();
         const rounds = generateRoundRobin(state.participants);
         if (!validateRoundRobin(rounds, state.participants)) {
           setText('#validationSummary', translate('fixtureError'));
@@ -2672,6 +3121,8 @@
       $('#tournamentName').addEventListener('input', event => {
         state.tournamentName = event.target.value.trim().slice(0, 100);
         updateResetButton();
+        updateBackupButtons();
+        persistEvent();
       });
       document.querySelectorAll('input[name="resultMode"]').forEach(input => {
         input.addEventListener('change', () => {
@@ -2679,11 +3130,14 @@
           state.settings.resultMode = input.value;
           updateResultModeControls();
           updateResetButton();
+          updateBackupButtons();
+          persistEvent();
         });
       });
       $('#scoreDrawsAllowed').addEventListener('change', event => {
         state.settings.scoreDrawsAllowed = event.target.checked;
         updateResetButton();
+        persistEvent();
       });
 
 
@@ -2693,6 +3147,7 @@
       $('#participantMatchSelect').addEventListener('change', event => {
         state.ui.participantFocusId = event.target.value;
         renderParticipantMatchStatus();
+        persistEvent();
       });
       $('#viewPendingButton').addEventListener('click', () => {
         setMatchFilter('pending');
@@ -2705,6 +3160,32 @@
           const key = pageId === 'matchesPage' ? 'matches' : pageId === 'standingsPage' ? 'standings' : 'progress';
           showLeaguePage(key);
         });
+      });
+
+
+      $('#setupExportBackupButton').addEventListener('click', openBackupExportDialog);
+      $('#exportBackupButton').addEventListener('click', openBackupExportDialog);
+      $('#setupImportBackupButton').addEventListener('click', () => $('#backupFileInput').click());
+      $('#importBackupButton').addEventListener('click', () => $('#backupFileInput').click());
+      $('#backupFileInput').addEventListener('change', async event => {
+        const file = event.target.files?.[0] || null;
+        event.target.value = '';
+        if (file) await importBackupFile(file);
+      });
+      $('#backupExportForm').addEventListener('submit', event => {
+        event.preventDefault();
+        downloadBackup();
+      });
+      $('#closeBackupExportButton').addEventListener('click', closeBackupExportDialog);
+      $('#cancelBackupExportButton').addEventListener('click', closeBackupExportDialog);
+      $('#backupExportDialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        closeBackupExportDialog();
+      });
+      $('#backupExportDialog').addEventListener('click', event => {
+        const dialog = $('#backupExportDialog');
+        const rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeBackupExportDialog();
       });
 
       $('#languageButton').addEventListener('click', () => {
@@ -2747,9 +3228,16 @@
         pageTopOffset: 12
       });
 
+      restorePersistedEvent();
+      persistenceReady = true;
       $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
       updateStaticLanguage();
-      render();
+      if (startupNoticeKey) {
+        queueMicrotask(() => showToast(translate(startupNoticeKey), {
+          tone: startupNoticeKey === 'backupRestored' ? 'success' : 'warning',
+          duration: 5500
+        }));
+      }
     })();
   </script>
 </body>
