@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.2.0
+- **Current app version:** v0.3.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.2.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
+- Current v0.3.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
 
 ## 5. Event setup
 
@@ -132,7 +132,7 @@ Requirements:
 - odd participant counts produce one localized `休み` / `Bye` per round
 - round order helps display and default progression but does not block entering later matches first
 
-## 8. Match state — v0.3.0 target
+## 8. Match state — v0.3.0
 
 Each match has:
 
@@ -156,7 +156,7 @@ v1 states:
 
 Do not add in-progress, delayed, forfeit, or cancelled states before they have a clear user need.
 
-## 9. Result modes — v0.3.0 target
+## 9. Result modes — v0.3.0
 
 Support three presets.
 
@@ -173,11 +173,15 @@ Support three presets.
 
 ### Score entry
 
-Store both numeric scores and derive win/draw/loss.
+- enter both scores as non-negative whole numbers from 0 through 999999
+- win = 3 league points
+- draw = 1
+- loss = 0
+- derive win/draw/loss from the scores
+- a setup checkbox controls whether equal scores are accepted; it is enabled by default
+- when draws are disabled, equal scores cannot be committed
 
-If draws are disabled, equal scores cannot be committed.
-
-## 10. Standings — v0.3.0 target
+## 10. Standings — v0.3.0
 
 Recalculate immediately after every result add, edit, or removal.
 
@@ -311,64 +315,72 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.2.0
+## 18. Current implementation milestone: v0.3.0
 
-v0.2.0 adds round-robin fixture generation to the v0.1.0 setup foundation.
+v0.3.0 adds match result entry, editing/removal, and live standings.
 
 Implemented behavior:
 
-- event name and participant management from v0.1.0
-- standard circle-method round-robin generation
-- exactly one match for every unordered participant pair
-- round grouping
-- one localized Bye per round for odd participant counts
-- participant / match / round counts
-- fixture view with long-name-safe matchup rows
-- return to participant editing and regenerate from the revised roster
-- internal runtime invariant validation before showing generated fixtures
-- repository regression tests for participant counts 3 through 64
-- Japanese and English fixture UI/help
-- responsive desktop/mobile layout
+- all v0.1.0 setup and v0.2.0 round-robin behavior
+- result-mode selection during setup
+- Win/Loss mode: win 1, loss 0
+- Win/Draw/Loss mode: win 3, draw 1, loss 0
+- Score mode: whole-number scores 0..999999, win 3, draw 1, loss 0
+- optional score-mode draw acceptance, enabled by default
+- tap/click any matchup to enter or edit its result
+- completed results can be removed back to pending
+- result add/edit/remove offers Undo
+- standings recalculate immediately
+- non-score standings sort by league points only
+- score standings sort by league points, score difference, then score for
+- participants with identical active tiebreak values share the same rank
+- stable roster order is used only to display otherwise tied rows; it never changes the sporting rank
+- returning to participant editing warns before clearing existing results
+- Japanese and English result/standings UI
 - no runtime network
-- direct-file-compatible architecture
 
-Not implemented in v0.2.0:
+Not implemented in v0.3.0:
 
-- match result entry
-- standings
-- progress / next-match workflow
+- dedicated Progress / Matches / Standings navigation
+- next-match suggestions and remaining-match views
+- event completion UI
 - event-data persistence
 - JSON backup
 - CSV/image/print exports
 
-The UI must not present inactive controls for these future functions.
+## 19. v0.3.0 acceptance criteria
 
-## 19. v0.2.0 acceptance criteria
+### Result entry
 
-### Round robin
+- Each generated match begins in pending state.
+- Win/Loss mode offers only the two participants as winner choices.
+- Win/Draw/Loss mode also offers Draw.
+- Score mode accepts two non-negative whole-number scores up to 999999.
+- Score mode derives winner or draw from the entered scores.
+- Equal scores are rejected when score-mode draws are disabled.
+- Editing a completed match updates that same match rather than creating another result.
+- Removing a result returns the match to pending.
+- Add, edit, and removal each provide Undo to the previous result state.
 
-- Confirming a valid roster generates a fixture schedule immediately.
-- For `n` participants the fixture set contains exactly `n × (n - 1) / 2` matches.
-- Every unordered participant pair appears exactly once.
-- No participant can play themself.
-- A participant appears at most once in each round.
-- Even participant counts produce `n - 1` rounds and no Bye.
-- Odd participant counts produce `n` rounds and exactly one Bye per participant.
-- Each match already carries the v0.3.0-compatible pending match fields: ID, round, global order, participant IDs, pending status, null scores/result/winner.
-- Returning to editing does not lose the roster, but invalidates the generated fixture schedule.
-- Confirming again regenerates fixtures from the current participant order.
-- Long participant names wrap without causing page-level horizontal scrolling.
-- Japanese and English both render round labels and Bye labels naturally.
+### Standings
 
-### Regression / build
+- Played/W/D/L totals are recalculated from completed matches.
+- League points use the active result mode.
+- Score For, Score Against, and Score Difference are calculated only from score-mode results.
+- Non-score modes sort by league points only.
+- Score mode sorts by league points, score difference, then score for.
+- Equal active tiebreak values receive the same competition rank: 1, 1, 3.
+- Before any result is entered, rank is displayed as a dash rather than implying an arbitrary first place.
+- Roster order may stabilize display order inside a complete tie, but tied rows keep the same rank.
 
-- The round-robin regression script verifies all participant counts from 3 through 64.
-- Existing v0.1.0 setup validation and Undo behavior remain available.
-- `__APP_CONFIG_JSON__`, `__BUILD_MANIFEST_JSON__`, and `__EMBEDDED_ASSET_BUNDLE_JSON__` each occur exactly once in the source.
-- `__APP_ICON_DATA_URI__` occurs exactly twice.
-- No runtime external URL is required.
-- `window.StandaloneAssets`, `window.AppToast`, and `window.AppConfirm` remain available.
-- PowerShell syntax preflight, round-robin regression tests, and repository check must pass before the milestone is considered verified.
+### Safety / regression
+
+- Returning to setup with completed matches requires confirmation because current results will be discarded.
+- Changing participants or result mode regenerates a fresh event with no stale results.
+- Result dialog supports normal keyboard navigation and native Escape close behavior.
+- Existing round-robin invariant tests continue to pass for participant counts 3..64.
+- Result/standings regression tests cover all three modes, score tiebreak ordering, shared ranks, and score validation.
+- PowerShell syntax preflight and repository check must pass.
 - Do not claim browser/device/manual-network verification unless it was actually performed.
 
 ## 20. Planned development sequence
@@ -381,7 +393,7 @@ The UI must not present inactive controls for these future functions.
 - fixture view
 - pairing invariant tests
 
-### v0.3.0 — Results & Standings
+### v0.3.0 — Results & Standings — implemented
 
 - result modes
 - score entry
