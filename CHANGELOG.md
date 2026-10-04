@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.0 - League Desk - 2026-10-04
+
+- Added Progress / Matches / Standings as the primary in-event workflow.
+- Added a safe-area-aware smartphone bottom page bar adapted from the canonical mobile-bottom-bar component.
+- Added completed/pending/progress summaries, next match, and two following match suggestions.
+- Added All / Pending / Completed match filters.
+- Added per-participant pending and completed opponent views with direct match access.
+- Added automatic event completion when no pending matches remain.
+- Added final standings to the completion state.
+- Updated every result mutation and Undo path to refresh progress, matches, participant status, and standings together.
+- Added League Desk regression tests and updated Japanese / English documentation and version metadata.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.3.0 - Results & Standings - 2026-10-04
 
 - Added Win/Loss, Win/Draw/Loss, and Score result modes.

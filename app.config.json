@@ -3,7 +3,7 @@
   "name": "Mini League Desk",
   "nameJa": "Mini League Desk / ミニリーグ運営",
   "slug": "mini-league-desk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Prepare and run small round-robin events entirely in the browser.",
   "descriptionJa": "小規模な総当たり大会をブラウザだけで準備・運営するツールです。",
   "defaultLanguage": "auto",

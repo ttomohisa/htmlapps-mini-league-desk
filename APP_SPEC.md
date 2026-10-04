@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.3.0
+- **Current app version:** v0.4.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.3.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
+- Current v0.4.0 stores only the language preference. Event draft persistence intentionally starts at v0.5.0.
 
 ## 5. Event setup
 
@@ -197,7 +197,7 @@ If every active tiebreak value is identical, participants share the same rank. N
 
 Direct-head-to-head tiebreak is out of scope for v1.0.0.
 
-## 11. Main navigation — v0.4.0 target
+## 11. Main navigation — v0.4.0
 
 Smartphone primary destinations:
 
@@ -211,7 +211,7 @@ Use the canonical mobile bottom-tab pattern when implemented.
 
 Desktop may show more information simultaneously when it improves event operation.
 
-## 12. Progress screen — v0.4.0 target
+## 12. Progress screen — v0.4.0
 
 Show:
 
@@ -227,7 +227,7 @@ Default next match is the first remaining match in generated order.
 
 This is a suggestion, not a lock. Any pending match may be opened and completed.
 
-## 13. Remaining matches — v0.4.0 target
+## 13. Remaining matches — v0.4.0
 
 Provide:
 
@@ -315,73 +315,80 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.3.0
+## 18. Current implementation milestone: v0.4.0
 
-v0.3.0 adds match result entry, editing/removal, and live standings.
+v0.4.0 turns the fixture/result view into the League Desk workflow used during an event.
 
 Implemented behavior:
 
-- all v0.1.0 setup and v0.2.0 round-robin behavior
-- result-mode selection during setup
-- Win/Loss mode: win 1, loss 0
-- Win/Draw/Loss mode: win 3, draw 1, loss 0
-- Score mode: whole-number scores 0..999999, win 3, draw 1, loss 0
-- optional score-mode draw acceptance, enabled by default
-- tap/click any matchup to enter or edit its result
-- completed results can be removed back to pending
-- result add/edit/remove offers Undo
-- standings recalculate immediately
-- non-score standings sort by league points only
-- score standings sort by league points, score difference, then score for
-- participants with identical active tiebreak values share the same rank
-- stable roster order is used only to display otherwise tied rows; it never changes the sporting rank
-- returning to participant editing warns before clearing existing results
-- Japanese and English result/standings UI
+- all setup, round-robin, result-entry, Undo, and standings behavior from v0.1.0–v0.3.0
+- Progress / Matches / Standings primary destinations
+- canonical smartphone bottom page tabs for those three destinations
+- desktop overview keeps Progress and Standings visible together, with Matches below
+- completed / pending / progress percentage summary
+- next pending match is the first pending match by generated global order
+- up to two following pending matches are shown
+- next/following matches open result entry directly
+- All / Pending / Completed match filters
+- per-participant pending and completed opponent views
+- participant opponent entries open the corresponding match directly
+- event automatically becomes complete when no pending matches remain
+- completion view shows final standings and a direct path to the Standings page
+- all League Desk surfaces refresh immediately after result add/edit/remove and Undo
+- Japanese and English League Desk UI
 - no runtime network
 
-Not implemented in v0.3.0:
+Not implemented in v0.4.0:
 
-- dedicated Progress / Matches / Standings navigation
-- next-match suggestions and remaining-match views
-- event completion UI
-- event-data persistence
-- JSON backup
+- local event persistence
+- JSON backup / restore
 - CSV/image/print exports
+- release-stage mobile/accessibility polish beyond the current responsive implementation
 
-## 19. v0.3.0 acceptance criteria
+## 19. v0.4.0 acceptance criteria
 
-### Result entry
+### Progress
 
-- Each generated match begins in pending state.
-- Win/Loss mode offers only the two participants as winner choices.
-- Win/Draw/Loss mode also offers Draw.
-- Score mode accepts two non-negative whole-number scores up to 999999.
-- Score mode derives winner or draw from the entered scores.
-- Equal scores are rejected when score-mode draws are disabled.
-- Editing a completed match updates that same match rather than creating another result.
-- Removing a result returns the match to pending.
-- Add, edit, and removal each provide Undo to the previous result state.
+- Completed, pending, and progress percentage derive from match state rather than separate counters.
+- The next match is the lowest-order pending match.
+- Following matches are the next two pending matches by generated order.
+- Any pending match may still be opened from the Matches page regardless of the suggested order.
+- Entering, editing, removing, or undoing a result refreshes Progress immediately.
+- The Pending shortcut switches the Matches view to its Pending filter.
+- When all matches are completed, the normal next-match state is replaced by the completion state.
 
-### Standings
+### Matches
 
-- Played/W/D/L totals are recalculated from completed matches.
-- League points use the active result mode.
-- Score For, Score Against, and Score Difference are calculated only from score-mode results.
-- Non-score modes sort by league points only.
-- Score mode sorts by league points, score difference, then score for.
-- Equal active tiebreak values receive the same competition rank: 1, 1, 3.
-- Before any result is entered, rank is displayed as a dash rather than implying an arbitrary first place.
-- Roster order may stabilize display order inside a complete tie, but tied rows keep the same rank.
+- All, Pending, and Completed filters show the correct counts and matches.
+- A filter with no matches shows an explicit empty state.
+- Filtering never changes match data.
+- Selecting a participant shows every pending opponent and every completed opponent for that participant.
+- Participant-specific opponent entries open the exact corresponding match.
+- Long participant names remain wrapping-safe.
 
-### Safety / regression
+### Standings / completion
 
-- Returning to setup with completed matches requires confirmation because current results will be discarded.
-- Changing participants or result mode regenerates a fresh event with no stale results.
-- Result dialog supports normal keyboard navigation and native Escape close behavior.
-- Existing round-robin invariant tests continue to pass for participant counts 3..64.
-- Result/standings regression tests cover all three modes, score tiebreak ordering, shared ranks, and score validation.
+- Standings retain the v0.3.0 ranking behavior.
+- Completion is automatic when total matches are non-zero and pending matches equal zero.
+- Completion UI shows the final standings.
+- Removing or undoing a result after completion returns the event to an in-progress state.
+
+### Responsive / navigation
+
+- Smartphone primary navigation is Progress / Matches / Standings in a safe-area-aware fixed bottom bar.
+- At smartphone widths only the selected League Desk page is shown.
+- Desktop keeps the event dashboard in normal document flow and provides quick section navigation.
+- Bottom navigation is hidden during setup.
+- The bottom bar must not cover reachable page content.
+
+### Regression / build
+
+- Existing round-robin tests for 3..64 participants continue to pass.
+- Existing result/standings tests continue to pass.
+- League Desk regression tests cover next-match order, following matches, filters, per-participant pending/completed opponents, and completion.
+- `window.AppMobileBottomBar` remains available from the adapted canonical component.
 - PowerShell syntax preflight and repository check must pass.
-- Do not claim browser/device/manual-network verification unless it was actually performed.
+- Do not claim real-device/manual-network verification unless it was actually performed.
 
 ## 20. Planned development sequence
 
@@ -401,7 +408,7 @@ Not implemented in v0.3.0:
 - standings
 - shared rank handling
 
-### v0.4.0 — League Desk
+### v0.4.0 — League Desk — implemented
 
 - Progress / Matches / Standings workflow
 - next match
