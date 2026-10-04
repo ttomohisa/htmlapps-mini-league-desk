@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 - Results & Standings - 2026-10-04
+
+- Added Win/Loss, Win/Draw/Loss, and Score result modes.
+- Added score-mode draw control and integer score validation.
+- Added tap/click result entry, result editing, and result removal for every matchup.
+- Added Undo for result add, edit, and removal.
+- Added live standings with Played/W/D/L and league points.
+- Added score-mode Score For, Score Against, Score Difference, and tiebreak sorting.
+- Added shared-rank handling when all active tiebreak values are identical.
+- Added confirmation before returning to setup when recorded results would be discarded.
+- Added result/standings regression tests and updated Japanese / English help, README files, specification, and version metadata.
+- Kept runtime network access blocked and added no third-party runtime dependency.
+
 ## 0.2.0 - Round Robin / Fixture generation - 2026-10-04
 
 - Added circle-method round-robin fixture generation from the confirmed roster.

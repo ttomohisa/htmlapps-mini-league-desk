@@ -4,104 +4,87 @@
 
 Mini League Desk is a local-first browser tool for running small round-robin events. The final v1 workflow is designed around quickly answering: **who plays next, what is still unfinished, and what are the current standings?**
 
-Current development version: **v0.2.0**
+Current development version: **v0.3.0**
 
 ## Current features
 
-v0.2.0 builds a complete round-robin fixture list from the event setup:
+v0.3.0 supports setup, round-robin fixtures, result entry, and live standings:
 
 - Enter an optional event name
-- Add participants one at a time or paste multiple names
-- Reject duplicate names and invalid bulk batches
-- Reorder participants or shuffle with Undo
-- Remove participants with Undo
-- Generate fixtures once at least three participants are present
-- Use a standard circle-method round-robin schedule
-- Show each matchup exactly once, grouped into rounds
-- Automatically assign one Bye per round for odd participant counts
-- Show participant, match, and round counts
-- Return to editing and regenerate from the revised roster
+- Add, reorder, shuffle, and remove participants
+- Generate every round-robin matchup exactly once
+- Show rounds and odd-roster Byes
+- Choose one of three result modes:
+  - Win / loss: 1 / 0 league points
+  - Win / draw / loss: 3 / 1 / 0
+  - Score entry: 3 / 1 / 0, with optional tied-score draws
+- Choose any matchup to add or edit a result
+- Remove a completed result back to pending
+- Undo result add, edit, or removal
+- Recalculate standings immediately
+- Score mode tiebreaks: league points → score difference → score for
+- Preserve shared ranks when all active tiebreak values are identical
 - Japanese / English UI
 - Responsive desktop and smartphone layout
 - No runtime CDN, API, analytics, or telemetry
 
 ## How to use
 
-1. Enter an event name if needed.
-2. Add at least three participants individually or with multiline paste.
-3. Adjust the participant order or shuffle it.
-4. Choose **Confirm participants**.
-5. Review the generated fixtures by round.
-6. Choose **Edit participants** to change the roster and regenerate the schedule.
+1. Enter an event name and choose how results will be recorded.
+2. Add at least three participants.
+3. Confirm the participants to generate the fixtures.
+4. Choose any matchup.
+5. Record the winner, draw, or scores depending on the selected mode.
+6. Check the standings as they update.
+7. Open a completed matchup to edit or remove its result.
 
-## Fixture rules
+## Ranking rules
 
-For `n` participants, Mini League Desk generates exactly `n × (n - 1) / 2` matches. Every unordered participant pair appears once. Even rosters use `n - 1` rounds; odd rosters use `n` rounds with one Bye in each round.
+Win/Loss mode and Win/Draw/Loss mode sort by league points.
 
-The repository regression test checks these invariants for every roster size from 3 through 64.
+Score mode sorts by:
+
+1. league points
+2. score difference
+3. score for
+
+Rows with identical active tiebreak values share the same rank. Registration order may keep the display stable, but it never creates a false sporting rank.
 
 ## Privacy
 
-Event names, participant names, and generated fixtures are processed inside the browser. The application is built with runtime network access blocked by its Content Security Policy and does not send event data to a server.
+Event names, participants, fixtures, results, and standings are processed inside the browser. Runtime network access remains blocked by Content Security Policy and the app does not send event data to a server.
 
-v0.2.0 only stores the language preference. **The event itself is not saved yet**, so reloading or closing the page clears the current event. Local event persistence is planned for v0.5.0.
+v0.3.0 only stores the language preference. **The event itself is not saved yet**, so reloading or closing the page clears the event and its results. Local persistence is planned for v0.5.0.
 
-## Limitations in v0.2.0
+## Limitations in v0.3.0
 
-This milestone does not yet include:
+Not yet included:
 
-- match result entry
-- standings
-- progress / next-match workflow
-- event-data persistence or backup
+- dedicated Progress / Matches / Standings navigation
+- next-match and remaining-match views
+- event completion UI
+- event persistence / JSON backup
 - CSV, image, or print export
 
-These are tracked in `APP_SPEC.md` and will be added in later development milestones.
+See `APP_SPEC.md` for the remaining roadmap.
 
 ## Single HTML / offline use
 
-The build creates:
-
-- `dist/index.html`
-- `dist/index.self-extract.html`
-- `mini-league-desk.html` at the repository root
-
-The readable HTML is intended to work when opened directly with `file://`.
+The build creates `dist/index.html`, `dist/index.self-extract.html`, and `mini-league-desk.html`. The readable HTML is intended to work directly with `file://`.
 
 ## Browser support
 
-Primary targets:
+Primary targets: current Chrome and Edge.
 
-- Chrome
-- Edge
-
-Best effort:
-
-- Firefox
-- Safari
-- Chrome for Android
-- Safari on iPhone
+Best effort: current Firefox, Safari, Chrome for Android, and Safari on iPhone.
 
 ## Development
 
-Read these first:
+Read `AGENTS.md`, `APP_SPEC.md`, `docs/ARCHITECTURE.md`, and `docs/LLM_WORKFLOW.md` before changing the app.
 
-1. `AGENTS.md`
-2. `APP_SPEC.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/LLM_WORKFLOW.md`
-
-Editable app source:
-
-```text
-src/index.template.html
-```
-
-Do not edit generated standalone HTML files manually.
+Editable source: `src/index.template.html`.
 
 ## Build
-
-On Windows:
 
 ```powershell
 .\build-standalone.bat
