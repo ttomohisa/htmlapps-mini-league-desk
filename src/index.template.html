@@ -652,6 +652,13 @@
       overflow-wrap: anywhere;
     }
     .result-choice:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .result-choice.is-current { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .result-current {
+      display: flex; align-items: center; gap: 7px; min-height: 32px; margin-top: 10px;
+      padding: 7px 9px; border-radius: 9px; background: var(--surface-muted);
+      color: var(--muted); font-size: 10px;
+    }
+    .result-current strong { color: var(--text); overflow-wrap: anywhere; }
     .score-form { margin-top: 16px; }
     .score-grid {
       display: grid;
@@ -1114,9 +1121,18 @@
         border-radius: 22px 22px 0 0;
       }
       .result-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .result-choice { min-height: 56px; padding: 12px; font-size: 14px; }
+      .score-input { min-height: 56px; font-size: 20px; }
+      .score-submit { min-height: 50px; }
       .result-dialog-footer { flex-direction: column-reverse; align-items: stretch; }
-      .result-dialog-footer .button { width: 100%; }
+      .result-dialog-footer .button { width: 100%; min-height: 48px; }
+      .backup-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 22px 22px 0 0; }
+      .backup-dialog .dialog-body { padding-bottom: calc(env(safe-area-inset-bottom) + 18px); }
+      .backup-dialog-actions { flex-direction: column-reverse; }
+      .backup-dialog-actions .button { width: 100%; min-height: 48px; }
+      .data-actions .button { flex: 1 1 150px; }
       .app-toast { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: none; }
+      body.has-mobile-bottom-bar .app-toast { bottom: calc(var(--app-mobile-bottom-bar-height) + 12px + env(safe-area-inset-bottom)); }
       #helpDialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
       .app-confirm-dialog {
         width: 100%;
@@ -1190,6 +1206,32 @@
       .progress-stat strong { font-size: 17px; }
     }
 
+
+    @media (max-width: 380px) {
+      .main { padding-inline: 10px; }
+      .panel, .league-page, .fixtures-section { padding: 12px; }
+      .fixture-hero { padding: 16px 12px; }
+      .fixture-stat { padding: 8px 6px; text-align: center; }
+      .fixture-stat strong { font-size: 16px; }
+      .fixture-stat span { font-size: 9px; }
+      .match-row {
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+        grid-template-areas: "side-a side-b" "center center";
+        row-gap: 7px; min-height: 70px;
+      }
+      .match-side:first-child { grid-area: side-a; }
+      .match-side:last-child { grid-area: side-b; }
+      .match-center { grid-area: center; min-width: 0; padding-top: 6px; border-top: 1px solid var(--line); }
+      .match-player { font-size: 11px; line-height: 1.35; }
+      .match-result { white-space: normal; }
+      .participant { grid-template-columns: 28px minmax(0,1fr); }
+      .participant-actions { grid-column: 1 / -1; justify-content: flex-end; }
+      .small-icon-button { width: 44px; height: 44px; }
+      .progress-stat { padding-inline: 5px; text-align: center; }
+      .completion-standing { grid-template-columns: 26px minmax(0,1fr); }
+      .completion-standing strong:last-child { grid-column: 2; justify-self: start; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
@@ -1201,7 +1243,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.4.0</span></p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.6.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
@@ -1451,7 +1493,10 @@
           </div>
         </div>
         <div class="rounds-grid" id="roundsContainer"></div>
-        <div class="match-filter-empty" id="matchFilterEmpty" hidden data-i18n="filterEmpty">該当する試合はありません。</div>
+        <div class="match-filter-empty" id="matchFilterEmpty" hidden>
+          <div data-i18n="filterEmpty">該当する試合はありません。</div>
+          <button class="button" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
+        </div>
       </section>
     </section>
     <!-- APP:END -->
@@ -1528,6 +1573,10 @@
     </div>
     <div class="dialog-body">
       <p class="result-dialog-meta" id="resultDialogMeta"></p>
+      <div class="result-current" id="resultCurrent" hidden>
+        <span data-i18n="currentResult">現在</span>
+        <strong id="resultCurrentValue"></strong>
+      </div>
       <div class="result-choice-grid" id="resultChoicePanel">
         <button class="result-choice" id="resultAWin" type="button"></button>
         <button class="result-choice" id="resultDraw" type="button" data-i18n="drawChoice">引き分け</button>
@@ -1692,7 +1741,7 @@
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
           fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
           matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
-          navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', points: '勝点', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
@@ -1712,7 +1761,7 @@
           helpNotesTitle: '注意事項',
           helpNoteNoSave: 'v0.5.0では大会内容をこの端末に自動保存します。JSONバックアップで別のブラウザや端末へ移すこともできます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
-          helpNoteScope: '順位は勝点を基準にし、得点入力では勝点→得失点差→得点の順で判定します。完全に同じ場合は同順位です。',
+          helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。順位は勝点を基準にし、得点入力では勝点→得失点差→得点の順で判定します。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
         },
         en: {
@@ -1732,7 +1781,7 @@
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
           fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
           matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
-          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', points: 'Pts', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
@@ -1752,7 +1801,7 @@
           helpNotesTitle: 'Notes',
           helpNoteNoSave: 'v0.5.0 saves the event automatically on this device. JSON backup can also move the event to another browser or device.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
-          helpNoteScope: 'Standings use league points; score mode breaks ties by points, score difference, then score for. Identical active tiebreak values share the same rank.',
+          helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. Score mode ranks by points, score difference, then score for; identical active tiebreak values share a rank.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
         }
       };
@@ -2755,7 +2804,25 @@
         setText('#scoreALabel', participantA.name);
         setText('#scoreBLabel', participantB.name);
         setText('#scoreError', '');
+        const currentResult = $('#resultCurrent');
+        const currentValue = $('#resultCurrentValue');
+        document.querySelectorAll('.result-choice').forEach(button => button.classList.remove('is-current'));
         const scoreMode = state.settings.resultMode === 'score';
+        currentResult.hidden = match.status !== 'completed';
+        if (match.status === 'completed') {
+          if (scoreMode) {
+            currentValue.textContent = String(match.scoreA) + ' — ' + String(match.scoreB);
+          } else if (match.result === 'draw') {
+            currentValue.textContent = translate('drawChoice');
+            $('#resultDraw').classList.add('is-current');
+          } else {
+            const winner = match.winnerId === match.participantAId ? participantA : participantB;
+            currentValue.textContent = translate('playerWinChoice', { name: winner?.name || '' });
+            (match.winnerId === match.participantAId ? $('#resultAWin') : $('#resultBWin')).classList.add('is-current');
+          }
+        } else {
+          currentValue.textContent = '';
+        }
         $('#resultChoicePanel').hidden = scoreMode;
         $('#scoreForm').hidden = !scoreMode;
         $('#resultDraw').hidden = state.settings.resultMode === 'winLoss';
@@ -3144,6 +3211,7 @@
       document.querySelectorAll('[data-match-filter]').forEach(button => {
         button.addEventListener('click', () => setMatchFilter(button.dataset.matchFilter));
       });
+      $('#showAllMatchesButton').addEventListener('click', () => setMatchFilter('all'));
       $('#participantMatchSelect').addEventListener('change', event => {
         state.ui.participantFocusId = event.target.value;
         renderParticipantMatchStatus();
@@ -3200,6 +3268,8 @@
       $('#scoreForm').addEventListener('submit', event => { event.preventDefault(); submitScoreResult(); });
       $('#scoreA').addEventListener('input', () => setText('#scoreError', ''));
       $('#scoreB').addEventListener('input', () => setText('#scoreError', ''));
+      $('#scoreA').addEventListener('focus', event => event.target.select());
+      $('#scoreB').addEventListener('focus', event => event.target.select());
       $('#removeResultButton').addEventListener('click', removeActiveResult);
       $('#closeResultButton').addEventListener('click', closeResultDialog);
       $('#cancelResultButton').addEventListener('click', closeResultDialog);
