@@ -6,13 +6,13 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f5f5f2">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Single HTML App Starter</title>
+  <title>Mini League Desk</title>
   <link rel="icon" href="__APP_ICON_DATA_URI__">
   <style>
     :root {
       color-scheme: light;
       --bg: #f5f5f2;
-      --surface: #ffffff;
+      --surface: #fff;
       --surface-muted: #f0f0ed;
       --surface-hover: #e9e9e5;
       --text: #20211f;
@@ -23,28 +23,30 @@
       --accent-hover: #0e503f;
       --accent-soft: #e1f0ea;
       --danger: #b3261e;
+      --danger-soft: #fbe9e7;
+      --warning: #8a5a08;
+      --warning-soft: #fff4d8;
       --focus: #4d8bc7;
-      --shadow-sm: 0 1px 2px rgba(25, 28, 24, .08), 0 1px 6px rgba(25, 28, 24, .04);
-      --shadow-md: 0 12px 34px rgba(25, 28, 24, .10);
-      --radius: 12px;
+      --shadow-sm: 0 1px 2px rgba(25,28,24,.08),0 1px 6px rgba(25,28,24,.04);
+      --shadow-md: 0 12px 34px rgba(25,28,24,.10);
       --header-height: 66px;
     }
     * { box-sizing: border-box; }
-    html { min-height: 100%; background: var(--bg); scroll-behavior: smooth; }
+    html { min-height: 100%; background: var(--bg); }
     body {
       margin: 0;
       min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Yu Gothic UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
       font-size: 15px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
-    button, textarea, input { font: inherit; }
+    button,input,textarea { font: inherit; }
     button { color: inherit; }
-    button:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus-visible {
-      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+    button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible {
+      outline: 3px solid color-mix(in srgb,var(--focus) 55%,transparent);
       outline-offset: 2px;
     }
     .app-header {
@@ -52,22 +54,21 @@
       z-index: 30;
       top: 0;
       min-height: var(--header-height);
-      border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
-      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      border-bottom: 1px solid color-mix(in srgb,var(--line) 82%,transparent);
+      background: color-mix(in srgb,var(--bg) 92%,transparent);
       backdrop-filter: blur(16px) saturate(1.2);
     }
     .header-inner {
-      width: min(1180px, 100%);
+      width: min(1120px,100%);
       min-height: var(--header-height);
       margin: 0 auto;
-      padding: 10px clamp(14px, 2.8vw, 30px);
+      padding: 10px clamp(14px,2.8vw,30px);
       display: flex;
       align-items: center;
       gap: 14px;
     }
     .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .brand-mark {
-      display: block;
       width: 38px;
       height: 38px;
       flex: 0 0 auto;
@@ -81,14 +82,12 @@
       margin: 0;
       font-size: 17px;
       line-height: 1.2;
-      letter-spacing: .01em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .version-badge {
       display: inline-flex;
-      align-items: center;
       margin-left: 7px;
       padding: 1px 6px;
       border: 1px solid var(--line);
@@ -96,7 +95,7 @@
       color: var(--muted);
       background: var(--surface-muted);
       font-size: 10px;
-      font-weight: 650;
+      font-weight: 700;
       vertical-align: 2px;
     }
     .brand-meta {
@@ -108,29 +107,16 @@
       text-overflow: ellipsis;
     }
     .header-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-    .button {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: border-color .16s ease, background .16s ease, transform .16s ease;
-    }
-    .button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
-    .button:active { transform: translateY(1px); }
     .language-button {
-      min-width: 0;
-      padding: 5px 1px;
+      padding: 6px 1px;
       border: 0;
       background: transparent;
       color: var(--muted);
       font-size: 12px;
       font-weight: 750;
-      letter-spacing: .02em;
       cursor: pointer;
-      transition: color .16s ease, opacity .16s ease;
     }
     .language-button:hover { color: var(--text); }
-    .language-button:active { opacity: .65; }
     .icon-button {
       display: inline-grid;
       place-items: center;
@@ -141,43 +127,43 @@
       border-radius: 10px;
       background: var(--surface);
       cursor: pointer;
-      transition: border-color .16s ease, background .16s ease, transform .16s ease;
     }
     .icon-button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
-    .icon-button:active { transform: translateY(1px); }
-    .icon-button svg { width: 18px; height: 18px; display: block; }
     .header-icon-button {
       width: auto;
       height: auto;
-      padding: 5px 1px;
+      padding: 6px 1px;
       border: 0;
       border-radius: 0;
       background: transparent;
       color: var(--muted);
-      transition: color .16s ease, opacity .16s ease;
     }
-    .header-icon-button:hover { border-color: transparent; background: transparent; color: var(--text); }
-    .header-icon-button:active { transform: none; opacity: .65; }
+    .header-icon-button:hover { background: transparent; color: var(--text); }
     .header-icon-button svg { width: 20px; height: 20px; }
     .main {
-      width: min(1180px, 100%);
+      width: min(1120px,100%);
       margin: 0 auto;
-      padding: 22px clamp(14px, 2.8vw, 30px) 54px;
+      padding: 24px clamp(14px,2.8vw,30px) 56px;
     }
     .page-intro {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 20px;
-      padding: 0 2px 18px;
+      padding: 0 2px 20px;
     }
     .page-intro h2 {
       margin: 0;
-      font-size: clamp(21px, 3vw, 26px);
+      font-size: clamp(22px,3vw,28px);
       line-height: 1.3;
       letter-spacing: -.025em;
     }
-    .page-intro p { margin: 5px 0 0; max-width: 760px; color: var(--muted); font-size: 13px; }
+    .page-intro p {
+      max-width: 720px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
     .local-badge {
       display: inline-flex;
       align-items: center;
@@ -185,7 +171,7 @@
       flex: 0 0 auto;
       margin-top: 3px;
       padding: 7px 10px;
-      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+      border: 1px solid color-mix(in srgb,var(--accent) 24%,var(--line));
       border-radius: 999px;
       color: var(--accent);
       background: var(--accent-soft);
@@ -193,83 +179,298 @@
       font-weight: 700;
       white-space: nowrap;
     }
-    .local-badge svg { width: 15px; height: 15px; display: block; }
-    .workspace {
-      margin: 0 0 28px;
+    .local-badge svg { width: 15px; height: 15px; }
+    .setup-grid {
+      display: grid;
+      grid-template-columns: minmax(0,.9fr) minmax(420px,1.1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .panel {
+      min-width: 0;
       padding: 20px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: var(--surface);
       box-shadow: var(--shadow-sm);
     }
-    .workspace-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 15px; }
-    .workspace h2, .section-title { margin: 0; letter-spacing: -.02em; }
-    .workspace h2 { font-size: 19px; }
-    .workspace-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    .stats { display: flex; flex-wrap: wrap; gap: 7px; }
-    .stat { min-width: 70px; padding: 7px 10px; border-radius: 10px; background: var(--surface-muted); text-align: center; }
-    .stat-value { display: block; font-size: 15px; font-weight: 780; line-height: 1.2; }
-    .stat-label { color: var(--muted); font-size: 10px; }
-    textarea {
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .panel-head h3 { margin: 0; font-size: 18px; letter-spacing: -.015em; }
+    .panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .count-badge {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      flex: 0 0 auto;
+      padding: 6px 9px;
+      border-radius: 9px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .count-badge strong { color: var(--text); font-size: 16px; line-height: 1; }
+    .field { display: grid; gap: 6px; }
+    .field + .field { margin-top: 16px; }
+    .field-label { font-size: 12px; font-weight: 750; }
+    .field-note { color: var(--muted); font-size: 11px; }
+    .text-input,.bulk-input {
       width: 100%;
-      min-height: 260px;
-      resize: vertical;
       border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 11px;
       background: #fbfbf9;
       color: var(--text);
-      line-height: 1.7;
     }
-    textarea:hover { border-color: var(--line-strong); }
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .text-input {
+      min-height: 44px;
+      padding: 9px 11px;
+    }
+    .bulk-input {
+      min-height: 130px;
+      padding: 11px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .text-input:hover,.bulk-input:hover { border-color: var(--line-strong); }
+    .inline-form {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+      align-items: start;
+    }
+    .button {
+      min-height: 42px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 720;
+      cursor: pointer;
+      transition: border-color .15s ease,background .15s ease,transform .15s ease;
+    }
+    .button:hover:not(:disabled) { border-color: var(--line-strong); background: var(--surface-hover); }
+    .button:active:not(:disabled) { transform: translateY(1px); }
+    .button.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .button.primary:hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
+    .button.danger-ghost { color: var(--danger); }
+    .button:disabled { cursor: not-allowed; opacity: .46; }
     .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
-    .button { min-height: 40px; padding: 8px 14px; font-weight: 700; }
-    .button.primary { border-color: var(--accent); color: white; background: var(--accent); }
-    .button.primary:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
-    .button.danger { color: var(--danger); }
-    .save-status { align-self: center; color: var(--muted); font-size: 12px; }
-    .export-row { display: flex; align-items: end; gap: 10px; margin-top: 12px; }
-    .export-field { display: grid; gap: 5px; min-width: min(100%, 320px); }
-    .export-label { color: var(--muted); font-size: 11px; font-weight: 700; }
-    .filename-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
-    .filename-control:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent); }
-    .filename-input { width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border: 0; outline: 0; background: transparent; color: var(--text); }
-    .filename-extension { padding: 0 10px; color: var(--muted); font-size: 12px; user-select: none; }
-    .section { padding: 26px 0; }
-    .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 15px; }
-    .section-title { font-size: 20px; }
-    .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
-    .card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-    .card { min-height: 150px; padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-sm); }
-    .card-number { color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
-    .card h3 { margin: 17px 0 6px; font-size: 15px; }
-    .card p { margin: 0; color: var(--muted); font-size: 12px; }
-    details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; box-shadow: var(--shadow-sm); }
-    summary { cursor: pointer; padding: 14px 16px; font-weight: 720; }
-    .build-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px 16px; }
-    .build-item { padding: 11px; border-radius: 10px; background: var(--surface-muted); }
-    .build-item span { display: block; color: var(--muted); font-size: 10px; }
-    .build-item strong { display: block; overflow-wrap: anywhere; font-size: 12px; }
-    footer { width: min(1180px, 100%); margin: 0 auto; padding: 0 clamp(14px, 2.8vw, 30px) 34px; color: var(--muted); font-size: 12px; }
-    /* Reusable toast / Undo component. Canonical source: components/toast.html */
+    .section-divider { height: 1px; margin: 20px 0; background: var(--line); }
+    .field-error {
+      min-height: 18px;
+      margin-top: 5px;
+      color: var(--danger);
+      font-size: 11px;
+    }
+    .field-error:empty { min-height: 0; margin-top: 0; }
+    details.bulk-details {
+      margin-top: 16px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+    .bulk-details summary {
+      width: fit-content;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .bulk-body { margin-top: 12px; }
+    .roster-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .roster-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
+    .participant {
+      display: grid;
+      grid-template-columns: 34px minmax(0,1fr) auto;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      padding: 9px 9px 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+    }
+    .participant-number {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .participant-name {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+    .participant-actions { display: flex; gap: 4px; }
+    .small-icon-button {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .small-icon-button:hover:not(:disabled) { background: var(--surface-hover); color: var(--text); }
+    .small-icon-button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
+    .small-icon-button:disabled { opacity: .28; cursor: not-allowed; }
+    .small-icon-button svg { width: 17px; height: 17px; }
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 270px;
+      padding: 28px 18px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty-state svg { width: 38px; height: 38px; margin-bottom: 10px; color: var(--accent); }
+    .empty-state strong { display: block; color: var(--text); font-size: 14px; }
+    .empty-state p { max-width: 330px; margin: 6px 0 0; font-size: 12px; }
+    .start-card {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid color-mix(in srgb,var(--accent) 20%,var(--line));
+      border-radius: 12px;
+      background: var(--accent-soft);
+    }
+    .start-card p { margin: 0 0 10px; color: var(--muted); font-size: 12px; }
+    .start-card .button { width: 100%; }
+    .validation-summary {
+      margin-top: 10px;
+      color: var(--warning);
+      font-size: 11px;
+    }
+    .ready-view {
+      padding: clamp(22px,4vw,36px);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .ready-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .ready-view h3 { margin: 16px 0 5px; font-size: clamp(21px,3vw,28px); letter-spacing: -.025em; }
+    .ready-view > p { margin: 0; color: var(--muted); }
+    .ready-summary {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 14px;
+      align-items: start;
+      margin: 22px 0;
+      padding: 16px;
+      border-radius: 13px;
+      background: var(--surface-muted);
+    }
+    .ready-summary h4 { margin: 0 0 8px; font-size: 13px; }
+    .ready-participants { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ready-chip {
+      max-width: 100%;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+    .ready-count {
+      min-width: 74px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: var(--surface);
+      text-align: center;
+    }
+    .ready-count strong { display: block; font-size: 22px; line-height: 1; }
+    .ready-count span { color: var(--muted); font-size: 10px; }
+    .ready-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .notice {
+      margin-top: 18px;
+      padding: 11px 12px;
+      border: 1px solid color-mix(in srgb,var(--warning) 22%,var(--line));
+      border-radius: 10px;
+      background: var(--warning-soft);
+      color: #5d430d;
+      font-size: 11px;
+    }
+    footer {
+      width: min(1120px,100%);
+      margin: 0 auto;
+      padding: 0 clamp(14px,2.8vw,30px) 34px;
+      color: var(--muted);
+      font-size: 12px;
+    }
     .app-toast {
-      position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 60;
-      display: flex; align-items: center; gap: 12px; max-width: min(420px, calc(100vw - 36px));
-      padding: 10px 12px 10px 14px; border: 1px solid var(--line); border-radius: 12px;
-      background: var(--surface); color: var(--text); box-shadow: var(--shadow-md); opacity: 0;
-      transform: translateY(12px); pointer-events: none; transition: opacity .18s ease, transform .18s ease;
+      position: fixed;
+      right: 18px;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: min(440px,calc(100vw - 36px));
+      padding: 10px 12px 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity .18s ease,transform .18s ease;
     }
     .app-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .app-toast[data-tone="success"] { border-color: color-mix(in srgb, var(--accent) 34%, var(--line)); }
+    .app-toast[data-tone="success"] { border-color: color-mix(in srgb,var(--accent) 34%,var(--line)); }
     .app-toast[data-tone="warning"] { border-color: #c58a24; }
-    .app-toast-message { min-width: 0; flex: 1 1 auto; font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
-    .app-toast-action { flex: 0 0 auto; min-height: 34px; padding: 5px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--accent); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+    .app-toast-message { min-width: 0; flex: 1 1 auto; font-size: 13px; overflow-wrap: anywhere; }
+    .app-toast-action {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 5px 8px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--accent);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
     .app-toast-action:hover { background: var(--surface-hover); }
     .app-toast-action[hidden] { display: none; }
     dialog {
-      width: min(640px, calc(100% - 28px));
-      max-height: min(760px, calc(100dvh - 28px));
+      width: min(640px,calc(100% - 28px));
+      max-height: min(760px,calc(100dvh - 28px));
       padding: 0;
       overflow: hidden;
       border: 1px solid var(--line);
@@ -278,12 +479,8 @@
       color: var(--text);
       box-shadow: var(--shadow-md);
     }
-    dialog::backdrop { background: rgba(15, 17, 14, .52); backdrop-filter: blur(4px); }
-    #helpDialog[open] {
-      display: flex;
-      flex-direction: column;
-      max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    }
+    dialog::backdrop { background: rgba(15,17,14,.52); backdrop-filter: blur(4px); }
+    #helpDialog[open] { display: flex; flex-direction: column; max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
     .dialog-header {
       display: flex;
       align-items: center;
@@ -302,29 +499,21 @@
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
     }
-    .dialog-body h3 {
-      margin: 25px 0 8px;
-      padding-top: 19px;
-      border-top: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
-      font-size: 14px;
-    }
+    .dialog-body h3 { margin: 25px 0 8px; padding-top: 19px; border-top: 1px solid var(--line); font-size: 14px; }
     .dialog-body h3:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
-    .dialog-body p, .dialog-body li { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .dialog-body p,.dialog-body li { color: var(--muted); font-size: 13px; line-height: 1.7; }
     .dialog-body p { margin: 8px 0 0; }
-    .dialog-body ul, .dialog-body ol { margin: 8px 0 0; padding-left: 22px; }
+    .dialog-body ol,.dialog-body ul { margin: 8px 0 0; padding-left: 22px; }
     .dialog-body li + li { margin-top: 7px; }
     .dialog-note {
       margin-top: 12px;
       padding: 11px 12px;
-      border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+      border: 1px solid color-mix(in srgb,var(--accent) 22%,var(--line));
       border-radius: 10px;
       background: var(--accent-soft);
       color: var(--text) !important;
     }
-
-    /* Reusable confirmation component. Canonical source: components/confirm-dialog.html */
-    .app-confirm-dialog { width: min(420px, calc(100% - 24px)); max-width: 100%; }
-    .app-confirm-dialog::backdrop { background: rgba(15, 17, 14, .48); backdrop-filter: blur(3px); }
+    .app-confirm-dialog { width: min(420px,calc(100% - 24px)); max-width: 100%; }
     .app-confirm-header {
       display: flex;
       align-items: center;
@@ -333,7 +522,7 @@
       padding: 15px 18px 13px;
       border-bottom: 1px solid var(--line);
     }
-    .app-confirm-title { margin: 0; font-size: 17px; letter-spacing: -.01em; }
+    .app-confirm-title { margin: 0; font-size: 17px; }
     .app-confirm-close {
       display: grid;
       place-items: center;
@@ -343,35 +532,19 @@
       border: 0;
       border-radius: 10px;
       background: transparent;
-      color: var(--text);
       cursor: pointer;
     }
     .app-confirm-close:hover { background: var(--surface-hover); }
     .app-confirm-close svg { width: 19px; height: 19px; }
     .app-confirm-body { padding: 18px; }
-    .app-confirm-message {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-    .app-confirm-actions {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 18px;
-    }
+    .app-confirm-message { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+    .app-confirm-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 18px; }
     .app-confirm-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       min-height: 44px;
       padding: 8px 12px;
       border: 1px solid var(--line);
       border-radius: 11px;
       background: var(--surface);
-      color: var(--text);
       font: inherit;
       font-size: 12px;
       font-weight: 760;
@@ -379,21 +552,13 @@
     }
     .app-confirm-button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
     .app-confirm-button.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
-    .app-confirm-button.primary:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
     .app-confirm-button.danger { border-color: var(--danger); background: var(--danger); color: #fff; }
-    .app-confirm-button:focus-visible, .app-confirm-close:focus-visible {
-      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
-      outline-offset: 2px;
-    }
-
-    code { padding: 1px 5px; border-radius: 5px; background: var(--surface-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    [hidden] { display: none !important; }
     @media (max-width: 820px) {
-      .page-intro { align-items: stretch; flex-direction: column; gap: 10px; }
+      .page-intro { flex-direction: column; gap: 10px; }
       .local-badge { align-self: flex-start; }
-      .workspace-head, .section-head { align-items: stretch; flex-direction: column; }
-      .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .build-grid { grid-template-columns: 1fr; }
+      .setup-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
       :root { --header-height: 58px; }
@@ -402,26 +567,21 @@
       .brand-name { font-size: 15px; }
       .brand-meta { display: none; }
       .header-actions { gap: 11px; }
-      .language-button { padding-block: 6px; }
-      .header-icon-button { padding-block: 6px; }
       .main { padding-top: 18px; }
-      .page-intro { padding-bottom: 14px; }
-      .workspace { padding: 14px; border-radius: 14px; }
-      .stats { width: 100%; }
-      .stat { flex: 1 1 0; min-width: 0; }
-      .card-grid { grid-template-columns: 1fr; }
-      .toolbar, .button-row { width: 100%; }
-      .button-row .button { flex: 1 1 auto; }
-      .export-row, .export-field { width: 100%; }
+      .panel { padding: 14px; border-radius: 14px; }
+      .inline-form { grid-template-columns: 1fr; }
+      .inline-form .button { width: 100%; }
+      .roster-toolbar { align-items: stretch; flex-direction: column; }
+      .roster-toolbar .button-row { width: 100%; }
+      .roster-toolbar .button { flex: 1 1 auto; }
+      .participant { grid-template-columns: 30px minmax(0,1fr) auto; gap: 7px; padding-left: 8px; }
+      .participant-actions { gap: 1px; }
+      .small-icon-button { width: 36px; height: 40px; }
+      .ready-summary { grid-template-columns: 1fr; }
+      .ready-count { width: 100%; }
+      .ready-actions .button { flex: 1 1 100%; }
       .app-toast { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: none; }
-      textarea { min-height: 235px; }
-      #helpDialog {
-        width: calc(100% - 20px);
-        max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-      }
-      #helpDialog .dialog-body {
-        padding: 18px 18px calc(24px + env(safe-area-inset-bottom));
-      }
+      #helpDialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
       .app-confirm-dialog {
         width: 100%;
         max-width: none;
@@ -429,15 +589,12 @@
         border-width: 1px 0 0;
         border-radius: 22px 22px 0 0;
       }
-      .app-confirm-dialog::backdrop { background: rgba(0, 0, 0, .42); backdrop-filter: blur(2px); }
-      .app-confirm-header { padding: 14px 18px 12px; }
       .app-confirm-body { padding: 12px 18px calc(env(safe-area-inset-bottom) + 18px); }
-      .app-confirm-message { font-size: 14px; line-height: 1.75; }
-      .app-confirm-actions { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+      .app-confirm-actions { grid-template-columns: 1fr; gap: 10px; }
       .app-confirm-button { min-height: 48px; font-size: 14px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+      *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
   </style>
 </head>
@@ -445,12 +602,10 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">
-          <img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt="">
-        </div>
+        <div class="brand-mark" aria-hidden="true"><img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt=""></div>
         <div class="brand-copy">
-          <p class="brand-name"><span id="brandName">Single HTML App Starter</span><span class="version-badge" id="versionBadge">v1.1.0</span></p>
-          <p class="brand-meta" data-i18n="brandMeta">Single file · Local-first · GitHub Pages</p>
+          <p class="brand-name"><span>Mini League Desk</span><span class="version-badge" id="versionBadge">v0.1.0</span></p>
+          <p class="brand-meta" data-i18n="brandMeta">小大会の総当たり運営</p>
         </div>
       </div>
       <div class="header-actions">
@@ -465,86 +620,129 @@
   <main class="main">
     <section class="page-intro" aria-labelledby="heroTitle">
       <div>
-        <h2 id="heroTitle" data-i18n="introTitle">単一HTMLアプリのスターター</h2>
-        <p data-i18n="lead">PDF Organizerと同じ、固定依存・完全内包・実行時通信なしの構成から、新しいブラウザーアプリを作れます。</p>
+        <h2 id="heroTitle" data-i18n="introTitle">総当たり大会の準備を、すぐ終わらせる</h2>
+        <p data-i18n="lead">大会名と参加者を登録します。参加者は1人ずつでも、複数行をまとめて貼り付けても追加できます。</p>
       </div>
       <div class="local-badge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg>
-        <span data-i18n="localBadge">実行時通信なし</span>
+        <span data-i18n="localBadge">端末内で処理</span>
       </div>
     </section>
 
-    <!-- APP:BEGIN Replace this demo workspace with the real application. -->
-    <section class="shell workspace" aria-labelledby="workspaceTitle">
-      <div class="workspace-head">
-        <div>
-          <h2 id="workspaceTitle" data-i18n="workspaceTitle">Starter workspace</h2>
-          <p data-i18n="workspaceBody">Text stays in this browser. It is never sent by this app.</p>
+    <!-- APP:BEGIN -->
+    <section id="setupView" class="setup-grid" aria-label="大会作成">
+      <section class="panel" aria-labelledby="settingsTitle">
+        <div class="panel-head">
+          <div>
+            <h3 id="settingsTitle" data-i18n="settingsTitle">大会設定</h3>
+            <p data-i18n="settingsLead">まず大会名と参加者を登録します。</p>
+          </div>
         </div>
-        <div class="stats" aria-live="polite">
-          <div class="stat"><span class="stat-value" id="characterCount">0</span><span class="stat-label" data-i18n="characters">Characters</span></div>
-          <div class="stat"><span class="stat-value" id="wordCount">0</span><span class="stat-label" data-i18n="words">Words</span></div>
-          <div class="stat"><span class="stat-value" id="lineCount">0</span><span class="stat-label" data-i18n="lines">Lines</span></div>
-        </div>
-      </div>
-      <label class="sr-only" for="editor" data-i18n="editorLabel">Text editor</label>
-      <textarea id="editor" spellcheck="true"></textarea>
-      <div class="export-row">
-        <label class="export-field" for="outputFilename">
-          <span class="export-label" data-i18n="outputFilename">出力ファイル名</span>
-          <span class="filename-control">
-            <input class="filename-input" id="outputFilename" type="text" maxlength="120" autocomplete="off" spellcheck="false" aria-describedby="outputFilenameHint">
-            <span class="filename-extension" aria-hidden="true">.txt</span>
-          </span>
-          <span class="sr-only" id="outputFilenameHint" data-i18n="outputFilenameHint">拡張子は自動で .txt が付きます</span>
+
+        <label class="field" for="tournamentName">
+          <span class="field-label" data-i18n="tournamentName">大会名</span>
+          <input class="text-input" id="tournamentName" type="text" maxlength="100" autocomplete="off" data-i18n-placeholder="tournamentNamePlaceholder" placeholder="例：金曜卓球大会">
+          <span class="field-note" data-i18n="tournamentNameNote">未入力の場合は「新しい大会」になります。</span>
         </label>
-      </div>
-      <div class="toolbar">
-        <div class="button-row">
-          <button class="button primary" id="copyButton" type="button" data-i18n="copy">Copy</button>
-          <button class="button" id="downloadButton" type="button" data-i18n="download">Download text</button>
-          <button class="button" id="sampleButton" type="button" data-i18n="sample">Restore sample</button>
+
+        <div class="section-divider"></div>
+
+        <div class="field">
+          <span class="field-label" data-i18n="addParticipant">参加者を追加</span>
+          <form class="inline-form" id="participantForm" novalidate>
+            <div>
+              <label class="sr-only" for="participantName" data-i18n="participantName">参加者名</label>
+              <input class="text-input" id="participantName" type="text" maxlength="80" autocomplete="off" data-i18n-placeholder="participantPlaceholder" placeholder="例：山田">
+              <div class="field-error" id="participantError" role="status" aria-live="polite"></div>
+            </div>
+            <button class="button" id="addParticipantButton" type="submit" data-i18n="add">追加</button>
+          </form>
         </div>
+
+        <details class="bulk-details" id="bulkDetails">
+          <summary data-i18n="bulkAdd">複数人をまとめて追加</summary>
+          <div class="bulk-body">
+            <label class="field" for="bulkParticipants">
+              <span class="field-note" data-i18n="bulkHelp">1行に1人ずつ入力してください。空行は無視します。</span>
+              <textarea class="bulk-input" id="bulkParticipants" data-i18n-placeholder="bulkPlaceholder" placeholder="山田&#10;佐藤&#10;鈴木"></textarea>
+            </label>
+            <div class="field-error" id="bulkError" role="status" aria-live="polite"></div>
+            <button class="button" id="bulkAddButton" type="button" data-i18n="addAll">まとめて追加</button>
+          </div>
+        </details>
+
+        <div class="section-divider"></div>
+
         <div class="button-row">
-          <button class="button danger" id="clearButton" type="button" data-i18n="clear">Clear</button>
+          <button class="button danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
         </div>
-        <span class="save-status" id="saveStatus" data-i18n="savedLocally">Saved locally</span>
+      </section>
+
+      <section class="panel" aria-labelledby="rosterTitle">
+        <div class="panel-head">
+          <div>
+            <h3 id="rosterTitle" data-i18n="rosterTitle">参加者一覧</h3>
+            <p data-i18n="rosterLead">順番は対戦表生成時の基準として使います。</p>
+          </div>
+          <div class="count-badge" aria-live="polite"><strong id="participantCount">0</strong><span data-i18n="people">人</span></div>
+        </div>
+
+        <div id="rosterContent">
+          <div class="empty-state" id="emptyRoster">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.4"/><path d="M3.8 19c.5-3.2 2.4-5 5.2-5s4.7 1.8 5.2 5"/><path d="M14.1 15.2c.7-.8 1.6-1.2 2.9-1.2 2.1 0 3.5 1.3 3.9 3.6"/></svg>
+              <strong data-i18n="emptyTitle">まだ参加者がいません</strong>
+              <p data-i18n="emptyBody">左の入力欄から追加すると、ここに参加者一覧が表示されます。</p>
+            </div>
+          </div>
+          <div id="rosterWithData" hidden>
+            <div class="roster-toolbar">
+              <span class="field-note" data-i18n="reorderHelp">矢印で順番を調整できます。</span>
+              <div class="button-row">
+                <button class="button" id="shuffleButton" type="button" data-i18n="shuffle">シャッフル</button>
+              </div>
+            </div>
+            <ol class="roster-list" id="rosterList"></ol>
+          </div>
+        </div>
+
+        <div class="start-card">
+          <p id="startHelp" data-i18n="needThree">参加者を3人以上追加すると確定できます。</p>
+          <button class="button primary" id="confirmParticipantsButton" type="button" disabled data-i18n="confirmParticipants">参加者を確定</button>
+          <div class="validation-summary" id="validationSummary" aria-live="polite"></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="readyView" class="ready-view" hidden aria-labelledby="readyTitle">
+      <span class="ready-kicker">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+        <span data-i18n="readyKicker">参加者を確定しました</span>
+      </span>
+      <h3 id="readyTitle"></h3>
+      <p data-i18n="readyLead">参加者の登録は完了です。内容を確認して、必要なら編集に戻れます。</p>
+      <div class="ready-summary">
+        <div>
+          <h4 data-i18n="participants">参加者</h4>
+          <div class="ready-participants" id="readyParticipants"></div>
+        </div>
+        <div class="ready-count"><strong id="readyCount">0</strong><span data-i18n="people">人</span></div>
       </div>
+      <div class="ready-actions">
+        <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">編集に戻る</button>
+      </div>
+      <div class="notice" data-i18n="draftNotice">この開発段階では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。</div>
     </section>
     <!-- APP:END -->
-
-    <section class="shell section" aria-labelledby="guaranteesTitle">
-      <div class="section-head">
-        <h2 class="section-title" id="guaranteesTitle" data-i18n="guaranteesTitle">Template guarantees</h2>
-        <p data-i18n="guaranteesBody">Keep these constraints unless the product specification explicitly changes them.</p>
-      </div>
-      <div class="card-grid">
-        <article class="card"><div class="card-number">01</div><h3 data-i18n="card1Title">One deliverable</h3><p data-i18n="card1Body">The release artifact is dist/index.html. It opens directly and can be hosted as a static page.</p></article>
-        <article class="card"><div class="card-number">02</div><h3 data-i18n="card2Title">Pinned dependencies</h3><p data-i18n="card2Body">Third-party npm assets are version-pinned, hashed, and embedded during the build.</p></article>
-        <article class="card"><div class="card-number">03</div><h3 data-i18n="card3Title">No runtime network</h3><p data-i18n="card3Body">Content Security Policy blocks runtime connections. User data stays inside the page.</p></article>
-        <article class="card"><div class="card-number">04</div><h3 data-i18n="card4Title">LLM-ready workflow</h3><p data-i18n="card4Body">AGENTS.md and APP_SPEC.md give coding agents a stable contract, acceptance criteria, and handoff format.</p></article>
-      </div>
-    </section>
-
-    <section class="shell section">
-      <details>
-        <summary data-i18n="buildInfo">Build information</summary>
-        <div class="build-grid">
-          <div class="build-item"><span data-i18n="appVersion">App version</span><strong id="buildVersion">—</strong></div>
-          <div class="build-item"><span data-i18n="builtAt">Built at</span><strong id="builtAt">—</strong></div>
-          <div class="build-item"><span data-i18n="dependencies">Embedded dependencies</span><strong id="dependencyCount">0</strong></div>
-        </div>
-      </details>
-    </section>
   </main>
 
-  <footer><span id="footerName">Single HTML App Starter</span> · MIT License · <span data-i18n="footer">Generated as one self-contained HTML file</span></footer>
+  <footer><span>Mini League Desk</span> · MIT License · <span data-i18n="footer">ブラウザだけで使える小大会運営ツール</span></footer>
+
   <div class="app-toast" id="appToast" role="status" aria-live="polite" aria-atomic="true" data-tone="default">
     <span class="app-toast-message" id="appToastMessage"></span>
     <button class="app-toast-action" id="appToastAction" type="button" hidden></button>
   </div>
 
-  <!-- Reusable confirmation component. Keep in sync with components/confirm-dialog.html. -->
   <dialog class="app-confirm-dialog" id="appConfirmDialog" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage">
     <div class="app-confirm-header">
       <h2 class="app-confirm-title" id="appConfirmTitle">確認</h2>
@@ -569,24 +767,22 @@
       </button>
     </div>
     <div class="dialog-body">
-      <!-- APP:HELP:BEGIN Update this section together with the real application. -->
+      <!-- APP:HELP:BEGIN -->
       <h3 data-i18n="helpBasicsTitle">基本操作</h3>
       <ol>
-        <li data-i18n="helpStep1">作業領域へテキストを入力します。内容は入力のたびに端末内へ保存されます。</li>
-        <li data-i18n="helpStep2">出力ファイル名を必要に応じて変更し、「コピー」または「テキスト保存」で入力内容を取り出せます。</li>
-        <li data-i18n="helpStep3">「サンプルに戻す」や「消去」の直後は、トーストの「元に戻す」から取り消せます。</li>
+        <li data-i18n="helpStep1">大会名を入力します。未入力でも利用できます。</li>
+        <li data-i18n="helpStep2">参加者を1人ずつ追加するか、複数行をまとめて貼り付けて追加します。</li>
+        <li data-i18n="helpStep3">矢印で順番を整え、必要ならシャッフルします。3人以上になったら「参加者を確定」を押します。</li>
       </ol>
-
       <h3 data-i18n="helpPrivacyTitle">プライバシー</h3>
-      <p data-i18n="helpPrivacyBody">入力内容と操作はブラウザー内で処理され、このアプリから外部へ送信されません。必要なコードと依存ファイルも配布用HTMLに内包されます。</p>
-
+      <p data-i18n="helpPrivacyBody">大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。</p>
       <h3 data-i18n="helpNotesTitle">注意事項</h3>
       <ul>
-        <li data-i18n="helpNoteStorage">ブラウザーのサイトデータを削除すると、端末内に保存した入力内容も消える場合があります。必要な内容はファイルとして保存してください。</li>
-        <li data-i18n="helpNoteBrowser">一部の機能はブラウザーの制限や端末性能の影響を受けます。重要な成果物は保存後に内容を確認してください。</li>
-        <li data-i18n="helpNoteTemplate">この画面はスターターの例です。新しいアプリを作る際は、機能と一緒にこのヘルプも実際の操作へ書き換えます。</li>
+        <li data-i18n="helpNoteNoSave">v0.1.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると入力内容は失われます。</li>
+        <li data-i18n="helpNoteNames">同じ参加者名は重複登録できません。参加者名は80文字までです。</li>
+        <li data-i18n="helpNoteScope">このバージョンは大会作成の基礎段階です。対戦表、結果入力、順位計算はまだ表示しません。</li>
       </ul>
-      <p class="dialog-note" data-i18n="helpOffline">配布物は dist/index.html ひとつです。ローカルで直接開くことも、GitHub Pagesで公開することもできます。</p>
+      <p class="dialog-note" data-i18n="helpOffline">配布用HTMLはローカルで直接開いて利用できます。</p>
       <!-- APP:HELP:END -->
     </div>
   </dialog>
@@ -597,7 +793,6 @@
 
       const APP_CONFIG = __APP_CONFIG_JSON__;
       const BUILD_MANIFEST = __BUILD_MANIFEST_JSON__;
-      // Asset payloads are Base64 exactly once. The JSON bundle itself is embedded directly.
       const assetBundle = __EMBEDDED_ASSET_BUNDLE_JSON__;
       const blobUrls = new Set();
       const assetByteCache = new Map();
@@ -608,13 +803,11 @@
         for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
         return bytes;
       }
-
       function getAsset(dependencyId, assetKey) {
         const asset = assetBundle.dependencies?.[dependencyId]?.assets?.[assetKey];
         if (!asset) throw new Error(`Embedded asset not found: ${dependencyId}/${assetKey}`);
         return asset;
       }
-
       async function inflateAsset(asset) {
         const stored = decodeBase64Bytes(asset.base64);
         if (!asset.compression || asset.compression === 'none') return stored;
@@ -627,21 +820,16 @@
         }
         return expanded;
       }
-
       window.StandaloneAssets = Object.freeze({
         manifest: BUILD_MANIFEST,
         list() {
           return Object.entries(assetBundle.dependencies || {}).flatMap(([dependencyId, dependency]) =>
             Object.keys(dependency.assets || {}).map(assetKey => `${dependencyId}/${assetKey}`));
         },
-        has(dependencyId, assetKey) {
-          return Boolean(assetBundle.dependencies?.[dependencyId]?.assets?.[assetKey]);
-        },
+        has(dependencyId, assetKey) { return Boolean(assetBundle.dependencies?.[dependencyId]?.assets?.[assetKey]); },
         bytes(dependencyId, assetKey) {
           const asset = getAsset(dependencyId, assetKey);
-          if (asset.compression && asset.compression !== 'none') {
-            throw new Error(`Embedded asset ${dependencyId}/${assetKey} is gzip-compressed; use await StandaloneAssets.bytesAsync().`);
-          }
+          if (asset.compression && asset.compression !== 'none') throw new Error(`Embedded asset ${dependencyId}/${assetKey} is gzip-compressed; use await StandaloneAssets.bytesAsync().`);
           return decodeBase64Bytes(asset.base64);
         },
         async bytesAsync(dependencyId, assetKey) {
@@ -649,12 +837,8 @@
           if (!assetByteCache.has(cacheKey)) assetByteCache.set(cacheKey, inflateAsset(getAsset(dependencyId, assetKey)));
           return new Uint8Array(await assetByteCache.get(cacheKey));
         },
-        text(dependencyId, assetKey) {
-          return new TextDecoder().decode(this.bytes(dependencyId, assetKey));
-        },
-        async textAsync(dependencyId, assetKey) {
-          return new TextDecoder().decode(await this.bytesAsync(dependencyId, assetKey));
-        },
+        text(dependencyId, assetKey) { return new TextDecoder().decode(this.bytes(dependencyId, assetKey)); },
+        async textAsync(dependencyId, assetKey) { return new TextDecoder().decode(await this.bytesAsync(dependencyId, assetKey)); },
         blobUrl(dependencyId, assetKey) {
           const asset = getAsset(dependencyId, assetKey);
           const url = URL.createObjectURL(new Blob([this.bytes(dependencyId, assetKey)], { type: asset.mime || 'application/octet-stream' }));
@@ -685,15 +869,10 @@
         },
         async importModule(dependencyId, assetKey) {
           const sourceUrl = await this.blobUrlAsync(dependencyId, assetKey);
-          try {
-            return await import(sourceUrl);
-          } finally {
-            URL.revokeObjectURL(sourceUrl);
-            blobUrls.delete(sourceUrl);
-          }
+          try { return await import(sourceUrl); }
+          finally { URL.revokeObjectURL(sourceUrl); blobUrls.delete(sourceUrl); }
         }
       });
-
       window.addEventListener('pagehide', () => {
         blobUrls.forEach(url => URL.revokeObjectURL(url));
         blobUrls.clear();
@@ -701,147 +880,110 @@
 
       const translations = {
         ja: {
-          brandMeta: '単一HTML・ローカル処理・GitHub Pages',
+          brandMeta: '小大会の総当たり運営',
           helpTitle: '使い方と注意事項', close: '閉じる',
-          helpBasicsTitle: '基本操作',
-          helpStep1: '作業領域へテキストを入力します。内容は入力のたびに端末内へ保存されます。',
-          helpStep2: '出力ファイル名を必要に応じて変更し、「コピー」または「テキスト保存」で入力内容を取り出せます。',
-          helpStep3: '「サンプルに戻す」や「消去」の直後は、トーストの「元に戻す」から取り消せます。',
-          helpPrivacyTitle: 'プライバシー',
-          helpPrivacyBody: '入力内容と操作はブラウザー内で処理され、このアプリから外部へ送信されません。必要なコードと依存ファイルも配布用HTMLに内包されます。',
-          helpNotesTitle: '注意事項',
-          helpNoteStorage: 'ブラウザーのサイトデータを削除すると、端末内に保存した入力内容も消える場合があります。必要な内容はファイルとして保存してください。',
-          helpNoteBrowser: '一部の機能はブラウザーの制限や端末性能の影響を受けます。重要な成果物は保存後に内容を確認してください。',
-          helpNoteTemplate: 'この画面はスターターの例です。新しいアプリを作る際は、機能と一緒にこのヘルプも実際の操作へ書き換えます。',
-          helpOffline: '配布物は dist/index.html ひとつです。ローカルで直接開くことも、GitHub Pagesで公開することもできます。',
-          introTitle: '単一HTMLアプリのスターター',
-          lead: 'PDF Organizerと同じ、固定依存・完全内包・実行時通信なしの構成から、新しいブラウザーアプリを作れます。',
-          localBadge: '実行時通信なし',
-          workspaceTitle: 'スターター作業領域',
-          workspaceBody: '入力内容はこのブラウザー内だけに保存され、このアプリから送信されません。',
-          characters: '文字', words: '単語', lines: '行', editorLabel: 'テキスト入力',
-          copy: 'コピー', download: 'テキスト保存', sample: 'サンプルに戻す', clear: '消去', savedLocally: '端末内に保存済み', outputFilename: '出力ファイル名', outputFilenameHint: '拡張子は自動で .txt が付きます', undo: '元に戻す', undone: '元に戻しました',
+          introTitle: '総当たり大会の準備を、すぐ終わらせる',
+          lead: '大会名と参加者を登録します。参加者は1人ずつでも、複数行をまとめて貼り付けても追加できます。',
+          localBadge: '端末内で処理',
+          settingsTitle: '大会設定', settingsLead: 'まず大会名と参加者を登録します。',
+          tournamentName: '大会名', tournamentNamePlaceholder: '例：金曜卓球大会', tournamentNameNote: '未入力の場合は「新しい大会」になります。',
+          addParticipant: '参加者を追加', participantName: '参加者名', participantPlaceholder: '例：山田', add: '追加',
+          bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
+          reset: 'すべてリセット', rosterTitle: '参加者一覧', rosterLead: '順番は対戦表生成時の基準として使います。', people: '人',
+          emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
+          reorderHelp: '矢印で順番を調整できます。', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
+          readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
+          readyKicker: '参加者を確定しました', readyLead: '参加者の登録は完了です。内容を確認して、必要なら編集に戻れます。',
+          backToEdit: '編集に戻る', draftNotice: 'この開発段階では大会内容の自動保存はまだ行いません。ページを再読み込みすると入力内容は消えます。',
+          defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
+          requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
+          bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
+          bulkTooMany: '追加すると64人を超えます。', addedOne: '{name} を追加しました。', addedMany: '{count}人を追加しました。',
+          removed: '{name} を削除しました。', moved: '順番を変更しました。', shuffled: '参加者をシャッフルしました。', resetDone: '入力内容をリセットしました。',
+          undo: '元に戻す', undone: '元に戻しました', confirmed: '参加者を確定しました。',
+          resetTitle: '入力内容をリセットしますか？', resetMessage: '大会名と参加者をすべて消去します。この操作は元に戻せません。', resetAction: 'リセットする',
           confirmTitle: '確認', confirmAction: '実行する', cancel: 'キャンセル',
-          guaranteesTitle: 'テンプレートの基本保証',
-          guaranteesBody: 'アプリ仕様で明示的に変更しない限り、この制約を維持します。',
-          card1Title: '配布物はひとつ', card1Body: 'リリース成果物は dist/index.html。直接開くことも、静的サイトとして公開することもできます。',
-          card2Title: '依存を固定して内包', card2Body: 'npmの外部素材はバージョンとtarball hashを固定し、検証してからHTMLへ内包します。',
-          card3Title: '実行時通信なし', card3Body: 'Content Security Policyで実行時通信を遮断し、ユーザーデータをページ内に保ちます。',
-          card4Title: 'LLM向けの作業契約', card4Body: 'AGENTS.mdとAPP_SPEC.mdで、実装方針、受入条件、完了報告を安定して伝えます。',
-          buildInfo: 'ビルド情報', appVersion: 'アプリバージョン', builtAt: '生成日時', dependencies: '内包依存数',
-          footer: '完全内包HTMLとして生成', copied: 'コピーしました', copyFailed: 'コピーできませんでした', downloaded: 'テキストを保存しました', cleared: '入力を消去しました', restored: 'サンプルを復元しました'
+          removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
+          helpBasicsTitle: '基本操作',
+          helpStep1: '大会名を入力します。未入力でも利用できます。',
+          helpStep2: '参加者を1人ずつ追加するか、複数行をまとめて貼り付けて追加します。',
+          helpStep3: '矢印で順番を整え、必要ならシャッフルします。3人以上になったら「参加者を確定」を押します。',
+          helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名と参加者名はこのページ内で処理され、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
+          helpNotesTitle: '注意事項',
+          helpNoteNoSave: 'v0.1.0では大会内容の自動保存はまだありません。再読み込みやタブを閉じると入力内容は失われます。',
+          helpNoteNames: '同じ参加者名は重複登録できません。参加者名は80文字までです。',
+          helpNoteScope: 'このバージョンは大会作成の基礎段階です。対戦表、結果入力、順位計算はまだ表示しません。',
+          helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
         },
         en: {
-          brandMeta: 'Single file · Local-first · GitHub Pages',
+          brandMeta: 'Round-robin desk for small events',
           helpTitle: 'How to use & notes', close: 'Close',
-          helpBasicsTitle: 'Basics',
-          helpStep1: 'Enter text in the workspace. The content is saved locally as you type.',
-          helpStep2: 'Change the output filename if needed, then use Copy or Download text.',
-          helpStep3: 'After Restore sample or Clear, use Undo in the toast to reverse the change.',
-          helpPrivacyTitle: 'Privacy',
-          helpPrivacyBody: 'Your content and actions are processed in the browser and are not sent outside by this app. Required code and dependencies are embedded in the distributable HTML.',
-          helpNotesTitle: 'Notes',
-          helpNoteStorage: 'Clearing browser site data may also remove content saved locally. Download anything important as a file.',
-          helpNoteBrowser: 'Some features are affected by browser restrictions and device performance. Review important output after saving it.',
-          helpNoteTemplate: 'This screen is a starter example. When building a new app, update this help together with the real features and workflow.',
-          helpOffline: 'The deliverable is one dist/index.html file. It can open locally or be published with GitHub Pages.',
-          introTitle: 'Single HTML App Starter',
-          lead: 'Build a new browser app from the same pinned-dependency, fully embedded, no-runtime-network foundation used by PDF Organizer.',
-          localBadge: 'No runtime network',
-          workspaceTitle: 'Starter workspace',
-          workspaceBody: 'Text stays in this browser. It is never sent by this app.',
-          characters: 'Characters', words: 'Words', lines: 'Lines', editorLabel: 'Text editor',
-          copy: 'Copy', download: 'Download text', sample: 'Restore sample', clear: 'Clear', savedLocally: 'Saved locally', outputFilename: 'Output filename', outputFilenameHint: 'The .txt extension is added automatically', undo: 'Undo', undone: 'Restored',
+          introTitle: 'Set up a round-robin event in minutes',
+          lead: 'Enter an event name and participants. Add names one at a time or paste multiple lines at once.',
+          localBadge: 'Processed on this device',
+          settingsTitle: 'Event setup', settingsLead: 'Start with the event name and participants.',
+          tournamentName: 'Event name', tournamentNamePlaceholder: 'e.g. Friday Table Tennis', tournamentNameNote: 'If left blank, “New event” is used.',
+          addParticipant: 'Add participant', participantName: 'Participant name', participantPlaceholder: 'e.g. Alex', add: 'Add',
+          bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
+          reset: 'Reset all', rosterTitle: 'Participants', rosterLead: 'This order will be used as the basis for fixture generation.', people: 'people',
+          emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
+          reorderHelp: 'Use the arrow buttons to adjust the order.', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
+          readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
+          readyKicker: 'Participants confirmed', readyLead: 'Participant setup is complete. Review the roster or return to editing if needed.',
+          backToEdit: 'Back to editing', draftNotice: 'This development version does not save event data yet. Reloading the page clears the current draft.',
+          defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
+          requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
+          bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
+          bulkTooMany: 'Adding these names would exceed 64 participants.', addedOne: 'Added {name}.', addedMany: 'Added {count} participants.',
+          removed: 'Removed {name}.', moved: 'Participant order updated.', shuffled: 'Participants shuffled.', resetDone: 'Setup reset.',
+          undo: 'Undo', undone: 'Restored', confirmed: 'Participants confirmed.',
+          resetTitle: 'Reset this setup?', resetMessage: 'This removes the event name and all participants. This action cannot be undone.', resetAction: 'Reset',
           confirmTitle: 'Confirm', confirmAction: 'Continue', cancel: 'Cancel',
-          guaranteesTitle: 'Template guarantees',
-          guaranteesBody: 'Keep these constraints unless the product specification explicitly changes them.',
-          card1Title: 'One deliverable', card1Body: 'The release artifact is dist/index.html. It opens directly and can be hosted as a static page.',
-          card2Title: 'Pinned dependencies', card2Body: 'Third-party npm assets are version-pinned, hashed, and embedded during the build.',
-          card3Title: 'No runtime network', card3Body: 'Content Security Policy blocks runtime connections. User data stays inside the page.',
-          card4Title: 'LLM-ready workflow', card4Body: 'AGENTS.md and APP_SPEC.md give coding agents a stable contract, acceptance criteria, and handoff format.',
-          buildInfo: 'Build information', appVersion: 'App version', builtAt: 'Built at', dependencies: 'Embedded dependencies',
-          footer: 'Generated as one self-contained HTML file', copied: 'Copied', copyFailed: 'Could not copy', downloaded: 'Text downloaded', cleared: 'Text cleared', restored: 'Sample restored'
+          removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
+          helpBasicsTitle: 'Basics',
+          helpStep1: 'Enter an event name. You can also leave it blank.',
+          helpStep2: 'Add participants one by one, or paste multiple lines to add them in one step.',
+          helpStep3: 'Adjust the order with the arrow buttons, shuffle if needed, then confirm once at least three participants are present.',
+          helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event and participant names are processed in this page and are not sent to an external server by this app. The app makes no runtime network requests.',
+          helpNotesTitle: 'Notes',
+          helpNoteNoSave: 'v0.1.0 does not save event data yet. Reloading or closing the tab clears the current draft.',
+          helpNoteNames: 'Duplicate participant names are not allowed. Each name can contain up to 80 characters.',
+          helpNoteScope: 'This version covers event setup only. Fixtures, results, and standings are not shown yet.',
+          helpOffline: 'The distributable HTML can be opened directly from local storage.'
         }
-      };
-
-      const storageKeys = {
-        text: `${APP_CONFIG.slug}:starter-text`,
-        language: `${APP_CONFIG.slug}:language`
-      };
-      const sampleText = {
-        ja: 'この領域はサンプルです。\n\n新しいアプリを作るときは APP_SPEC.md に目的と受入条件を書き、LLMに AGENTS.md から読むよう指示してください。',
-        en: 'This workspace is a sample.\n\nFor a new app, describe the goal and acceptance criteria in APP_SPEC.md, then tell the LLM to start with AGENTS.md.'
       };
 
       const $ = selector => document.querySelector(selector);
-      const editor = $('#editor');
-      const outputFilename = $('#outputFilename');
+      const state = { phase: 'setup', tournamentName: '', participants: [] };
+      const storageKeys = { language: `${APP_CONFIG.slug}:language` };
       let language = readStorage(storageKeys.language) || detectLanguage();
-
-      // Reusable Promise-based confirmation API. Canonical source: components/confirm-dialog.html.
-      const AppConfirm = (() => {
-        const dialog = $('#appConfirmDialog');
-        const title = $('#appConfirmTitle');
-        const message = $('#appConfirmMessage');
-        const closeButton = $('#appConfirmClose');
-        const cancelButton = $('#appConfirmCancel');
-        const okButton = $('#appConfirmOk');
-        let resolver = null;
-        let restoreFocus = null;
-
-        function finish(result) {
-          if (!dialog.open) return;
-          const currentResolver = resolver;
-          resolver = null;
-          dialog.close();
-          if (restoreFocus instanceof HTMLElement && restoreFocus.isConnected) restoreFocus.focus({ preventScroll: true });
-          restoreFocus = null;
-          if (currentResolver) currentResolver(result);
-        }
-
-        function ask({ title: heading, message: body, confirmLabel, cancelLabel, tone = 'default' } = {}) {
-          if (dialog.open) finish(false);
-          title.textContent = heading || translate('confirmTitle');
-          message.textContent = body || '';
-          cancelButton.textContent = cancelLabel || translate('cancel');
-          okButton.textContent = confirmLabel || translate('confirmAction');
-          okButton.classList.toggle('danger', tone === 'danger');
-          okButton.classList.toggle('primary', tone !== 'danger');
-          restoreFocus = document.activeElement;
-          return new Promise(resolve => {
-            resolver = resolve;
-            dialog.showModal();
-            requestAnimationFrame(() => cancelButton.focus({ preventScroll: true }));
-          });
-        }
-
-        closeButton.addEventListener('click', () => finish(false));
-        cancelButton.addEventListener('click', () => finish(false));
-        okButton.addEventListener('click', () => finish(true));
-        dialog.addEventListener('cancel', event => { event.preventDefault(); finish(false); });
-        dialog.addEventListener('click', event => {
-          const rect = dialog.getBoundingClientRect();
-          const outside = event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
-          if (outside) finish(false);
-        });
-
-        return Object.freeze({ ask });
-      })();
-      window.AppConfirm = AppConfirm;
 
       function readStorage(key) {
         try { return localStorage.getItem(key); } catch { return null; }
       }
       function writeStorage(key, value) {
-        try { localStorage.setItem(key, value); } catch { /* Storage may be unavailable in private contexts. */ }
+        try { localStorage.setItem(key, value); } catch { }
       }
       function detectLanguage() {
         if (APP_CONFIG.defaultLanguage === 'ja' || APP_CONFIG.defaultLanguage === 'en') return APP_CONFIG.defaultLanguage;
         return (navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en';
       }
-      function translate(key) { return translations[language]?.[key] ?? translations.en[key] ?? key; }
+      function translate(key, values = {}) {
+        let value = translations[language]?.[key] ?? translations.en[key] ?? key;
+        Object.entries(values).forEach(([name, replacement]) => {
+          value = value.replaceAll(`{${name}}`, String(replacement));
+        });
+        return value;
+      }
+      function createId() {
+        if (crypto.randomUUID) return crypto.randomUUID();
+        const bytes = new Uint8Array(12);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+      }
+      function normalizeName(value) { return value.trim().replace(/\s+/g, ' '); }
+      function nameKey(value) { return normalizeName(value).toLocaleLowerCase(); }
 
-      // Reusable toast / Undo API. Canonical source: components/toast.html.
       const AppToast = (() => {
         const root = $('#appToast');
         const message = $('#appToastMessage');
@@ -854,7 +996,7 @@
           root.classList.remove('show');
           actionHandler = null;
         }
-        function show({ message: text = '', actionLabel = '', onAction = null, duration = 3200, tone = 'default' } = {}) {
+        function show({ message: text = '', actionLabel = '', onAction = null, duration = 3500, tone = 'default' } = {}) {
           clearTimeout(timer);
           message.textContent = String(text);
           root.dataset.tone = tone;
@@ -873,105 +1015,328 @@
         return Object.freeze({ show, dismiss });
       })();
       window.AppToast = AppToast;
+
+      const AppConfirm = (() => {
+        const dialog = $('#appConfirmDialog');
+        const title = $('#appConfirmTitle');
+        const message = $('#appConfirmMessage');
+        const closeButton = $('#appConfirmClose');
+        const cancelButton = $('#appConfirmCancel');
+        const okButton = $('#appConfirmOk');
+        let resolver = null;
+        let restoreFocus = null;
+        function finish(result) {
+          if (!dialog.open) return;
+          const currentResolver = resolver;
+          resolver = null;
+          dialog.close();
+          if (restoreFocus instanceof HTMLElement && restoreFocus.isConnected) restoreFocus.focus({ preventScroll: true });
+          restoreFocus = null;
+          if (currentResolver) currentResolver(result);
+        }
+        function ask({ title: heading, message: body, confirmLabel, cancelLabel, tone = 'default' } = {}) {
+          if (dialog.open) finish(false);
+          title.textContent = heading || translate('confirmTitle');
+          message.textContent = body || '';
+          cancelButton.textContent = cancelLabel || translate('cancel');
+          okButton.textContent = confirmLabel || translate('confirmAction');
+          okButton.classList.toggle('danger', tone === 'danger');
+          okButton.classList.toggle('primary', tone !== 'danger');
+          restoreFocus = document.activeElement;
+          return new Promise(resolve => {
+            resolver = resolve;
+            dialog.showModal();
+            requestAnimationFrame(() => cancelButton.focus({ preventScroll: true }));
+          });
+        }
+        closeButton.addEventListener('click', () => finish(false));
+        cancelButton.addEventListener('click', () => finish(false));
+        okButton.addEventListener('click', () => finish(true));
+        dialog.addEventListener('cancel', event => { event.preventDefault(); finish(false); });
+        dialog.addEventListener('click', event => {
+          const rect = dialog.getBoundingClientRect();
+          if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) finish(false);
+        });
+        return Object.freeze({ ask });
+      })();
+      window.AppConfirm = AppConfirm;
+
       function showToast(message, options = {}) { AppToast.show({ message, ...options }); }
-      function applyLanguage() {
+      function setText(id, value) { const element = $(id); if (element) element.textContent = value; }
+      function setParticipantError(message = '') { setText('#participantError', message); }
+      function setBulkError(message = '') { setText('#bulkError', message); }
+
+      function updateStaticLanguage() {
         document.documentElement.lang = language;
         document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = translate(element.dataset.i18n); });
         document.querySelectorAll('[data-i18n-title]').forEach(element => { element.title = translate(element.dataset.i18nTitle); });
         document.querySelectorAll('[data-i18n-aria-label]').forEach(element => { element.setAttribute('aria-label', translate(element.dataset.i18nAriaLabel)); });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => { element.placeholder = translate(element.dataset.i18nPlaceholder); });
         $('#languageButton').textContent = language === 'ja' ? 'EN' : '日本語';
         $('#languageButton').setAttribute('aria-label', language === 'ja' ? '英語に切り替え' : 'Switch to Japanese');
         document.title = language === 'ja' ? APP_CONFIG.nameJa : APP_CONFIG.name;
-        $('#brandName').textContent = language === 'ja' ? APP_CONFIG.nameJa : APP_CONFIG.name;
-        $('#footerName').textContent = language === 'ja' ? APP_CONFIG.nameJa : APP_CONFIG.name;
-        if (!editor.value) editor.value = sampleText[language];
-        updateStats();
+        render();
       }
-      function updateStats() {
-        const value = editor.value;
-        const words = value.trim() ? (value.match(/[\p{L}\p{N}]+(?:['’_-][\p{L}\p{N}]+)*/gu) || []).length : 0;
-        $('#characterCount').textContent = new Intl.NumberFormat(language).format([...value].length);
-        $('#wordCount').textContent = new Intl.NumberFormat(language).format(words);
-        $('#lineCount').textContent = new Intl.NumberFormat(language).format(value ? value.split(/\r?\n/).length : 0);
-        $('#saveStatus').textContent = translate('savedLocally');
+
+      function renderRoster() {
+        const count = state.participants.length;
+        setText('#participantCount', new Intl.NumberFormat(language).format(count));
+        $('#emptyRoster').hidden = count > 0;
+        $('#rosterWithData').hidden = count === 0;
+        $('#shuffleButton').disabled = count < 2;
+        $('#resetButton').disabled = count === 0 && !$('#tournamentName').value.trim();
+
+        const list = $('#rosterList');
+        list.replaceChildren();
+        state.participants.forEach((participant, index) => {
+          const item = document.createElement('li');
+          item.className = 'participant';
+
+          const number = document.createElement('span');
+          number.className = 'participant-number';
+          number.textContent = String(index + 1);
+
+          const name = document.createElement('span');
+          name.className = 'participant-name';
+          name.textContent = participant.name;
+
+          const actions = document.createElement('div');
+          actions.className = 'participant-actions';
+
+          const up = createActionButton('up', translate('moveUpLabel', { name: participant.name }), index === 0);
+          const down = createActionButton('down', translate('moveDownLabel', { name: participant.name }), index === count - 1);
+          const remove = createActionButton('remove', translate('removeLabel', { name: participant.name }), false, true);
+
+          up.addEventListener('click', () => moveParticipant(index, index - 1));
+          down.addEventListener('click', () => moveParticipant(index, index + 1));
+          remove.addEventListener('click', () => removeParticipant(index));
+
+          actions.append(up, down, remove);
+          item.append(number, name, actions);
+          list.append(item);
+        });
+
+        const canConfirm = count >= 3;
+        $('#confirmParticipantsButton').disabled = !canConfirm;
+        setText('#startHelp', translate(canConfirm ? 'readyToConfirm' : 'needThree'));
+        setText('#validationSummary', '');
       }
-      function saveText() {
-        writeStorage(storageKeys.text, editor.value);
-        updateStats();
+
+      function createActionButton(action, label, disabled, danger = false) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `small-icon-button${danger ? ' danger' : ''}`;
+        button.disabled = disabled;
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        if (action === 'up') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg>';
+        if (action === 'down') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+        if (action === 'remove') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg>';
+        return button;
       }
-      async function copyText() {
-        try {
-          await navigator.clipboard.writeText(editor.value);
-          showToast(translate('copied'));
-        } catch {
-          editor.select();
-          const ok = document.execCommand('copy');
-          showToast(translate(ok ? 'copied' : 'copyFailed'));
+
+      function renderReady() {
+        const name = state.tournamentName || translate('defaultTournament');
+        setText('#readyTitle', name);
+        setText('#readyCount', new Intl.NumberFormat(language).format(state.participants.length));
+        const root = $('#readyParticipants');
+        root.replaceChildren();
+        state.participants.forEach(participant => {
+          const chip = document.createElement('span');
+          chip.className = 'ready-chip';
+          chip.textContent = participant.name;
+          root.append(chip);
+        });
+      }
+
+      function render() {
+        $('#setupView').hidden = state.phase !== 'setup';
+        $('#readyView').hidden = state.phase !== 'ready';
+        if (state.phase === 'setup') renderRoster();
+        else renderReady();
+      }
+
+      function addParticipant(rawName) {
+        setParticipantError('');
+        const name = normalizeName(rawName);
+        if (!name) {
+          setParticipantError(translate('requiredName'));
+          $('#participantName').focus();
+          return false;
         }
+        if ([...name].length > 80) {
+          setParticipantError(translate('bulkTooLong'));
+          $('#participantName').focus();
+          return false;
+        }
+        if (state.participants.length >= 64) {
+          setParticipantError(translate('tooMany'));
+          return false;
+        }
+        const key = nameKey(name);
+        if (state.participants.some(participant => nameKey(participant.name) === key)) {
+          setParticipantError(translate('duplicateName'));
+          $('#participantName').select();
+          return false;
+        }
+        state.participants.push({ id: createId(), name });
+        $('#participantName').value = '';
+        renderRoster();
+        showToast(translate('addedOne', { name }), { tone: 'success' });
+        $('#participantName').focus();
+        return true;
       }
-      function normalizedFilenameBase() {
-        const fallback = APP_CONFIG.slug || 'text';
-        const cleaned = outputFilename.value.trim().replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').replace(/\.+$/g, '').trim();
-        let base = cleaned.replace(/\.txt$/i, '') || fallback;
-        if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(base)) base = `${base}-file`;
-        if (!cleaned) outputFilename.value = fallback;
-        return base.slice(0, 120);
+
+      function addBulkParticipants() {
+        setBulkError('');
+        const names = $('#bulkParticipants').value.split(/\r?\n/).map(normalizeName).filter(Boolean);
+        if (!names.length) {
+          setBulkError(translate('bulkEmpty'));
+          $('#bulkParticipants').focus();
+          return;
+        }
+        if (names.some(name => [...name].length > 80)) {
+          setBulkError(translate('bulkTooLong'));
+          return;
+        }
+        if (state.participants.length + names.length > 64) {
+          setBulkError(translate('bulkTooMany'));
+          return;
+        }
+        const seen = new Set(state.participants.map(participant => nameKey(participant.name)));
+        const duplicateNames = [];
+        for (const name of names) {
+          const key = nameKey(name);
+          if (seen.has(key)) duplicateNames.push(name);
+          seen.add(key);
+        }
+        if (duplicateNames.length) {
+          const unique = [...new Set(duplicateNames)].slice(0, 5).join(language === 'ja' ? '、' : ', ');
+          setBulkError(translate('bulkDuplicate', { names: unique }));
+          return;
+        }
+        state.participants.push(...names.map(name => ({ id: createId(), name })));
+        $('#bulkParticipants').value = '';
+        renderRoster();
+        showToast(translate('addedMany', { count: names.length }), { tone: 'success' });
       }
-      function downloadText() {
-        const url = URL.createObjectURL(new Blob([editor.value], { type: 'text/plain;charset=utf-8' }));
-        const anchor = document.createElement('a');
-        const filenameBase = normalizedFilenameBase();
-        outputFilename.value = filenameBase;
-        anchor.href = url;
-        anchor.download = `${filenameBase}.txt`;
-        anchor.click();
-        URL.revokeObjectURL(url);
-        showToast(translate('downloaded'), { tone: 'success' });
+
+      function removeParticipant(index) {
+        const [removed] = state.participants.splice(index, 1);
+        if (!removed) return;
+        renderRoster();
+        showToast(translate('removed', { name: removed.name }), {
+          actionLabel: translate('undo'),
+          duration: 5000,
+          onAction: () => {
+            state.participants.splice(Math.min(index, state.participants.length), 0, removed);
+            renderRoster();
+            showToast(translate('undone'));
+          }
+        });
       }
+
+      function moveParticipant(from, to) {
+        if (to < 0 || to >= state.participants.length || from === to) return;
+        const [participant] = state.participants.splice(from, 1);
+        state.participants.splice(to, 0, participant);
+        renderRoster();
+        showToast(translate('moved'));
+      }
+
+      function shuffleParticipants() {
+        if (state.participants.length < 2) return;
+        const before = state.participants.map(participant => ({ ...participant }));
+        for (let index = state.participants.length - 1; index > 0; index -= 1) {
+          const target = Math.floor(Math.random() * (index + 1));
+          [state.participants[index], state.participants[target]] = [state.participants[target], state.participants[index]];
+        }
+        renderRoster();
+        showToast(translate('shuffled'), {
+          actionLabel: translate('undo'),
+          duration: 5000,
+          onAction: () => {
+            state.participants = before;
+            renderRoster();
+            showToast(translate('undone'));
+          }
+        });
+      }
+
+      async function resetSetup() {
+        if (!state.participants.length && !$('#tournamentName').value.trim()) return;
+        const confirmed = await AppConfirm.ask({
+          title: translate('resetTitle'),
+          message: translate('resetMessage'),
+          confirmLabel: translate('resetAction'),
+          cancelLabel: translate('cancel'),
+          tone: 'danger'
+        });
+        if (!confirmed) return;
+        state.phase = 'setup';
+        state.tournamentName = '';
+        state.participants = [];
+        $('#tournamentName').value = '';
+        $('#participantName').value = '';
+        $('#bulkParticipants').value = '';
+        setParticipantError('');
+        setBulkError('');
+        render();
+        $('#tournamentName').focus();
+        showToast(translate('resetDone'));
+      }
+
+      function confirmParticipants() {
+        if (state.participants.length < 3) return;
+        state.tournamentName = $('#tournamentName').value.trim().slice(0, 100);
+        state.phase = 'ready';
+        render();
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        showToast(translate('confirmed'), { tone: 'success' });
+      }
+
+      $('#participantForm').addEventListener('submit', event => {
+        event.preventDefault();
+        addParticipant($('#participantName').value);
+      });
+      $('#participantName').addEventListener('input', () => setParticipantError(''));
+      $('#bulkParticipants').addEventListener('input', () => setBulkError(''));
+      $('#bulkAddButton').addEventListener('click', addBulkParticipants);
+      $('#shuffleButton').addEventListener('click', shuffleParticipants);
+      $('#resetButton').addEventListener('click', resetSetup);
+      $('#confirmParticipantsButton').addEventListener('click', confirmParticipants);
+      $('#backToEditButton').addEventListener('click', () => {
+        state.phase = 'setup';
+        render();
+        $('#tournamentName').value = state.tournamentName;
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      });
+      $('#tournamentName').addEventListener('input', event => {
+        state.tournamentName = event.target.value.trim().slice(0, 100);
+        $('#resetButton').disabled = state.participants.length === 0 && !event.target.value.trim();
+      });
 
       $('#languageButton').addEventListener('click', () => {
         language = language === 'ja' ? 'en' : 'ja';
         writeStorage(storageKeys.language, language);
-        applyLanguage();
+        updateStaticLanguage();
       });
+
       const helpDialog = $('#helpDialog');
       $('#helpButton').addEventListener('click', () => helpDialog.showModal());
       $('#closeHelpButton').addEventListener('click', () => helpDialog.close());
       helpDialog.addEventListener('click', event => {
         const rect = helpDialog.getBoundingClientRect();
-        const outside = event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
-        if (outside) helpDialog.close();
-      });
-      editor.addEventListener('input', saveText);
-      outputFilename.addEventListener('blur', () => { outputFilename.value = normalizedFilenameBase(); });
-      $('#copyButton').addEventListener('click', copyText);
-      $('#downloadButton').addEventListener('click', downloadText);
-      $('#sampleButton').addEventListener('click', () => {
-        const before = editor.value;
-        editor.value = sampleText[language];
-        saveText();
-        showToast(translate('restored'), { actionLabel: translate('undo'), onAction: () => { editor.value = before; saveText(); editor.focus(); showToast(translate('undone')); } });
-      });
-      $('#clearButton').addEventListener('click', () => {
-        if (!editor.value) return;
-        const before = editor.value;
-        editor.value = '';
-        saveText();
-        editor.focus();
-        showToast(translate('cleared'), {
-          actionLabel: translate('undo'),
-          onAction: () => { editor.value = before; saveText(); editor.focus(); showToast(translate('undone')); },
-          duration: 5000
-        });
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) helpDialog.close();
       });
 
-      editor.value = readStorage(storageKeys.text) || sampleText[language];
-      outputFilename.value = APP_CONFIG.slug || 'text';
+      // File export starts in a later milestone; keep the runtime free of inactive export controls.
+      const outputFilename = null;
+      void outputFilename;
+
       $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
-      $('#buildVersion').textContent = APP_CONFIG.version;
-      $('#builtAt').textContent = BUILD_MANIFEST.generatedAtUtc || '—';
-      $('#dependencyCount').textContent = String(BUILD_MANIFEST.dependencies?.length || 0);
-      applyLanguage();
+      updateStaticLanguage();
+      render();
     })();
   </script>
 </body>
