@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.7.0
+- **Current app version:** v0.8.0
 - **Target stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.7.0 stores the active event locally in addition to the language preference.
+- Current v0.8.0 stores the active event locally in addition to the language preference.
 
 ## 5. Event setup
 
@@ -315,85 +315,84 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.7.0
+## 18. Current implementation milestone: v0.8.0
 
-v0.7.0 adds local export and print workflows without introducing runtime network dependencies.
+v0.8.0 performs the final bilingual, accessibility, and interaction-polish pass before the release candidate.
 
 Implemented behavior:
 
-- all setup, League Desk, result, standings, persistence, JSON backup, and mobile UX behavior from v0.1.0–v0.6.0
-- event-level Export action during an active event
-- completion-state Export action after all matches finish
-- editable export filename stem before file-producing actions
-- unsafe filename characters are replaced locally and extensions are added per selected format
-- match-results CSV containing round, global order, both participants, status, optional scores, result, and winner
-- standings CSV with columns matched to the active result mode
-- UTF-8 BOM CSV output for spreadsheet compatibility
-- user-controlled CSV text that begins with formula-trigger characters is prefixed to reduce spreadsheet formula execution risk
-- standings PNG rendered locally with Canvas at 1200px width
-- PNG includes event name, result mode, rank, participant, record, points, and score difference when score mode is active
-- print layout contains standings and every round/match result
-- print CSS hides application chrome and prints only the generated print sheet
-- completion screen exposes export once final standings exist
-- Japanese and English export UI
-- no runtime CDN or external export service
+- all setup, League Desk, results, standings, persistence, mobile, and export behavior from v0.1.0–v0.7.0
+- Japanese and English translation dictionaries are treated as one parity-checked contract
+- every static `data-i18n`, `data-i18n-title`, `data-i18n-aria-label`, and `data-i18n-placeholder` reference is checked against both language dictionaries
+- event navigation, event-progress, and match-filter accessible names are localized instead of hard-coded in English
+- match-filter visual selection is mirrored with `aria-pressed`
+- result-choice current selection is mirrored with `aria-pressed`
+- result, JSON-backup, and export dialogs expose relevant descriptions with `aria-describedby`
+- score fields reference the shared validation status
+- dialogs remember the control that opened them and restore focus when practical
+- result dialogs preferentially return focus to the corresponding match after close, including after a re-render
+- help dialog moves focus to its close action when opened
+- standings rows expose list/listitem semantics
+- `select` elements receive the same visible `:focus-visible` treatment as other form controls
+- forced-colors support preserves visible borders and active-state outlines
+- static help fallback content now matches the implemented app instead of old early-development copy
+- privacy copy explicitly covers event data plus JSON/CSV/PNG output generation
+- version-specific persistence wording was removed from help text so the help does not immediately become stale
+- standings PNG record headings use localized labels instead of fixed W-D-L / W-L text
+- no runtime network
 
-Not implemented in v0.7.0:
+Not implemented in v0.8.0:
 
-- final bilingual copy review
-- final keyboard/accessibility audit
-- release-candidate screenshots and broad device/browser regression
+- release-candidate screenshots and broader browser/device regression
+- v1.0.0 release-only fixes and final release assets
 
-## 19. v0.7.0 acceptance criteria
+## 19. v0.8.0 acceptance criteria
 
-### File naming
+### Bilingual consistency
 
-- Every file-producing export opens the export dialog first.
-- The filename stem is editable before saving.
-- Unsafe filename characters are replaced.
-- The selected export adds its own descriptive suffix and extension.
-- Output stays local to the browser.
+- Japanese and English translation key sets are identical.
+- Every static i18n key referenced by HTML exists in both dictionaries.
+- Event navigation, progress, filter labels, help, privacy, export UI, and dialog copy are available in both languages.
+- No user-facing accessibility label for the League Desk navigation/filter/progress controls is fixed to one language.
+- Static fallback help text describes the current product behavior.
 
-### Match results CSV
+### Keyboard / focus
 
-- Contains one row per generated match in global order.
-- Includes round, order, participant A/B, pending/completed state, score fields where applicable, result, and winner.
-- Pending matches remain distinguishable from completed draws.
-- Participant text beginning with `=`, `+`, `-`, or `@` is protected before CSV serialization.
-- CSV uses UTF-8 BOM and quoted cells.
+- All native interactive controls remain keyboard reachable.
+- `select` controls have a visible focus indicator.
+- Match-result, export, backup, and help dialogs restore focus to a meaningful control after close where the target still exists.
+- Result entry returns focus to the relevant match when possible.
+- Native Escape behavior remains available for dialogs.
+- Reduced-motion handling remains intact.
 
-### Standings CSV
+### Accessible state
 
-- Uses the same `calculateStandings()` result as the visible UI.
-- Includes rank, participant, played, wins, losses, and league points.
-- Includes draws only when the active result mode supports draws.
-- Includes score for, score against, and difference only in score mode.
-- Shared ranks are preserved.
+- Match-filter buttons expose selected state with `aria-pressed`.
+- Result winner/draw choices expose the current recorded selection with `aria-pressed`.
+- Score validation is associated with both score inputs.
+- Dynamic standings use list/listitem semantics in addition to visual ordering.
+- State remains understandable without depending on color alone.
 
-### Standings PNG
+### Visual accessibility / polish
 
-- Generated entirely with Canvas in the browser.
-- Uses Browser Kitty brand color `#16624F`.
-- Includes event name and result mode.
-- Includes all participants in ranking order.
-- Long participant names are limited to a bounded number of rendered lines.
-- Score mode includes score difference.
-- PNG encoding failure produces a visible error rather than an empty file.
+- Focus indicators remain visible on buttons, inputs, textareas, selects, and summaries.
+- Forced-colors mode keeps important borders and selected-state outlines visible.
+- Existing smartphone safe-area, bottom-navigation, long-name, and dialog protections remain intact.
+- PNG labels use localized terminology.
 
-### Print
+### Privacy / help
 
-- Print sheet includes standings and every generated match grouped by round.
-- Print layout does not print the normal application header, dialogs, mobile navigation, or controls.
-- User-entered content is inserted using textContent rather than raw HTML.
-- Printing does not alter event data.
+- Help states that event and export data are processed locally.
+- No claim of server upload is introduced.
+- Runtime CSP continues to block connections with `connect-src 'none'`.
+- Help avoids obsolete milestone-specific wording.
 
 ### Regression / build
 
-- Existing round-robin, result/standings, League Desk, persistence, and Mobile/UX tests continue to pass.
-- Export regression checks cover safe filenames, CSV formula protection, UTF-8 BOM, Canvas PNG generation, print-sheet isolation, and outputFilename usage.
-- Runtime communication remains blocked.
+- Existing round-robin, result/standings, League Desk, persistence, Mobile/UX, and Export tests continue to pass.
+- i18n/accessibility regression checks validate language-key parity, static i18n references, localized ARIA markers, focus-restoration markers, selected-state ARIA, forced-colors support, and current help fallback copy.
 - PowerShell syntax preflight and repository check must pass.
-- Do not claim real-device/manual-print/manual-download verification unless it was actually performed.
+- Do not claim real screen-reader or real-device accessibility verification unless it was actually performed.
 
 ## 20. Planned development sequence
 
@@ -443,7 +442,7 @@ Not implemented in v0.7.0:
 - print
 - editable output filenames
 
-### v0.8.0 — i18n / Accessibility / Polish
+### v0.8.0 — i18n / Accessibility / Polish — implemented
 
 - full bilingual review
 - keyboard/accessibility audit
