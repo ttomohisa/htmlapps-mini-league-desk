@@ -90,8 +90,9 @@ Bulk add is atomic. If the batch contains an invalid name, duplicate, or would e
 
 ### 5.4 Reorder and removal
 
-- Reorder must work by buttons; drag-and-drop is not required.
-- Up/down controls must be keyboard accessible.
+- Reorder works by a dedicated drag handle and by up/down buttons.
+- Drag reordering supports pointer input so mouse and touch users can use the same handle.
+- Up/down controls remain available and keyboard accessible; drag is an additional interaction, not the only way to reorder.
 - Removing one participant is immediate and offers Undo.
 - Shuffle is immediate and offers Undo.
 - Full reset requires a confirmation dialog because it clears multiple fields at once.
@@ -236,8 +237,11 @@ Provide:
 - all matches
 - per-participant completed opponents
 - per-participant remaining opponents
+- a round-robin matrix / head-to-head table showing every participant against every other participant
 
-This must answer “Who does this person still need to play?” without scanning the full fixture table.
+The Matches screen can switch between the round/list view and the round-robin table. Matrix cells for real matches open that match directly, so the table is not only a read-only summary.
+
+This must answer both “Who does this person still need to play?” and “What is the whole round-robin picture?” without scanning every round card.
 
 ## 14. Result editing — v0.3.0 onward
 
@@ -337,6 +341,10 @@ Release-candidate scope:
 - release capture verifies 390 CSS px mobile pages with scrollWidth equal to innerWidth
 - release screenshots are current Mini League Desk UI in Japanese and English on desktop and smartphone
 - RC review fixed a mobile min-content overflow in the event action area before final screenshots
+- post-RC user feedback adds spacing below the bulk participant textarea
+- participant setup supports drag-handle reordering while retaining keyboard-accessible arrow controls
+- Matches provides an explicit Match list / Round-robin table switcher
+- round-robin matrix cells show pending/result state and open the corresponding result dialog
 
 ## 19. v0.9.0 release-candidate acceptance criteria
 

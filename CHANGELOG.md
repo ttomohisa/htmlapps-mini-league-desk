@@ -11,6 +11,10 @@
 - Verified release capture at 390 CSS px with scrollWidth equal to innerWidth.
 - Finalized Japanese / English README content for the release candidate.
 - Kept runtime network access blocked and added no third-party runtime dependency.
+- Increased spacing between the bulk participant textarea and its Add all button.
+- Added pointer/touch drag-handle reordering for participants while keeping the existing arrow controls.
+- Added a Match list / Round-robin table switcher to the Matches screen.
+- Added an interactive round-robin matrix whose match cells open result entry directly.
 
 ## 0.8.0 - i18n / Accessibility / Polish - 2026-10-04
 

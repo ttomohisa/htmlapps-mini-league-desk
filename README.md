@@ -21,6 +21,7 @@ Current release candidate: **v0.9.0**
 - Event setup with an optional event name
 - 3–64 participants
 - Round-robin fixtures with automatic Bye handling for odd rosters
+- Participant ordering by drag handle or keyboard-accessible arrow buttons
 - Three result modes:
   - Win / loss
   - Win / draw / loss
@@ -28,6 +29,7 @@ Current release candidate: **v0.9.0**
 - Result add / edit / removal with Undo
 - Live standings with shared-rank handling
 - Progress / Matches / Standings workflow
+- Matches can switch between a round/list view and an interactive round-robin table
 - Suggested next match without forcing match order
 - Per-participant remaining and completed opponents
 - Automatic event completion and final standings
