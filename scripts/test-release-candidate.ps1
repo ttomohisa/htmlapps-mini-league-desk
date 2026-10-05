@@ -149,10 +149,15 @@ if (-not $source.Contains("connect-src 'none'")) { throw "Runtime CSP must keep 
 $externalPattern = '(?is)<(?:script|link|img|iframe)\b[^>]*(?:src|href)\s*=\s*["'']https?://'
 if ($source -match $externalPattern) { throw "External runtime resource URL found in source." }
 if ($source.Contains("single-html-app-starter")) { throw "Template starter marker remains in application source." }
+if (-not $source.Contains("localBadge: '完全ローカル処理'")) { throw "Japanese fully-local badge copy is missing." }
+if (-not $source.Contains("localBadge: 'Fully local processing'")) { throw "English fully-local badge copy is missing." }
+if ($source.Contains("端末内で処理")) { throw "Old local-processing badge copy remains." }
 
-$favicon = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "assets\favicon.svg")
-if (-not $favicon.ToLowerInvariant().Contains("#16624f")) { throw "Favicon must use Browser Kitty brand color #16624F." }
-if (-not $favicon.Contains("Mini League Desk")) { throw "Favicon must identify Mini League Desk." }
+$faviconPath = Join-Path $Root "assets\favicon.svg"
+$faviconHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $faviconPath).Hash.ToLowerInvariant()
+if ($faviconHash -ne "f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c66bac45") {
+  throw "Favicon must match the approved Mini League Desk SVG."
+}
 
 $readme = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.md")
 $readmeJa = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.ja.md")
