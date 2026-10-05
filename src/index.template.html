@@ -322,6 +322,7 @@
       font-weight: 750;
     }
     .bulk-body { margin-top: 12px; }
+    .bulk-add-button { margin-top: 12px; }
     .roster-toolbar {
       display: flex;
       align-items: center;
@@ -332,26 +333,43 @@
     .roster-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
     .participant {
       display: grid;
-      grid-template-columns: 34px minmax(0,1fr) auto;
+      grid-template-columns: 44px minmax(0,1fr) auto;
       align-items: center;
       gap: 10px;
       min-width: 0;
-      padding: 9px 9px 9px 11px;
+      padding: 9px 9px 9px 8px;
       border: 1px solid var(--line);
       border-radius: 11px;
       background: var(--surface);
+      transition: border-color .15s ease,box-shadow .15s ease,opacity .15s ease;
     }
-    .participant-number {
-      display: grid;
-      place-items: center;
-      width: 30px;
-      height: 30px;
+    .participant.is-dragging {
+      z-index: 2;
+      opacity: .72;
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+    }
+    .participant-drag-handle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 44px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid transparent;
       border-radius: 9px;
-      background: var(--surface-muted);
+      background: transparent;
       color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
     }
+    .participant-drag-handle:hover { background: var(--surface-hover); color: var(--text); }
+    .participant-drag-handle:active { cursor: grabbing; }
+    .participant-drag-handle svg { width: 13px; height: 17px; flex: 0 0 auto; }
+    .participant-order { min-width: 12px; font-size: 10px; font-weight: 800; text-align: center; }
+    .roster-list.is-dragging { user-select: none; }
     .participant-name {
       min-width: 0;
       overflow-wrap: anywhere;
@@ -819,6 +837,107 @@
     .completion-standing strong:first-child { text-align: center; }
     .completion-standing span { min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
     .completion-standing strong:last-child { white-space: nowrap; }
+
+    .match-view-switcher {
+      display: inline-flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      padding: 4px;
+      border-radius: 11px;
+      background: var(--surface-muted);
+    }
+    .match-view-button {
+      min-height: 38px;
+      padding: 7px 11px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .match-view-button:hover { color: var(--text); }
+    .match-view-button.is-active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); }
+    .matrix-help { margin: 0 0 9px; color: var(--muted); font-size: 11px; }
+    .matrix-scroll {
+      width: 100%;
+      max-width: 100%;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .round-robin-matrix {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 11px;
+    }
+    .round-robin-matrix th,
+    .round-robin-matrix td {
+      min-width: 72px;
+      height: 48px;
+      padding: 0;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+      vertical-align: middle;
+    }
+    .round-robin-matrix thead th {
+      position: sticky;
+      z-index: 3;
+      top: 0;
+      max-width: 112px;
+      padding: 7px 8px;
+      background: var(--surface-muted);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .round-robin-matrix .matrix-corner {
+      z-index: 5;
+      left: 0;
+      min-width: 116px;
+      text-align: left;
+    }
+    .round-robin-matrix tbody th {
+      position: sticky;
+      z-index: 2;
+      left: 0;
+      min-width: 116px;
+      max-width: 150px;
+      padding: 7px 9px;
+      background: #fbfbf9;
+      text-align: left;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .round-robin-matrix tr:last-child th,
+    .round-robin-matrix tr:last-child td { border-bottom: 0; }
+    .round-robin-matrix th:last-child,
+    .round-robin-matrix td:last-child { border-right: 0; }
+    .matrix-diagonal { background: var(--surface-muted); color: var(--muted); font-weight: 700; }
+    .matrix-cell-button {
+      width: 100%;
+      height: 100%;
+      min-height: 48px;
+      padding: 6px 7px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .matrix-cell-button:hover { background: var(--surface-hover); }
+    .matrix-cell-button.pending { color: var(--muted); font-weight: 700; }
+    .matrix-cell-button.completed { color: var(--accent); }
+
     .match-page-toolbar {
       display: flex;
       align-items: center;
@@ -1115,7 +1234,7 @@
       .roster-toolbar { align-items: stretch; flex-direction: column; }
       .roster-toolbar .button-row { width: 100%; }
       .roster-toolbar .button { flex: 1 1 auto; }
-      .participant { grid-template-columns: 30px minmax(0,1fr) auto; gap: 7px; padding-left: 8px; }
+      .participant { grid-template-columns: 44px minmax(0,1fr) auto; gap: 7px; padding-left: 6px; }
       .participant-actions { gap: 1px; }
       .small-icon-button { width: 36px; height: 40px; }
       .ready-summary { grid-template-columns: 1fr; }
@@ -1246,6 +1365,13 @@
         background: var(--accent-soft);
       }
       .participant-selector { grid-template-columns: 1fr; gap: 5px; }
+      .match-view-switcher { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; }
+      .match-view-button { width: 100%; }
+      .round-robin-matrix th,
+      .round-robin-matrix td { min-width: 66px; height: 46px; }
+      .round-robin-matrix .matrix-corner,
+      .round-robin-matrix tbody th { min-width: 100px; max-width: 120px; }
+      .matrix-cell-button { min-height: 46px; }
       .opponent-columns { grid-template-columns: 1fr; }
       .progress-summary { gap: 6px; }
       .progress-stat { padding: 8px; }
@@ -1271,7 +1397,7 @@
       .match-center { grid-area: center; min-width: 0; padding-top: 6px; border-top: 1px solid var(--line); }
       .match-player { font-size: 11px; line-height: 1.35; }
       .match-result { white-space: normal; }
-      .participant { grid-template-columns: 28px minmax(0,1fr); }
+      .participant { grid-template-columns: 44px minmax(0,1fr); }
       .participant-actions { grid-column: 1 / -1; justify-content: flex-end; }
       .small-icon-button { width: 44px; height: 44px; }
       .progress-stat { padding-inline: 5px; text-align: center; }
@@ -1428,7 +1554,7 @@
               <textarea class="bulk-input" id="bulkParticipants" data-i18n-placeholder="bulkPlaceholder" placeholder="山田&#10;佐藤&#10;鈴木"></textarea>
             </label>
             <div class="field-error" id="bulkError" role="status" aria-live="polite"></div>
-            <button class="button" id="bulkAddButton" type="button" data-i18n="addAll">まとめて追加</button>
+            <button class="button bulk-add-button" id="bulkAddButton" type="button" data-i18n="addAll">まとめて追加</button>
           </div>
         </details>
 
@@ -1464,7 +1590,7 @@
           </div>
           <div id="rosterWithData" hidden>
             <div class="roster-toolbar">
-              <span class="field-note" data-i18n="reorderHelp">矢印で順番を調整できます。</span>
+              <span class="field-note" id="reorderHelp" data-i18n="reorderHelp">ドラッグまたは矢印で順番を調整できます。</span>
               <div class="button-row">
                 <button class="button" id="shuffleButton" type="button" data-i18n="shuffle">シャッフル</button>
               </div>
@@ -1583,17 +1709,31 @@
             </div>
           </div>
         </div>
-        <div class="match-page-toolbar">
-          <div class="match-filters" role="group" data-i18n-aria-label="matchFilterLabel" aria-label="対戦フィルター">
-            <button class="match-filter is-active" type="button" data-match-filter="all" aria-pressed="true"><span data-i18n="filterAll">すべて</span><span class="match-filter-count" id="filterAllCount">0</span></button>
-            <button class="match-filter" type="button" data-match-filter="pending" aria-pressed="false"><span data-i18n="filterPending">未実施</span><span class="match-filter-count" id="filterPendingCount">0</span></button>
-            <button class="match-filter" type="button" data-match-filter="completed" aria-pressed="false"><span data-i18n="filterCompleted">完了</span><span class="match-filter-count" id="filterCompletedCount">0</span></button>
+        <div class="match-view-switcher" role="group" data-i18n-aria-label="matchViewLabel" aria-label="対戦表示">
+          <button class="match-view-button is-active" type="button" data-match-view="rounds" aria-pressed="true" data-i18n="matchViewRounds">対戦一覧</button>
+          <button class="match-view-button" type="button" data-match-view="matrix" aria-pressed="false" data-i18n="matchViewMatrix">総当たり表</button>
+        </div>
+
+        <div id="roundMatchView">
+          <div class="match-page-toolbar">
+            <div class="match-filters" role="group" data-i18n-aria-label="matchFilterLabel" aria-label="対戦フィルター">
+              <button class="match-filter is-active" type="button" data-match-filter="all" aria-pressed="true"><span data-i18n="filterAll">すべて</span><span class="match-filter-count" id="filterAllCount">0</span></button>
+              <button class="match-filter" type="button" data-match-filter="pending" aria-pressed="false"><span data-i18n="filterPending">未実施</span><span class="match-filter-count" id="filterPendingCount">0</span></button>
+              <button class="match-filter" type="button" data-match-filter="completed" aria-pressed="false"><span data-i18n="filterCompleted">完了</span><span class="match-filter-count" id="filterCompletedCount">0</span></button>
+            </div>
+          </div>
+          <div class="rounds-grid" id="roundsContainer"></div>
+          <div class="match-filter-empty" id="matchFilterEmpty" hidden>
+            <div data-i18n="filterEmpty">該当する試合はありません。</div>
+            <button class="button" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
           </div>
         </div>
-        <div class="rounds-grid" id="roundsContainer"></div>
-        <div class="match-filter-empty" id="matchFilterEmpty" hidden>
-          <div data-i18n="filterEmpty">該当する試合はありません。</div>
-          <button class="button" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
+
+        <div id="matrixMatchView" hidden>
+          <p class="matrix-help" data-i18n="matrixHelp">参加者どうしの対戦状況を一覧で確認できます。横にスクロールできます。</p>
+          <div class="matrix-scroll" tabindex="0" role="region" data-i18n-aria-label="matrixRegionLabel" aria-label="総当たり表">
+            <table class="round-robin-matrix" id="roundRobinMatrix"></table>
+          </div>
         </div>
       </section>
     </section>
@@ -1872,11 +2012,11 @@
           bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
           reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '順番は対戦表生成時の基準として使います。', people: '人',
           emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
-          reorderHelp: '矢印で順番を調整できます。', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
+          reorderHelp: 'ドラッグまたは矢印で順番を調整できます。', dragLabel: '{name} をドラッグして並べ替え', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
           fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
           matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
-          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixHelp: '参加者どうしの対戦状況を一覧で確認できます。横にスクロールできます。', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixPending: '未', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
@@ -1890,8 +2030,8 @@
           removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
           helpBasicsTitle: '基本操作',
           helpStep1: '大会名と結果の記録方法を選びます。',
-          helpStep2: '参加者を追加し、3人以上で「参加者を確定」を押して総当たり表を作ります。',
-          helpStep3: '大会開始後は「進行」で次の試合、「対戦」で未実施・完了や参加者別の残り対戦、「順位」で現在順位を確認できます。',
+          helpStep2: '参加者を追加し、ドラッグまたは矢印で順番を整えます。3人以上で「参加者を確定」を押します。',
+          helpStep3: '大会開始後は「進行」で次の試合、「対戦」で対戦一覧・総当たり表・参加者別の残り対戦、「順位」で現在順位を確認できます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名、参加者、対戦、結果、順位、JSON・CSV・PNGの出力データはこのページ内で処理し、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
           helpNoteNoSave: '大会内容はこの端末に自動保存されます。別のブラウザや端末へ移す場合はJSONバックアップを利用できます。',
@@ -1912,11 +2052,11 @@
           bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
           reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'This order will be used as the basis for fixture generation.', people: 'people',
           emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
-          reorderHelp: 'Use the arrow buttons to adjust the order.', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
+          reorderHelp: 'Drag or use the arrow buttons to adjust the order.', dragLabel: 'Drag to reorder {name}', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
           fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
           matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
-          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixHelp: 'See every head-to-head matchup in one table. Scroll horizontally when needed.', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixPending: '—', matrixCellLabel: '{row} vs {opponent}: {result}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
@@ -1930,8 +2070,8 @@
           removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
           helpBasicsTitle: 'Basics',
           helpStep1: 'Choose an event name and result-entry mode.',
-          helpStep2: 'Add participants and confirm at three or more to generate the round-robin fixtures.',
-          helpStep3: 'After starting, use Progress for what is next, Matches for pending/completed and participant-specific remaining opponents, and Standings for the current table.',
+          helpStep2: 'Add participants, then drag or use the arrow buttons to adjust their order. Confirm at three or more participants.',
+          helpStep3: 'After starting, use Progress for what is next, Matches for the match list, round-robin table, and participant-specific remaining opponents, and Standings for the current ranking.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event names, participants, matches, results, standings, and JSON/CSV/PNG export data are processed on this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
           helpNoteNoSave: 'The event is saved automatically on this device. Use JSON backup when moving it to another browser or device.',
@@ -1943,7 +2083,7 @@
 
       const $ = selector => document.querySelector(selector);
       const SCHEMA_VERSION = 1;
-      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', participantFocusId: '', activePage: 'progress' }, meta: { eventId: '', createdAt: '', updatedAt: '' } };
+      const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', matchView: 'rounds', participantFocusId: '', activePage: 'progress' }, meta: { eventId: '', createdAt: '', updatedAt: '' } };
       const storageKeys = { language: `${APP_CONFIG.slug}:language`, event: `${APP_CONFIG.slug}:active-event:v${SCHEMA_VERSION}` };
       let persistenceReady = false;
       let persistenceWarningShown = false;
@@ -2153,7 +2293,7 @@
         return { resultMode: 'winLoss', scoreDrawsAllowed: true };
       }
       function defaultUi() {
-        return { matchFilter: 'all', participantFocusId: '', activePage: 'progress' };
+        return { matchFilter: 'all', matchView: 'rounds', participantFocusId: '', activePage: 'progress' };
       }
       function meaningfulEventState() {
         const defaults = defaultSettings();
@@ -2203,6 +2343,7 @@
             })),
             ui: {
               matchFilter: state.ui.matchFilter,
+              matchView: state.ui.matchView,
               participantFocusId: state.ui.participantFocusId,
               activePage: state.ui.activePage
             },
@@ -2366,6 +2507,7 @@
         const rawUi = isPlainObject(event.ui) ? event.ui : {};
         const ui = defaultUi();
         if (['all', 'pending', 'completed'].includes(rawUi.matchFilter)) ui.matchFilter = rawUi.matchFilter;
+        if (['rounds', 'matrix'].includes(rawUi.matchView)) ui.matchView = rawUi.matchView;
         if (typeof rawUi.participantFocusId === 'string' && participantIds.has(rawUi.participantFocusId)) ui.participantFocusId = rawUi.participantFocusId;
         if (['progress', 'matches', 'standings'].includes(rawUi.activePage)) ui.activePage = rawUi.activePage;
         if (!ui.participantFocusId) ui.participantFocusId = participants[0]?.id || '';
@@ -2846,6 +2988,60 @@
         render();
       }
 
+      let rosterDrag = null;
+
+      function beginParticipantDrag(event, participantId) {
+        if (state.participants.length < 2) return;
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        const handle = event.currentTarget;
+        const item = handle.closest('.participant');
+        const list = $('#rosterList');
+        if (!(item instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
+        rosterDrag = {
+          participantId,
+          pointerId: event.pointerId,
+          handle,
+          item,
+          before: state.participants.map(participant => participant.id),
+          moved: false
+        };
+        item.classList.add('is-dragging');
+        list.classList.add('is-dragging');
+        handle.setPointerCapture?.(event.pointerId);
+        event.preventDefault();
+      }
+
+      function moveParticipantDrag(event) {
+        if (!rosterDrag || event.pointerId !== rosterDrag.pointerId) return;
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
+        const list = $('#rosterList');
+        if (!(target instanceof HTMLElement) || target === rosterDrag.item || target.parentElement !== list) return;
+        const rect = target.getBoundingClientRect();
+        const after = event.clientY > rect.top + rect.height / 2;
+        if (after) list.insertBefore(rosterDrag.item, target.nextSibling);
+        else list.insertBefore(rosterDrag.item, target);
+        rosterDrag.moved = true;
+        event.preventDefault();
+      }
+
+      function endParticipantDrag(event) {
+        if (!rosterDrag || event.pointerId !== rosterDrag.pointerId) return;
+        const drag = rosterDrag;
+        rosterDrag = null;
+        try { drag.handle.releasePointerCapture?.(event.pointerId); } catch {}
+        drag.item.classList.remove('is-dragging');
+        $('#rosterList').classList.remove('is-dragging');
+        if (!drag.moved) return;
+        const order = Array.from($('#rosterList').querySelectorAll('.participant')).map(item => item.dataset.participantId);
+        const byId = new Map(state.participants.map(participant => [participant.id, participant]));
+        const next = order.map(id => byId.get(id)).filter(Boolean);
+        const changed = next.length === state.participants.length && order.some((id, index) => id !== drag.before[index]);
+        if (!changed) { renderRoster(); return; }
+        state.participants = next;
+        renderRoster();
+        showToast(translate('moved'));
+      }
+
       function renderRoster() {
         const count = state.participants.length;
         setText('#participantCount', new Intl.NumberFormat(language).format(count));
@@ -2859,10 +3055,23 @@
         state.participants.forEach((participant, index) => {
           const item = document.createElement('li');
           item.className = 'participant';
+          item.dataset.participantId = participant.id;
 
-          const number = document.createElement('span');
-          number.className = 'participant-number';
-          number.textContent = String(index + 1);
+          const dragHandle = document.createElement('button');
+          dragHandle.type = 'button';
+          dragHandle.className = 'participant-drag-handle';
+          dragHandle.setAttribute('aria-label', translate('dragLabel', { name: participant.name }));
+          dragHandle.setAttribute('aria-describedby', 'reorderHelp');
+          dragHandle.title = translate('dragLabel', { name: participant.name });
+          dragHandle.innerHTML = '<svg viewBox="0 0 12 18" fill="currentColor" aria-hidden="true"><circle cx="3" cy="3" r="1.25"/><circle cx="9" cy="3" r="1.25"/><circle cx="3" cy="9" r="1.25"/><circle cx="9" cy="9" r="1.25"/><circle cx="3" cy="15" r="1.25"/><circle cx="9" cy="15" r="1.25"/></svg>';
+          const order = document.createElement('span');
+          order.className = 'participant-order';
+          order.textContent = String(index + 1);
+          dragHandle.append(order);
+          dragHandle.addEventListener('pointerdown', event => beginParticipantDrag(event, participant.id));
+          dragHandle.addEventListener('pointermove', moveParticipantDrag);
+          dragHandle.addEventListener('pointerup', endParticipantDrag);
+          dragHandle.addEventListener('pointercancel', endParticipantDrag);
 
           const name = document.createElement('span');
           name.className = 'participant-name';
@@ -2880,7 +3089,7 @@
           remove.addEventListener('click', () => removeParticipant(index));
 
           actions.append(up, down, remove);
-          item.append(number, name, actions);
+          item.append(dragHandle, name, actions);
           list.append(item);
         });
 
@@ -3021,6 +3230,23 @@
         renderFixtures();
         persistEvent();
       }
+      function setMatchView(view) {
+        if (!['rounds', 'matrix'].includes(view)) return;
+        state.ui.matchView = view;
+        renderMatchView();
+        if (view === 'matrix') renderRoundRobinMatrix();
+        persistEvent();
+      }
+      function renderMatchView() {
+        const matrix = state.ui.matchView === 'matrix';
+        $('#roundMatchView').hidden = matrix;
+        $('#matrixMatchView').hidden = !matrix;
+        document.querySelectorAll('[data-match-view]').forEach(button => {
+          const active = button.dataset.matchView === state.ui.matchView;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+      }
       function renderProgress() {
         const snapshot = eventProgressSnapshot();
         setText('#progressCompleted', new Intl.NumberFormat(language).format(snapshot.completed.length));
@@ -3122,9 +3348,95 @@
         renderOpponentList($('#participantPendingList'), pending);
         renderOpponentList($('#participantCompletedList'), completed);
       }
+
+      function matrixPairKey(a, b) {
+        return a < b ? a + '|' + b : b + '|' + a;
+      }
+      function matrixResultText(match, rowParticipantId) {
+        if (match.status !== 'completed') return translate('matrixPending');
+        if (state.settings.resultMode === 'score') {
+          return rowParticipantId === match.participantAId
+            ? String(match.scoreA) + '–' + String(match.scoreB)
+            : String(match.scoreB) + '–' + String(match.scoreA);
+        }
+        return outcomeMark(match, rowParticipantId);
+      }
+      function renderRoundRobinMatrix() {
+        const table = $('#roundRobinMatrix');
+        table.replaceChildren();
+
+        const caption = document.createElement('caption');
+        caption.className = 'sr-only';
+        caption.textContent = translate('matrixCaption');
+        table.append(caption);
+
+        const matchByPair = new Map();
+        allMatches().forEach(match => matchByPair.set(matrixPairKey(match.participantAId, match.participantBId), match));
+
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const corner = document.createElement('th');
+        corner.scope = 'col';
+        corner.className = 'matrix-corner';
+        corner.textContent = translate('matrixCaption');
+        headerRow.append(corner);
+        state.participants.forEach(participant => {
+          const th = document.createElement('th');
+          th.scope = 'col';
+          th.textContent = participant.name;
+          headerRow.append(th);
+        });
+        thead.append(headerRow);
+        table.append(thead);
+
+        const tbody = document.createElement('tbody');
+        state.participants.forEach(rowParticipant => {
+          const tr = document.createElement('tr');
+          const rowHeader = document.createElement('th');
+          rowHeader.scope = 'row';
+          rowHeader.textContent = rowParticipant.name;
+          tr.append(rowHeader);
+
+          state.participants.forEach(columnParticipant => {
+            const td = document.createElement('td');
+            if (rowParticipant.id === columnParticipant.id) {
+              td.className = 'matrix-diagonal';
+              td.textContent = '—';
+              td.setAttribute('aria-label', translate('matrixSelfLabel', { name: rowParticipant.name }));
+              tr.append(td);
+              return;
+            }
+            const match = matchByPair.get(matrixPairKey(rowParticipant.id, columnParticipant.id));
+            if (!match) {
+              td.textContent = '—';
+              tr.append(td);
+              return;
+            }
+            const resultText = matrixResultText(match, rowParticipant.id);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'matrix-cell-button ' + (match.status === 'completed' ? 'completed' : 'pending');
+            button.dataset.matchId = match.id;
+            button.textContent = resultText;
+            button.setAttribute('aria-label', translate('matrixCellLabel', {
+              row: rowParticipant.name,
+              opponent: columnParticipant.name,
+              result: resultText
+            }));
+            button.addEventListener('click', () => openResultDialog(match.id));
+            td.append(button);
+            tr.append(td);
+          });
+          tbody.append(tr);
+        });
+        table.append(tbody);
+      }
+
       function renderEventViews() {
         renderProgress();
         renderFixtures();
+        renderRoundRobinMatrix();
+        renderMatchView();
         renderStandings();
         renderParticipantMatchStatus();
         updateBackupButtons();
@@ -3623,6 +3935,7 @@
         }
         state.rounds = rounds;
         state.ui.matchFilter = 'all';
+        state.ui.matchView = 'rounds';
         state.ui.participantFocusId = state.participants[0]?.id || '';
         state.ui.activePage = 'progress';
         state.phase = 'fixtures';
@@ -3684,6 +3997,9 @@
 
       document.querySelectorAll('[data-match-filter]').forEach(button => {
         button.addEventListener('click', () => setMatchFilter(button.dataset.matchFilter));
+      });
+      document.querySelectorAll('[data-match-view]').forEach(button => {
+        button.addEventListener('click', () => setMatchView(button.dataset.matchView));
       });
       $('#showAllMatchesButton').addEventListener('click', () => setMatchFilter('all'));
       $('#participantMatchSelect').addEventListener('change', event => {
@@ -3773,7 +4089,8 @@
         activeMatchId = null;
         resultReturnMatchId = null;
         requestAnimationFrame(() => {
-          const matchButton = matchId ? document.querySelector('[data-match-id="' + matchId + '"]') : null;
+          const matchButtons = matchId ? Array.from(document.querySelectorAll('[data-match-id="' + matchId + '"]')) : [];
+          const matchButton = matchButtons.find(button => button instanceof HTMLElement && !button.closest('[hidden]') && button.offsetParent !== null);
           if (matchButton instanceof HTMLElement) matchButton.focus({ preventScroll: true });
           else restoreDialogOpener($('#resultDialog'));
         });
