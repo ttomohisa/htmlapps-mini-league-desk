@@ -330,7 +330,7 @@ Release-candidate scope:
 - existing 3..64 round-robin invariant coverage remains required
 - tie, score, result editing/removal, completion/reopen, persistence, malformed import, export, mobile, and accessibility regressions remain required
 - Japanese and English README content is aligned with the actual application
-- favicon is the Mini League Desk icon and keeps Browser Kitty brand color `#16624F`
+- favicon and the in-app header icon use the approved Mini League Desk SVG supplied for this release; preserve that asset without recoloring or redesign
 - release screenshots represent the current Mini League Desk UI rather than template/starter content
 - desktop and smartphone screenshots are maintained for Japanese and English
 - readable standalone, self-extract standalone, and repository-root readable HTML remain the required release artifacts
@@ -338,6 +338,7 @@ Release-candidate scope:
 - no runtime CDN, API, analytics, telemetry, remote font, or hidden network dependency
 - privacy statements must match the actual local-processing behavior
 - no new tournament format or major feature is added in the release candidate
+- the local-processing badge reads `完全ローカル処理` in Japanese and `Fully local processing` in English
 - release capture verifies 390 CSS px mobile pages with scrollWidth equal to innerWidth
 - release screenshots are current Mini League Desk UI in Japanese and English on desktop and smartphone
 - RC review fixed a mobile min-content overflow in the event action area before final screenshots
@@ -403,7 +404,7 @@ For each case:
 
 ### Release assets and documentation
 
-- `assets/favicon.svg` exists and is the Mini League Desk icon.
+- `assets/favicon.svg` exists, is used as the canonical Mini League Desk icon, and matches the approved SVG (SHA-256 `f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c66bac45`).
 - `assets/screenshot.png` is the current Japanese desktop screenshot.
 - `assets/screenshot-mobile.png` is the current Japanese smartphone screenshot.
 - `assets/screenshot-en.png` is the current English desktop screenshot.
