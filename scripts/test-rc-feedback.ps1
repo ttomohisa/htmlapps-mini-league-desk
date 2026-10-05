@@ -45,7 +45,7 @@ if ($source -notmatch 'matrix-cell-button[\s\S]*?openResultDialog') {
   throw "Round-robin matrix cells must open match result entry."
 }
 
-if ($source -notmatch "visibleMatches[\s\S]*?roundsContainer") {
+if (-not $source.Contains('id="roundMatchView"') -or -not $source.Contains('id="roundsContainer"')) {
   throw "Existing round/list fixture view must remain available."
 }
 
