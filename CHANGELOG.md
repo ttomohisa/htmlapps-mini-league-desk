@@ -2,6 +2,8 @@
 
 ## 0.9.0 - Release Candidate - 2026-10-04
 
+- Replaced the app icon / favicon with the approved lightweight Mini League Desk SVG.
+- Changed the local-processing badge from `端末内で処理` to `完全ローカル処理` and aligned the English badge to `Fully local processing`.
 - Froze feature scope for the release candidate.
 - Added an explicit 3 / 4 / 5 / 8 / 16 participant RC matrix on top of the existing 3..64 invariant suite.
 - Added release-candidate checks for screenshots, favicon, README references, standalone artifacts, CSP, and external runtime resources.
