@@ -14,7 +14,7 @@ $requiredTokens = @(
   "function moveParticipantDrag",
   "function endParticipantDrag",
   "setPointerCapture",
-  "data-participant-id",
+  "item.dataset.participantId",
   'data-match-view="rounds"',
   'data-match-view="matrix"',
   'id="roundRobinMatrix"',
