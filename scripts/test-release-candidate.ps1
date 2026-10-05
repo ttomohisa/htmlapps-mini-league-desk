@@ -149,9 +149,12 @@ if (-not $source.Contains("connect-src 'none'")) { throw "Runtime CSP must keep 
 $externalPattern = '(?is)<(?:script|link|img|iframe)\b[^>]*(?:src|href)\s*=\s*["'']https?://'
 if ($source -match $externalPattern) { throw "External runtime resource URL found in source." }
 if ($source.Contains("single-html-app-starter")) { throw "Template starter marker remains in application source." }
-if (-not $source.Contains("localBadge: '完全ローカル処理'")) { throw "Japanese fully-local badge copy is missing." }
+$jaFullyLocal = ([string][char]0x5B8C) + [char]0x5168 + [char]0x30ED + [char]0x30FC + [char]0x30AB + [char]0x30EB + [char]0x51E6 + [char]0x7406
+$jaOldLocal = ([string][char]0x7AEF) + [char]0x672B + [char]0x5185 + [char]0x3067 + [char]0x51E6 + [char]0x7406
+$jaBadgeMarker = "localBadge: '" + $jaFullyLocal + "'"
+if (-not $source.Contains($jaBadgeMarker)) { throw "Japanese fully-local badge copy is missing." }
 if (-not $source.Contains("localBadge: 'Fully local processing'")) { throw "English fully-local badge copy is missing." }
-if ($source.Contains("端末内で処理")) { throw "Old local-processing badge copy remains." }
+if ($source.Contains($jaOldLocal)) { throw "Old local-processing badge copy remains." }
 
 $faviconPath = Join-Path $Root "assets\favicon.svg"
 $faviconHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $faviconPath).Hash.ToLowerInvariant()
