@@ -31,11 +31,11 @@ foreach ($token in $required) {
   }
 }
 
-if ($source.Contains("introTitle: '結果を入れると、順位がすぐ分かる'")) {
+$jaHeadline = ([string][char]0x7D50) + [char]0x679C + [char]0x3092 + [char]0x5165 + [char]0x308C + [char]0x308B + [char]0x3068 + [char]0x9806 + [char]0x4F4D + [char]0x304C + [char]0x3059 + [char]0x3050 + [char]0x5206 + [char]0x304B + [char]0x308B
+$jaOldHeadline = ([string][char]0x7D50) + [char]0x679C + [char]0x3092 + [char]0x5165 + [char]0x308C + [char]0x308B + [char]0x3068 + [char]0x3001 + [char]0x9806 + [char]0x4F4D + [char]0x304C + [char]0x3059 + [char]0x3050 + [char]0x5206 + [char]0x304B + [char]0x308B
+if ($source.Contains($jaOldHeadline)) {
   throw "Old Japanese hero punctuation remains."
 }
-
-$jaHeadline = ([string][char]0x7D50) + [char]0x679C + [char]0x3092 + [char]0x5165 + [char]0x308C + [char]0x308B + [char]0x3068 + [char]0x9806 + [char]0x4F4D + [char]0x304C + [char]0x3059 + [char]0x3050 + [char]0x5206 + [char]0x304B + [char]0x308B
 if (-not $source.Contains($jaHeadline)) {
   throw "Updated Japanese hero headline is missing."
 }
