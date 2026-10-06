@@ -2,6 +2,11 @@
 
 ## 0.9.0 - Release Candidate - 2026-10-04
 
+- Changed the hero copy to remove the comma in the Japanese headline.
+- Moved participant entry under the list: one full-width dashed + Add participant card and the previous disclosure-style bulk-add UI.
+- Made the Add participant card more compact, replace itself with the input form while open, and removed redundant separators around the add area.
+- Added inline participant-name editing with validation and Undo.
+- Reworked drag to a pointer-following floating card with a separate placeholder, animated sibling reflow, global release/cancel handling, and drop animation.
 - Replaced the app icon / favicon with the approved lightweight Mini League Desk SVG.
 - Changed the local-processing badge from `端末内で処理` to `完全ローカル処理` and aligned the English badge to `Fully local processing`.
 - Froze feature scope for the release candidate.
@@ -17,6 +22,7 @@
 - Added pointer/touch drag-handle reordering for participants while keeping the existing arrow controls.
 - Added a Match list / Round-robin table switcher to the Matches screen.
 - Added an interactive round-robin matrix whose match cells open result entry directly.
+- Changed round-robin matrix result cells to ○ / × / △ / — and, in score-entry mode, show the row participant's score beneath the symbol.
 
 ## 0.8.0 - i18n / Accessibility / Polish - 2026-10-04
 

@@ -332,6 +332,7 @@
     }
     .roster-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
     .participant {
+      position: relative;
       display: grid;
       grid-template-columns: 44px minmax(0,1fr) auto;
       align-items: center;
@@ -341,13 +342,26 @@
       border: 1px solid var(--line);
       border-radius: 11px;
       background: var(--surface);
-      transition: border-color .15s ease,box-shadow .15s ease,opacity .15s ease;
+      transition: border-color .14s ease,box-shadow .14s ease,transform .14s ease;
     }
-    .participant.is-dragging {
-      z-index: 2;
-      opacity: .72;
-      border-color: var(--accent);
-      box-shadow: var(--shadow-md);
+    .participant.is-drag-placeholder {
+      border-style: dashed;
+      border-color: var(--line-strong);
+      background: var(--surface-muted);
+      box-shadow: inset 0 0 0 1px rgba(22,98,79,.05);
+    }
+    .participant.is-drag-placeholder > * { opacity: 0; }
+    .participant-drag-ghost {
+      position: fixed;
+      z-index: 1000;
+      margin: 0;
+      pointer-events: none;
+      transform: rotate(.5deg) scale(1.018);
+      transform-origin: center;
+      border-color: var(--line-strong);
+      background: var(--surface);
+      box-shadow: 0 20px 42px rgba(25,35,31,.22),0 6px 14px rgba(25,35,31,.12);
+      will-change: left,top,transform;
     }
     .participant-drag-handle {
       display: inline-flex;
@@ -367,6 +381,8 @@
     }
     .participant-drag-handle:hover { background: var(--surface-hover); color: var(--text); }
     .participant-drag-handle:active { cursor: grabbing; }
+    body.is-roster-dragging,
+    body.is-roster-dragging * { cursor: grabbing !important; }
     .participant-drag-handle svg { width: 13px; height: 17px; flex: 0 0 auto; }
     .participant-order { min-width: 12px; font-size: 10px; font-weight: 800; text-align: center; }
     .roster-list.is-dragging { user-select: none; }
@@ -376,6 +392,7 @@
       font-weight: 700;
     }
     .participant-actions { display: flex; gap: 4px; }
+    .participant-actions:empty { display: none; }
     .small-icon-button {
       display: inline-grid;
       place-items: center;
@@ -395,7 +412,7 @@
     .empty-state {
       display: grid;
       place-items: center;
-      min-height: 270px;
+      min-height: 170px;
       padding: 28px 18px;
       border: 1px dashed var(--line-strong);
       border-radius: 12px;
@@ -405,6 +422,74 @@
     .empty-state svg { width: 38px; height: 38px; margin-bottom: 10px; color: var(--accent); }
     .empty-state strong { display: block; color: var(--text); font-size: 14px; }
     .empty-state p { max-width: 330px; margin: 6px 0 0; font-size: 12px; }
+
+    .participant-edit-form {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto auto;
+      gap: 6px;
+      align-items: start;
+      min-width: 0;
+    }
+    .participant-edit-input {
+      width: 100%;
+      min-width: 0;
+      min-height: 38px;
+      padding: 7px 9px;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+    }
+    .participant-edit-error {
+      grid-column: 1 / -1;
+      color: var(--danger);
+      font-size: 10px;
+    }
+    .participant-add-area {
+      margin-top: 10px;
+    }
+    .participant-add-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      min-height: 84px;
+      padding: 12px 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--muted);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      text-align: center;
+    }
+    .participant-add-row:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .participant-add-row[aria-expanded="true"] { display: none; }
+    .participant-add-row svg { width: 23px; height: 23px; flex: 0 0 auto; }
+    .participant-add-panel {
+      margin-top: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fbfbf9;
+    }
+    details.participant-bulk-details {
+      margin-top: 12px;
+      padding-top: 0;
+      border-top: 0;
+    }
+    .participant-bulk-details .bulk-body { margin-top: 12px; }
+
     .start-card {
       margin-top: 16px;
       padding: 14px;
@@ -924,19 +1009,35 @@
     .matrix-cell-button {
       width: 100%;
       height: 100%;
-      min-height: 48px;
-      padding: 6px 7px;
+      min-height: 52px;
+      padding: 5px 7px;
       border: 0;
       background: transparent;
       color: var(--text);
       font: inherit;
-      font-size: 11px;
-      font-weight: 800;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
     }
     .matrix-cell-button:hover { background: var(--surface-hover); }
-    .matrix-cell-button.pending { color: var(--muted); font-weight: 700; }
-    .matrix-cell-button.completed { color: var(--accent); }
+    .matrix-cell-button.pending { color: var(--muted); }
+    .matrix-result-symbol {
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 800;
+    }
+    .matrix-result-score {
+      font-size: 9px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .matrix-cell-button.completed .matrix-result-symbol { color: var(--accent); }
 
     .match-page-toolbar {
       display: flex;
@@ -1399,6 +1500,7 @@
       .match-result { white-space: normal; }
       .participant { grid-template-columns: 44px minmax(0,1fr); }
       .participant-actions { grid-column: 1 / -1; justify-content: flex-end; }
+      .participant-edit-form { grid-template-columns: minmax(0,1fr) auto auto; grid-column: 2 / -1; }
       .small-icon-button { width: 44px; height: 44px; }
       .progress-stat { padding-inline: 5px; text-align: center; }
       .completion-standing { grid-template-columns: 26px minmax(0,1fr); }
@@ -1481,7 +1583,7 @@
   <main class="main">
     <section class="page-intro" aria-labelledby="heroTitle">
       <div>
-        <h2 id="heroTitle" data-i18n="introTitle">総当たり大会の準備を、すぐ終わらせる</h2>
+        <h2 id="heroTitle" data-i18n="introTitle">結果を入れると順位がすぐ分かる</h2>
         <p data-i18n="lead">大会名と参加者を登録します。参加者は1人ずつでも、複数行をまとめて貼り付けても追加できます。</p>
       </div>
       <div class="local-badge">
@@ -1496,7 +1598,7 @@
         <div class="panel-head">
           <div>
             <h3 id="settingsTitle" data-i18n="settingsTitle">大会設定</h3>
-            <p data-i18n="settingsLead">まず大会名と参加者を登録します。</p>
+            <p data-i18n="settingsLead">大会名と結果の記録方法を決めます。</p>
           </div>
         </div>
 
@@ -1534,32 +1636,6 @@
 
         <div class="section-divider"></div>
 
-        <div class="field">
-          <span class="field-label" data-i18n="addParticipant">参加者を追加</span>
-          <form class="inline-form" id="participantForm" novalidate>
-            <div>
-              <label class="sr-only" for="participantName" data-i18n="participantName">参加者名</label>
-              <input class="text-input" id="participantName" type="text" maxlength="80" autocomplete="off" data-i18n-placeholder="participantPlaceholder" placeholder="例：山田">
-              <div class="field-error" id="participantError" role="status" aria-live="polite"></div>
-            </div>
-            <button class="button" id="addParticipantButton" type="submit" data-i18n="add">追加</button>
-          </form>
-        </div>
-
-        <details class="bulk-details" id="bulkDetails">
-          <summary data-i18n="bulkAdd">複数人をまとめて追加</summary>
-          <div class="bulk-body">
-            <label class="field" for="bulkParticipants">
-              <span class="field-note" data-i18n="bulkHelp">1行に1人ずつ入力してください。空行は無視します。</span>
-              <textarea class="bulk-input" id="bulkParticipants" data-i18n-placeholder="bulkPlaceholder" placeholder="山田&#10;佐藤&#10;鈴木"></textarea>
-            </label>
-            <div class="field-error" id="bulkError" role="status" aria-live="polite"></div>
-            <button class="button bulk-add-button" id="bulkAddButton" type="button" data-i18n="addAll">まとめて追加</button>
-          </div>
-        </details>
-
-        <div class="section-divider"></div>
-
         <div class="button-row">
           <button class="button danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
           <button class="button" id="setupExportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
@@ -1575,7 +1651,7 @@
         <div class="panel-head">
           <div>
             <h3 id="rosterTitle" data-i18n="rosterTitle">参加者一覧</h3>
-            <p data-i18n="rosterLead">順番は対戦表生成時の基準として使います。</p>
+            <p data-i18n="rosterLead">追加・編集・並べ替えをここで行います。</p>
           </div>
           <div class="count-badge" aria-live="polite"><strong id="participantCount">0</strong><span data-i18n="people">人</span></div>
         </div>
@@ -1585,7 +1661,7 @@
             <div>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.4"/><path d="M3.8 19c.5-3.2 2.4-5 5.2-5s4.7 1.8 5.2 5"/><path d="M14.1 15.2c.7-.8 1.6-1.2 2.9-1.2 2.1 0 3.5 1.3 3.9 3.6"/></svg>
               <strong data-i18n="emptyTitle">まだ参加者がいません</strong>
-              <p data-i18n="emptyBody">左の入力欄から追加すると、ここに参加者一覧が表示されます。</p>
+              <p data-i18n="emptyBody">下の＋ボタンから参加者を追加してください。</p>
             </div>
           </div>
           <div id="rosterWithData" hidden>
@@ -1597,6 +1673,36 @@
             </div>
             <ol class="roster-list" id="rosterList"></ol>
           </div>
+        </div>
+
+        <div class="participant-add-area">
+          <button class="participant-add-row" id="showParticipantAddButton" type="button" aria-expanded="false" aria-controls="participantAddPanel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="addParticipant">参加者を追加</span>
+          </button>
+
+          <div class="participant-add-panel" id="participantAddPanel" hidden>
+            <form class="inline-form" id="participantForm" novalidate>
+              <div>
+                <label class="sr-only" for="participantName" data-i18n="participantName">参加者名</label>
+                <input class="text-input" id="participantName" type="text" maxlength="80" autocomplete="off" data-i18n-placeholder="participantPlaceholder" placeholder="例：山田">
+                <div class="field-error" id="participantError" role="status" aria-live="polite"></div>
+              </div>
+              <button class="button" id="addParticipantButton" type="submit" data-i18n="add">追加</button>
+            </form>
+          </div>
+
+          <details class="bulk-details participant-bulk-details" id="bulkDetails">
+            <summary data-i18n="bulkAdd">複数人をまとめて追加</summary>
+            <div class="bulk-body">
+              <label class="field" for="bulkParticipants">
+                <span class="field-note" data-i18n="bulkHelp">1行に1人ずつ入力してください。空行は無視します。</span>
+                <textarea class="bulk-input" id="bulkParticipants" data-i18n-placeholder="bulkPlaceholder" placeholder="山田&#10;佐藤&#10;鈴木"></textarea>
+              </label>
+              <div class="field-error" id="bulkError" role="status" aria-live="polite"></div>
+              <button class="button bulk-add-button" id="bulkAddButton" type="button" data-i18n="addAll">まとめて追加</button>
+            </div>
+          </details>
         </div>
 
         <div class="start-card">
@@ -2002,21 +2108,21 @@
         ja: {
           brandMeta: '小大会の総当たり運営',
           helpTitle: '使い方と注意事項', close: '閉じる',
-          introTitle: '結果を入れると、順位がすぐ分かる',
+          introTitle: '結果を入れると順位がすぐ分かる',
           lead: '総当たりの対戦表に結果を記録すると、現在の順位をその場で自動計算します。',
           localBadge: '完全ローカル処理',
-          settingsTitle: '大会設定', settingsLead: 'まず大会名と参加者を登録します。',
+          settingsTitle: '大会設定', settingsLead: '大会名と結果の記録方法を決めます。',
           tournamentName: '大会名', tournamentNamePlaceholder: '例：金曜卓球大会', tournamentNameNote: '未入力の場合は「新しい大会」になります。',
-          resultModeLegend: '結果の記録方法', resultModeShort: '記録方式', modeWinLoss: '勝敗だけ', modeWinLossHelp: '勝ち1、負け0で順位を計算します。', modeWinDrawLoss: '勝ち・引き分け', modeWinDrawLossHelp: '勝ち3、引き分け1、負け0で順位を計算します。', modeScore: '得点を入力', modeScoreHelp: '双方の得点から勝敗と順位を計算します。', scoreDrawsAllowed: '同点を引き分けとして認める',
+          resultModeLegend: '結果の記録方法', resultModeShort: '記録方式', modeWinLoss: '勝敗だけ', modeWinLossHelp: '勝ち1、負け0で順位を計算します。', modeWinDrawLoss: '勝ち・引き分け', modeWinDrawLossHelp: '勝ち3、引き分け1、負け0で順位を計算します。', modeScore: '得点を入力', modeScoreHelp: '双方の得点を入力し、○×△と順位を自動判定します。', scoreDrawsAllowed: '同点を引き分けとして認める',
           addParticipant: '参加者を追加', participantName: '参加者名', participantPlaceholder: '例：山田', add: '追加',
           bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
-          reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '順番は対戦表生成時の基準として使います。', people: '人',
-          emptyTitle: 'まだ参加者がいません', emptyBody: '左の入力欄から追加すると、ここに参加者一覧が表示されます。',
+          reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '追加・編集・並べ替えをここで行います。', participantAddActionsLabel: '参加者を追加', people: '人',
+          emptyTitle: 'まだ参加者がいません', emptyBody: '下の＋ボタンから参加者を追加してください。',
           reorderHelp: 'ドラッグまたは矢印で順番を調整できます。', dragLabel: '{name} をドラッグして並べ替え', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
           fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
           matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
-          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixHelp: '参加者どうしの対戦状況を一覧で確認できます。横にスクロールできます。', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixCorner: '対戦', matrixPending: '未', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixHelp: '○=勝ち、×=負け、△=引き分け。得点入力では点数も表示します。横にスクロールできます。', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixCorner: '対戦', matrixPending: '—', matrixWinLabel: '勝ち', matrixLossLabel: '負け', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixCellScoreLabel: '{result}、{score}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
           defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
@@ -2027,10 +2133,10 @@
           undo: '元に戻す', undone: '元に戻しました', confirmed: '大会を開始しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。', resultSaved: '試合結果を記録しました。', resultUpdated: '試合結果を修正しました。', resultRemoved: '試合結果を取り消しました。', editSetupTitle: '参加者編集へ戻りますか？', editSetupMessage: '入力済みの試合結果はすべて消えます。参加者と記録方法は編集できます。', editSetupAction: '結果を消して戻る', backupExportTitle: 'JSONバックアップを保存', backupFilename: 'ファイル名', backupFilenameHelp: '大会名・参加者・対戦・結果・設定をJSONとして保存します。', backupDownload: '保存', backupSaved: 'JSONバックアップを保存しました。', backupImported: 'JSONバックアップを読み込みました。', backupRestored: '前回の大会を復元しました。', backupInvalid: 'このファイルはMini League Deskの有効なバックアップではありません。', backupIncompatible: 'このバックアップは現在のデータ形式に対応していません。', backupReadError: 'JSONバックアップを読み込めませんでした。', backupReplaceTitle: '現在の大会を置き換えますか？', backupReplaceMessage: '現在の大会内容を、読み込んだバックアップで置き換えます。', backupReplaceAction: '置き換える', saveFailed: '端末への自動保存に失敗しました。JSONバックアップを保存してください。',
           resetTitle: '入力内容をリセットしますか？', resetMessage: '大会名と参加者をすべて消去します。この操作は元に戻せません。', resetAction: 'リセットする',
           confirmTitle: '確認', confirmAction: '実行する', cancel: 'キャンセル',
-          removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
+          editLabel: '{name} の名前を編集', saveEditLabel: '名前を保存', cancelEditLabel: '編集をキャンセル', nameUpdated: '{old} を {name} に変更しました。', removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
           helpBasicsTitle: '基本操作',
           helpStep1: '大会名と結果の記録方法を選びます。',
-          helpStep2: '参加者を追加し、ドラッグまたは矢印で順番を整えます。3人以上で「参加者を確定」を押します。',
+          helpStep2: '参加者一覧の下にある＋から追加し、名前編集・ドラッグ・矢印で一覧を整えます。3人以上で「参加者を確定」を押します。',
           helpStep3: '大会開始後は「進行」で次の試合、「対戦」で対戦一覧・総当たり表・参加者別の残り対戦、「順位」で現在順位を確認できます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名、参加者、対戦、結果、順位、JSON・CSV・PNGの出力データはこのページ内で処理し、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
@@ -2045,18 +2151,18 @@
           introTitle: 'Enter results and see the standings instantly',
           lead: 'Record results on the round-robin fixture list and the current standings update immediately.',
           localBadge: 'Fully local processing',
-          settingsTitle: 'Event setup', settingsLead: 'Start with the event name and participants.',
+          settingsTitle: 'Event setup', settingsLead: 'Choose the event name and result-entry mode.',
           tournamentName: 'Event name', tournamentNamePlaceholder: 'e.g. Friday Table Tennis', tournamentNameNote: 'If left blank, “New event” is used.',
-          resultModeLegend: 'Result entry', resultModeShort: 'Result mode', modeWinLoss: 'Win / loss', modeWinLossHelp: 'A win is 1 point and a loss is 0.', modeWinDrawLoss: 'Win / draw / loss', modeWinDrawLossHelp: 'Win 3, draw 1, loss 0.', modeScore: 'Enter scores', modeScoreHelp: 'Enter both scores to derive the result and standings.', scoreDrawsAllowed: 'Allow tied scores as draws',
+          resultModeLegend: 'Result entry', resultModeShort: 'Result mode', modeWinLoss: 'Win / loss', modeWinLossHelp: 'A win is 1 point and a loss is 0.', modeWinDrawLoss: 'Win / draw / loss', modeWinDrawLossHelp: 'Win 3, draw 1, loss 0.', modeScore: 'Enter scores', modeScoreHelp: 'Enter both scores to derive ○ / × / △ and the standings.', scoreDrawsAllowed: 'Allow tied scores as draws',
           addParticipant: 'Add participant', participantName: 'Participant name', participantPlaceholder: 'e.g. Alex', add: 'Add',
           bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
-          reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'This order will be used as the basis for fixture generation.', people: 'people',
-          emptyTitle: 'No participants yet', emptyBody: 'Add a participant from the form to show the roster here.',
+          reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'Add, edit, and reorder participants here.', participantAddActionsLabel: 'Add participants', people: 'people',
+          emptyTitle: 'No participants yet', emptyBody: 'Use the + buttons below to add participants.',
           reorderHelp: 'Drag or use the arrow buttons to adjust the order.', dragLabel: 'Drag to reorder {name}', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
           fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
           matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
-          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixHelp: 'See every head-to-head matchup in one table. Scroll horizontally when needed.', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixCorner: 'vs', matrixPending: '—', matrixCellLabel: '{row} vs {opponent}: {result}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixHelp: '○ = win, × = loss, △ = draw. Score mode also shows the score. Scroll horizontally when needed.', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixCorner: 'vs', matrixPending: '—', matrixWinLabel: 'Win', matrixLossLabel: 'Loss', matrixCellLabel: '{row} vs {opponent}: {result}', matrixCellScoreLabel: '{result}, {score}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
           defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
@@ -2067,10 +2173,10 @@
           undo: 'Undo', undone: 'Restored', confirmed: 'Event started.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.', resultSaved: 'Match result recorded.', resultUpdated: 'Match result updated.', resultRemoved: 'Match result removed.', editSetupTitle: 'Return to participant editing?', editSetupMessage: 'All entered match results will be cleared. You can edit participants and the result mode.', editSetupAction: 'Clear results and edit', backupExportTitle: 'Save JSON backup', backupFilename: 'File name', backupFilenameHelp: 'Saves the event name, participants, fixtures, results, and settings as JSON.', backupDownload: 'Save', backupSaved: 'JSON backup saved.', backupImported: 'JSON backup imported.', backupRestored: 'Previous event restored.', backupInvalid: 'This file is not a valid Mini League Desk backup.', backupIncompatible: 'This backup uses an unsupported data format.', backupReadError: 'The JSON backup could not be read.', backupReplaceTitle: 'Replace the current event?', backupReplaceMessage: 'The current event will be replaced by the imported backup.', backupReplaceAction: 'Replace', saveFailed: 'Automatic device save failed. Save a JSON backup to protect this event.',
           resetTitle: 'Reset this setup?', resetMessage: 'This removes the event name and all participants. This action cannot be undone.', resetAction: 'Reset',
           confirmTitle: 'Confirm', confirmAction: 'Continue', cancel: 'Cancel',
-          removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
+          editLabel: 'Edit the name of {name}', saveEditLabel: 'Save name', cancelEditLabel: 'Cancel editing', nameUpdated: 'Renamed {old} to {name}.', removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
           helpBasicsTitle: 'Basics',
           helpStep1: 'Choose an event name and result-entry mode.',
-          helpStep2: 'Add participants, then drag or use the arrow buttons to adjust their order. Confirm at three or more participants.',
+          helpStep2: 'Use the + actions below the participant list to add people, then edit names or reorder with drag handles or arrow buttons. Confirm at three or more participants.',
           helpStep3: 'After starting, use Progress for what is next, Matches for the match list, round-robin table, and participant-specific remaining opponents, and Standings for the current ranking.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event names, participants, matches, results, standings, and JSON/CSV/PNG export data are processed on this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
@@ -2988,58 +3094,285 @@
         render();
       }
 
+      function setParticipantAddOpen(open) {
+        $('#participantAddPanel').hidden = !open;
+        $('#showParticipantAddButton').setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) requestAnimationFrame(() => $('#participantName').focus({ preventScroll: true }));
+      }
+
+      let editingParticipantId = null;
+      let editingParticipantDraft = '';
       let rosterDrag = null;
 
+      function positionRosterDragGhost(drag, clientX, clientY) {
+        drag.ghost.style.left = Math.round(clientX - drag.offsetX) + 'px';
+        drag.ghost.style.top = Math.round(clientY - drag.offsetY) + 'px';
+      }
+
+      function animateRosterReflow(elements, beforeTops) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        elements.forEach(element => {
+          const before = beforeTops.get(element);
+          if (before == null) return;
+          const delta = before - element.getBoundingClientRect().top;
+          if (Math.abs(delta) < 1) return;
+          element.animate(
+            [{ transform: 'translateY(' + delta + 'px)' }, { transform: 'translateY(0)' }],
+            { duration: 155, easing: 'cubic-bezier(.2,.8,.2,1)' }
+          );
+        });
+      }
+
+      function addRosterDragListeners() {
+        window.addEventListener('pointermove', moveParticipantDrag, { capture: true, passive: false });
+        window.addEventListener('pointerup', endParticipantDrag, true);
+        window.addEventListener('pointercancel', endParticipantDrag, true);
+        window.addEventListener('blur', cancelParticipantDrag, true);
+      }
+
+      function removeRosterDragListeners() {
+        window.removeEventListener('pointermove', moveParticipantDrag, true);
+        window.removeEventListener('pointerup', endParticipantDrag, true);
+        window.removeEventListener('pointercancel', endParticipantDrag, true);
+        window.removeEventListener('blur', cancelParticipantDrag, true);
+      }
+
+      function restoreDraggedParticipantStyle(drag) {
+        if (drag.originalStyle == null) drag.item.removeAttribute('style');
+        else drag.item.setAttribute('style', drag.originalStyle);
+      }
+
+      function rosterOrderFromPlaceholder(drag) {
+        return Array.from($('#rosterList').children).flatMap(element => {
+          if (element === drag.placeholder) return [drag.participantId];
+          if (element === drag.item) return [];
+          return element instanceof HTMLElement && element.classList.contains('participant') && element.dataset.participantId
+            ? [element.dataset.participantId]
+            : [];
+        });
+      }
+
       function beginParticipantDrag(event, participantId) {
-        if (state.participants.length < 2) return;
+        if (state.participants.length < 2 || rosterDrag) return;
         if (event.pointerType === 'mouse' && event.button !== 0) return;
+
         const handle = event.currentTarget;
         const item = handle.closest('.participant');
         const list = $('#rosterList');
-        if (!(item instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
+        if (!(handle instanceof HTMLElement) || !(item instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
+
+        const rect = item.getBoundingClientRect();
+        const placeholder = document.createElement('li');
+        placeholder.className = 'participant is-drag-placeholder';
+        placeholder.style.height = rect.height + 'px';
+        placeholder.setAttribute('aria-hidden', 'true');
+        list.insertBefore(placeholder, item);
+
+        const ghost = item.cloneNode(true);
+        ghost.classList.add('participant-drag-ghost');
+        ghost.setAttribute('aria-hidden', 'true');
+        ghost.removeAttribute('data-participant-id');
+        ghost.style.width = rect.width + 'px';
+        ghost.style.height = rect.height + 'px';
+        ghost.querySelectorAll('button,input').forEach(control => control.setAttribute('tabindex', '-1'));
+        document.body.append(ghost);
+
+        const originalStyle = item.getAttribute('style');
+        item.style.position = 'fixed';
+        item.style.left = '-10000px';
+        item.style.top = '-10000px';
+        item.style.width = rect.width + 'px';
+        item.style.height = rect.height + 'px';
+        item.style.visibility = 'hidden';
+        item.style.pointerEvents = 'none';
+
         rosterDrag = {
           participantId,
           pointerId: event.pointerId,
           handle,
           item,
+          placeholder,
+          ghost,
+          originalStyle,
+          offsetX: event.clientX - rect.left,
+          offsetY: event.clientY - rect.top,
           before: state.participants.map(participant => participant.id),
           moved: false
         };
-        item.classList.add('is-dragging');
+
+        positionRosterDragGhost(rosterDrag, event.clientX, event.clientY);
         list.classList.add('is-dragging');
-        handle.setPointerCapture?.(event.pointerId);
+        document.body.classList.add('is-roster-dragging');
+        try { handle.setPointerCapture?.(event.pointerId); } catch {}
+        addRosterDragListeners();
         event.preventDefault();
       }
 
       function moveParticipantDrag(event) {
         if (!rosterDrag || event.pointerId !== rosterDrag.pointerId) return;
-        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
+        const drag = rosterDrag;
+        positionRosterDragGhost(drag, event.clientX, event.clientY);
+
+        const edge = 72;
+        if (event.clientY < edge) window.scrollBy({ top: -10, behavior: 'auto' });
+        else if (event.clientY > window.innerHeight - edge) window.scrollBy({ top: 10, behavior: 'auto' });
+
         const list = $('#rosterList');
-        if (!(target instanceof HTMLElement) || target === rosterDrag.item || target.parentElement !== list) return;
+        let target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
+        if (!(target instanceof HTMLElement) || target === drag.placeholder || target === drag.item || target.parentElement !== list) {
+          event.preventDefault();
+          return;
+        }
+
         const rect = target.getBoundingClientRect();
         const after = event.clientY > rect.top + rect.height / 2;
-        if (after) list.insertBefore(rosterDrag.item, target.nextSibling);
-        else list.insertBefore(rosterDrag.item, target);
-        rosterDrag.moved = true;
+        const nextSibling = after ? target.nextSibling : target;
+        if (nextSibling === drag.placeholder) {
+          event.preventDefault();
+          return;
+        }
+
+        const siblings = Array.from(list.querySelectorAll('.participant')).filter(element =>
+          element !== drag.placeholder &&
+          element !== drag.item &&
+          element.offsetParent !== null
+        );
+        const beforeTops = new Map(siblings.map(element => [element, element.getBoundingClientRect().top]));
+        list.insertBefore(drag.placeholder, nextSibling);
+        animateRosterReflow(siblings, beforeTops);
+        drag.moved = true;
         event.preventDefault();
       }
 
-      function endParticipantDrag(event) {
-        if (!rosterDrag || event.pointerId !== rosterDrag.pointerId) return;
-        const drag = rosterDrag;
-        rosterDrag = null;
-        try { drag.handle.releasePointerCapture?.(event.pointerId); } catch {}
-        drag.item.classList.remove('is-dragging');
+      function completeParticipantDrag(drag, order, changed) {
+        drag.placeholder.remove();
+        drag.ghost.remove();
+        restoreDraggedParticipantStyle(drag);
         $('#rosterList').classList.remove('is-dragging');
-        if (!drag.moved) return;
-        const order = Array.from($('#rosterList').querySelectorAll('.participant')).map(item => item.dataset.participantId);
+        document.body.classList.remove('is-roster-dragging');
+
+        if (!changed) {
+          renderRoster();
+          return;
+        }
+
         const byId = new Map(state.participants.map(participant => [participant.id, participant]));
-        const next = order.map(id => byId.get(id)).filter(Boolean);
-        const changed = next.length === state.participants.length && order.some((id, index) => id !== drag.before[index]);
-        if (!changed) { renderRoster(); return; }
-        state.participants = next;
+        state.participants = order.map(id => byId.get(id)).filter(Boolean);
         renderRoster();
         showToast(translate('moved'));
+      }
+
+      function endParticipantDrag(event) {
+        if (!rosterDrag) return;
+        if ('pointerId' in event && event.pointerId !== rosterDrag.pointerId) return;
+
+        const drag = rosterDrag;
+        rosterDrag = null;
+        removeRosterDragListeners();
+        try { drag.handle.releasePointerCapture?.(drag.pointerId); } catch {}
+
+        const order = rosterOrderFromPlaceholder(drag);
+        const changed = drag.moved &&
+          order.length === drag.before.length &&
+          order.some((id, index) => id !== drag.before[index]);
+
+        $('#rosterList').insertBefore(drag.item, drag.placeholder);
+        const finalRect = drag.placeholder.getBoundingClientRect();
+        const ghostRect = drag.ghost.getBoundingClientRect();
+        const dx = finalRect.left - ghostRect.left;
+        const dy = finalRect.top - ghostRect.top;
+
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+          const animation = drag.ghost.animate(
+            [
+              { transform: 'translate3d(0,0,0) rotate(.5deg) scale(1.018)' },
+              { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) rotate(0deg) scale(1)' }
+            ],
+            { duration: 125, easing: 'cubic-bezier(.2,.8,.2,1)' }
+          );
+          animation.finished.then(() => completeParticipantDrag(drag, order, changed))
+            .catch(() => completeParticipantDrag(drag, order, changed));
+        } else {
+          completeParticipantDrag(drag, order, changed);
+        }
+      }
+
+      function cancelParticipantDrag() {
+        if (!rosterDrag) return;
+        const drag = rosterDrag;
+        rosterDrag = null;
+        removeRosterDragListeners();
+        try { drag.handle.releasePointerCapture?.(drag.pointerId); } catch {}
+        drag.placeholder.remove();
+        drag.ghost.remove();
+        restoreDraggedParticipantStyle(drag);
+        $('#rosterList').classList.remove('is-dragging');
+        document.body.classList.remove('is-roster-dragging');
+        renderRoster();
+      }
+
+      function startParticipantEdit(participantId) {
+        const participant = state.participants.find(candidate => candidate.id === participantId);
+        if (!participant) return;
+        editingParticipantId = participantId;
+        editingParticipantDraft = participant.name;
+        renderRoster();
+        requestAnimationFrame(() => {
+          const input = document.getElementById('participantEditInput');
+          input?.focus({ preventScroll: true });
+          input?.select();
+        });
+      }
+
+      function cancelParticipantEdit() {
+        editingParticipantId = null;
+        editingParticipantDraft = '';
+        renderRoster();
+      }
+
+      function commitParticipantEdit(participantId) {
+        const participant = state.participants.find(candidate => candidate.id === participantId);
+        const input = document.getElementById('participantEditInput');
+        const error = document.getElementById('participantEditError');
+        if (!participant || !(input instanceof HTMLInputElement)) return;
+        const nextName = normalizeName(input.value);
+        if (!nextName) {
+          if (error) error.textContent = translate('requiredName');
+          input.focus();
+          return;
+        }
+        if ([...nextName].length > 80) {
+          if (error) error.textContent = translate('bulkTooLong');
+          input.focus();
+          return;
+        }
+        const key = nameKey(nextName);
+        if (state.participants.some(candidate => candidate.id !== participantId && nameKey(candidate.name) === key)) {
+          if (error) error.textContent = translate('duplicateName');
+          input.focus();
+          input.select();
+          return;
+        }
+        const oldName = participant.name;
+        if (nextName === oldName) {
+          cancelParticipantEdit();
+          return;
+        }
+        participant.name = nextName;
+        editingParticipantId = null;
+        editingParticipantDraft = '';
+        renderRoster();
+        showToast(translate('nameUpdated', { old: oldName, name: nextName }), {
+          tone: 'success',
+          actionLabel: translate('undo'),
+          duration: 5000,
+          onAction: () => {
+            const target = state.participants.find(candidate => candidate.id === participantId);
+            if (target) target.name = oldName;
+            renderRoster();
+            showToast(translate('undone'));
+          }
+        });
       }
 
       function renderRoster() {
@@ -3069,27 +3402,74 @@
           order.textContent = String(index + 1);
           dragHandle.append(order);
           dragHandle.addEventListener('pointerdown', event => beginParticipantDrag(event, participant.id));
-          dragHandle.addEventListener('pointermove', moveParticipantDrag);
-          dragHandle.addEventListener('pointerup', endParticipantDrag);
-          dragHandle.addEventListener('pointercancel', endParticipantDrag);
 
-          const name = document.createElement('span');
-          name.className = 'participant-name';
-          name.textContent = participant.name;
+          const editing = participant.id === editingParticipantId;
+          dragHandle.disabled = editing;
 
+          let nameContent;
           const actions = document.createElement('div');
           actions.className = 'participant-actions';
 
-          const up = createActionButton('up', translate('moveUpLabel', { name: participant.name }), index === 0);
-          const down = createActionButton('down', translate('moveDownLabel', { name: participant.name }), index === count - 1);
-          const remove = createActionButton('remove', translate('removeLabel', { name: participant.name }), false, true);
+          if (editing) {
+            const editForm = document.createElement('form');
+            editForm.className = 'participant-edit-form';
 
-          up.addEventListener('click', () => moveParticipant(index, index - 1));
-          down.addEventListener('click', () => moveParticipant(index, index + 1));
-          remove.addEventListener('click', () => removeParticipant(index));
+            const input = document.createElement('input');
+            input.className = 'participant-edit-input';
+            input.id = 'participantEditInput';
+            input.type = 'text';
+            input.maxLength = 80;
+            input.autocomplete = 'off';
+            input.value = editingParticipantDraft || participant.name;
+            input.addEventListener('input', event => {
+              editingParticipantDraft = event.target.value;
+              const error = document.getElementById('participantEditError');
+              if (error) error.textContent = '';
+            });
+            input.addEventListener('keydown', event => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                cancelParticipantEdit();
+              }
+            });
 
-          actions.append(up, down, remove);
-          item.append(dragHandle, name, actions);
+            const save = createActionButton('save', translate('saveEditLabel'), false);
+            const cancel = createActionButton('cancel', translate('cancelEditLabel'), false);
+            save.type = 'submit';
+            cancel.addEventListener('click', cancelParticipantEdit);
+
+            const error = document.createElement('div');
+            error.id = 'participantEditError';
+            error.className = 'participant-edit-error';
+            error.setAttribute('role', 'status');
+            error.setAttribute('aria-live', 'polite');
+
+            editForm.addEventListener('submit', event => {
+              event.preventDefault();
+              commitParticipantEdit(participant.id);
+            });
+            editForm.append(input, save, cancel, error);
+            nameContent = editForm;
+          } else {
+            const name = document.createElement('span');
+            name.className = 'participant-name';
+            name.textContent = participant.name;
+            nameContent = name;
+
+            const edit = createActionButton('edit', translate('editLabel', { name: participant.name }), false);
+            const up = createActionButton('up', translate('moveUpLabel', { name: participant.name }), index === 0);
+            const down = createActionButton('down', translate('moveDownLabel', { name: participant.name }), index === count - 1);
+            const remove = createActionButton('remove', translate('removeLabel', { name: participant.name }), false, true);
+
+            edit.addEventListener('click', () => startParticipantEdit(participant.id));
+            up.addEventListener('click', () => moveParticipant(index, index - 1));
+            down.addEventListener('click', () => moveParticipant(index, index + 1));
+            remove.addEventListener('click', () => removeParticipant(index));
+
+            actions.append(edit, up, down, remove);
+          }
+
+          item.append(dragHandle, nameContent, actions);
           list.append(item);
         });
 
@@ -3108,6 +3488,9 @@
         button.disabled = disabled;
         button.setAttribute('aria-label', label);
         button.title = label;
+        if (action === 'edit') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>';
+        if (action === 'save') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
+        if (action === 'cancel') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>';
         if (action === 'up') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg>';
         if (action === 'down') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
         if (action === 'remove') button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg>';
@@ -3354,12 +3737,19 @@
       }
       function matrixResultText(match, rowParticipantId) {
         if (match.status !== 'completed') return translate('matrixPending');
-        if (state.settings.resultMode === 'score') {
-          return rowParticipantId === match.participantAId
-            ? String(match.scoreA) + '–' + String(match.scoreB)
-            : String(match.scoreB) + '–' + String(match.scoreA);
-        }
-        return outcomeMark(match, rowParticipantId);
+        if (match.result === 'draw') return '△';
+        return match.winnerId === rowParticipantId ? '○' : '×';
+      }
+      function matrixResultAria(match, rowParticipantId) {
+        if (match.status !== 'completed') return translate('filterPending');
+        if (match.result === 'draw') return translate('drawChoice');
+        return translate(match.winnerId === rowParticipantId ? 'matrixWinLabel' : 'matrixLossLabel');
+      }
+      function matrixScoreText(match, rowParticipantId) {
+        if (match.status !== 'completed' || state.settings.resultMode !== 'score') return '';
+        return rowParticipantId === match.participantAId
+          ? String(match.scoreA) + '–' + String(match.scoreB)
+          : String(match.scoreB) + '–' + String(match.scoreA);
       }
       function renderRoundRobinMatrix() {
         const table = $('#roundRobinMatrix');
@@ -3413,15 +3803,31 @@
               return;
             }
             const resultText = matrixResultText(match, rowParticipant.id);
+            const resultAria = matrixResultAria(match, rowParticipant.id);
+            const scoreText = matrixScoreText(match, rowParticipant.id);
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'matrix-cell-button ' + (match.status === 'completed' ? 'completed' : 'pending');
             button.dataset.matchId = match.id;
-            button.textContent = resultText;
+
+            const symbol = document.createElement('span');
+            symbol.className = 'matrix-result-symbol';
+            symbol.textContent = resultText;
+            button.append(symbol);
+
+            if (scoreText) {
+              const score = document.createElement('span');
+              score.className = 'matrix-result-score';
+              score.textContent = scoreText;
+              button.append(score);
+            }
+
             button.setAttribute('aria-label', translate('matrixCellLabel', {
               row: rowParticipant.name,
               opponent: columnParticipant.name,
-              result: resultText
+              result: scoreText
+                ? translate('matrixCellScoreLabel', { result: resultAria, score: scoreText })
+                : resultAria
             }));
             button.addEventListener('click', () => openResultDialog(match.id));
             td.append(button);
@@ -3815,7 +4221,6 @@
         $('#participantName').value = '';
         renderRoster();
         showToast(translate('addedOne', { name }), { tone: 'success' });
-        $('#participantName').focus();
         return true;
       }
 
@@ -3944,11 +4349,33 @@
         showToast(translate('confirmed'), { tone: 'success' });
       }
 
+      $('#showParticipantAddButton').addEventListener('click', () => {
+        const open = $('#showParticipantAddButton').getAttribute('aria-expanded') === 'true';
+        const nextOpen = !open;
+        if (nextOpen) $('#bulkDetails').open = false;
+        setParticipantAddOpen(nextOpen);
+      });
+      $('#bulkDetails').addEventListener('toggle', () => {
+        if (!$('#bulkDetails').open) return;
+        setParticipantAddOpen(false);
+        requestAnimationFrame(() => $('#bulkParticipants').focus({ preventScroll: true }));
+      });
+
       $('#participantForm').addEventListener('submit', event => {
         event.preventDefault();
-        addParticipant($('#participantName').value);
+        const added = addParticipant($('#participantName').value);
+        if (!added) return;
+        setParticipantAddOpen(false);
+        requestAnimationFrame(() => $('#showParticipantAddButton').focus({ preventScroll: true }));
       });
       $('#participantName').addEventListener('input', () => setParticipantError(''));
+      $('#participantName').addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        setParticipantError('');
+        setParticipantAddOpen(false);
+        requestAnimationFrame(() => $('#showParticipantAddButton').focus({ preventScroll: true }));
+      });
       $('#bulkParticipants').addEventListener('input', () => setBulkError(''));
       $('#bulkAddButton').addEventListener('click', addBulkParticipants);
       $('#shuffleButton').addEventListener('click', shuffleParticipants);
