@@ -1,0 +1,44 @@
+name: Capture v1.0.0 release screenshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release/v1.0.0
+    paths:
+      - "src/**"
+      - "app.config.json"
+      - "scripts/capture-release-screenshots.mjs"
+      - ".github/workflows/capture-release-screenshots.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Build standalone HTML
+        shell: pwsh
+        run: ./build-standalone.ps1
+
+      - name: Capture release screenshots
+        shell: pwsh
+        run: node ./scripts/capture-release-screenshots.mjs
+
+      - name: Upload release screenshots
+        uses: actions/upload-artifact@v7
+        with:
+          name: mini-league-desk-v1-release-screenshots-${{ github.sha }}
+          path: release-screenshots/*.png
+          if-no-files-found: error
+          retention-days: 2
