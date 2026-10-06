@@ -43,6 +43,10 @@ jobs:
         shell: pwsh
         run: ./scripts/check-repository.ps1
 
+      - name: Browser smoke test participant drag
+        shell: pwsh
+        run: node ./scripts/test-participant-drag-browser.mjs
+
       - name: Check Cloudflare preview credentials
         id: cloudflare
         shell: pwsh
