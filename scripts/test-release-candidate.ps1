@@ -10,7 +10,7 @@ function Assert-Equal {
   }
 }
 
-function New-RcRoundRobinSchedule {
+function New-ReleaseRoundRobinSchedule {
   param([int]$ParticipantCount)
 
   $rotation = @(0..($ParticipantCount - 1))
@@ -51,8 +51,8 @@ $matrix = @(
 )
 
 foreach ($case in $matrix) {
-  $rounds = @(New-RcRoundRobinSchedule -ParticipantCount $case.Count)
-  Assert-Equal $rounds.Count $case.Rounds "RC round count for $($case.Count) participants."
+  $rounds = @(New-ReleaseRoundRobinSchedule -ParticipantCount $case.Count)
+  Assert-Equal $rounds.Count $case.Rounds "Release round count for $($case.Count) participants."
 
   $pairs = @{}
   $byes = @{}
@@ -61,9 +61,9 @@ foreach ($case in $matrix) {
   foreach ($round in $rounds) {
     $active = @{}
     foreach ($match in @($round.Matches)) {
-      if ($match.A -eq $match.B) { throw "RC self match for $($case.Count) participants." }
+      if ($match.A -eq $match.B) { throw "Release self match for $($case.Count) participants." }
       if ($active.ContainsKey($match.A) -or $active.ContainsKey($match.B)) {
-        throw "RC duplicate participant in one round for $($case.Count) participants."
+        throw "Release duplicate participant in one round for $($case.Count) participants."
       }
       $active[$match.A] = $true
       $active[$match.B] = $true
@@ -71,7 +71,7 @@ foreach ($case in $matrix) {
       $low = [Math]::Min($match.A, $match.B)
       $high = [Math]::Max($match.A, $match.B)
       $pairKey = ([string]$low + ":" + [string]$high)
-      if ($pairs.ContainsKey($pairKey)) { throw "RC duplicate pair $pairKey." }
+      if ($pairs.ContainsKey($pairKey)) { throw "Release duplicate pair $pairKey." }
       $pairs[$pairKey] = $true
       $matchCount += 1
     }
@@ -82,9 +82,9 @@ foreach ($case in $matrix) {
     }
   }
 
-  Assert-Equal $matchCount $case.Matches "RC match count for $($case.Count) participants."
-  Assert-Equal $pairs.Count $case.Matches "RC pair coverage for $($case.Count) participants."
-  Assert-Equal $byes.Count $case.Byes "RC Bye coverage for $($case.Count) participants."
+  Assert-Equal $matchCount $case.Matches "Release match count for $($case.Count) participants."
+  Assert-Equal $pairs.Count $case.Matches "Release pair coverage for $($case.Count) participants."
+  Assert-Equal $byes.Count $case.Byes "Release Bye coverage for $($case.Count) participants."
 }
 
 function Get-PngDimensions {
@@ -140,7 +140,7 @@ foreach ($relative in $legacyBlobs.Keys) {
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-Assert-Equal ([string]$app.version) "0.9.0" "Release candidate version."
+Assert-Equal ([string]$app.version) "1.0.0" "Stable release version."
 if (-not [bool]$app.build.blockRuntimeNetwork) { throw "blockRuntimeNetwork must remain true." }
 if (-not [bool]$app.build.selfExtract.enabled) { throw "Self-extract build must remain enabled." }
 
@@ -164,10 +164,10 @@ if ($faviconHash -ne "f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c6
 
 $readme = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.md")
 $readmeJa = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.ja.md")
-foreach ($token in @("v0.9.0", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.0", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
   if (-not $readme.Contains($token)) { throw "English README release marker is missing: $token" }
 }
-foreach ($token in @("v0.9.0", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.0", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
   if (-not $readmeJa.Contains($token)) { throw "Japanese README release marker is missing: $token" }
 }
 
@@ -182,6 +182,6 @@ foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
 $builtHtml = Get-Content -Raw -Encoding UTF8 $readable
 if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
 if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
-if (-not $builtHtml.Contains("v0.9.0")) { throw "Built standalone does not contain v0.9.0." }
+if (-not $builtHtml.Contains("v1.0.0")) { throw "Built standalone does not contain v1.0.0." }
 
-Write-Host "[OK] Release candidate checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green
+Write-Host "[OK] Stable release checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green
