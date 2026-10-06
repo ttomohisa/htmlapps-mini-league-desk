@@ -1656,16 +1656,11 @@
         </div>
 
         <div class="participant-add-area">
-          <div class="participant-add-actions" role="group" data-i18n-aria-label="participantAddActionsLabel" aria-label="参加者を追加">
-            <button class="participant-add-toggle" id="showParticipantAddButton" type="button" aria-expanded="false" aria-controls="participantAddPanel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              <span data-i18n="addParticipant">参加者を追加</span>
-            </button>
-            <button class="participant-add-toggle" id="showBulkAddButton" type="button" aria-expanded="false" aria-controls="bulkAddPanel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              <span data-i18n="bulkAdd">複数人をまとめて追加</span>
-            </button>
-          </div>
+          <button class="participant-add-row" id="showParticipantAddButton" type="button" aria-expanded="false" aria-controls="participantAddPanel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="addParticipant">参加者を追加</span>
+          </button>
+
           <div class="participant-add-panel" id="participantAddPanel" hidden>
             <form class="inline-form" id="participantForm" novalidate>
               <div>
@@ -1676,7 +1671,9 @@
               <button class="button" id="addParticipantButton" type="submit" data-i18n="add">追加</button>
             </form>
           </div>
-          <div class="participant-add-panel" id="bulkAddPanel" hidden>
+
+          <details class="bulk-details participant-bulk-details" id="bulkDetails">
+            <summary data-i18n="bulkAdd">複数人をまとめて追加</summary>
             <div class="bulk-body">
               <label class="field" for="bulkParticipants">
                 <span class="field-note" data-i18n="bulkHelp">1行に1人ずつ入力してください。空行は無視します。</span>
@@ -1685,7 +1682,7 @@
               <div class="field-error" id="bulkError" role="status" aria-live="polite"></div>
               <button class="button bulk-add-button" id="bulkAddButton" type="button" data-i18n="addAll">まとめて追加</button>
             </div>
-          </div>
+          </details>
         </div>
 
         <div class="start-card">
