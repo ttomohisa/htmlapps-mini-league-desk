@@ -88,8 +88,11 @@ Support:
 
 Bulk add is atomic. If the batch contains an invalid name, duplicate, or would exceed the participant limit, add none of the batch.
 
-### 5.4 Reorder and removal
+### 5.4 Edit, reorder, and removal
 
+- Participant names can be edited inline from the participant list.
+- Inline rename validates empty, length, and duplicate-name rules before committing.
+- Rename provides Undo after a successful change.
 - Reorder works by a dedicated drag handle and by up/down buttons.
 - Drag reordering supports pointer input so mouse and touch users can use the same handle.
 - Up/down controls remain available and keyboard accessible; drag is an additional interaction, not the only way to reorder.
@@ -343,6 +346,9 @@ Release-candidate scope:
 - release screenshots are current Mini League Desk UI in Japanese and English on desktop and smartphone
 - RC review fixed a mobile min-content overflow in the event action area before final screenshots
 - post-RC user feedback adds spacing below the bulk participant textarea
+- participant creation is consolidated under the participant list via visible plus actions for single and multiline entry
+- participant names can be edited inline with validation and Undo
+- dragged participant cards use lift/scale/shadow feedback instead of becoming translucent
 - participant setup supports drag-handle reordering while retaining keyboard-accessible arrow controls
 - Matches provides an explicit Match list / Round-robin table switcher
 - round-robin matrix cells show pending/result state and open the corresponding result dialog

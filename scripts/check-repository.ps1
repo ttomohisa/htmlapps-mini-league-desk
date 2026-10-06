@@ -51,6 +51,7 @@ $required = @(
   "scripts\test-i18n-accessibility.ps1",
   "scripts\test-release-candidate.ps1",
   "scripts\test-rc-feedback.ps1",
+  "scripts\test-participant-ux.ps1",
   "README.md",
   "README.ja.md",
   "LICENSE",
@@ -144,6 +145,7 @@ foreach ($token in @("bytesAsync", "blobUrlAsync", "outputFilename", "window.App
 & (Join-Path $Root "scripts\test-export.ps1")
 & (Join-Path $Root "scripts\test-i18n-accessibility.ps1")
 & (Join-Path $Root "scripts\test-rc-feedback.ps1")
+& (Join-Path $Root "scripts\test-participant-ux.ps1")
 
 $builderText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
 foreach ($token in @("compressionSetting", "Compress-GzipBytes", "build-size-report.json", "sizeBudget", "DependencyLockPath", "tarballSha256", "__EMBEDDED_ASSET_BUNDLE_JSON__", "AppIconPath", "__APP_ICON_DATA_URI__", "rootHtmlOutputPath", 'StartsWith("htmlapps-"')) {

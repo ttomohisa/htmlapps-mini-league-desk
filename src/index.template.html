@@ -382,6 +382,7 @@
       font-weight: 700;
     }
     .participant-actions { display: flex; gap: 4px; }
+    .participant-actions:empty { display: none; }
     .small-icon-button {
       display: inline-grid;
       place-items: center;
@@ -401,7 +402,7 @@
     .empty-state {
       display: grid;
       place-items: center;
-      min-height: 270px;
+      min-height: 170px;
       padding: 28px 18px;
       border: 1px dashed var(--line-strong);
       border-radius: 12px;
