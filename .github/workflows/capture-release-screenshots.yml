@@ -12,7 +12,7 @@ on:
       - ".github/workflows/capture-release-screenshots.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -21,6 +21,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: release/v1.0.0
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -42,3 +45,19 @@ jobs:
           path: release-screenshots/*.png
           if-no-files-found: error
           retention-days: 2
+
+      - name: Commit release screenshots and remove capture helper
+        shell: pwsh
+        run: |
+          Copy-Item -Force release-screenshots/screenshot.png assets/screenshot.png
+          Copy-Item -Force release-screenshots/screenshot-mobile.png assets/screenshot-mobile.png
+          Copy-Item -Force release-screenshots/screenshot-en.png assets/screenshot-en.png
+          Copy-Item -Force release-screenshots/screenshot-mobile-en.png assets/screenshot-mobile-en.png
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add assets/screenshot.png assets/screenshot-mobile.png assets/screenshot-en.png assets/screenshot-mobile-en.png
+          git rm scripts/capture-release-screenshots.mjs .github/workflows/capture-release-screenshots.yml
+          git commit -m "assets: refresh v1.0.0 release screenshots"
+          git push origin "HEAD:release/v1.0.0"
