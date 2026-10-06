@@ -448,19 +448,17 @@
       font-size: 10px;
     }
     .participant-add-area {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--line);
+      margin-top: 10px;
     }
     .participant-add-row {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       width: 100%;
-      min-height: 112px;
-      padding: 18px 14px;
+      min-height: 84px;
+      padding: 12px 14px;
       border: 1px dashed var(--line-strong);
       border-radius: 12px;
       background: var(--surface);
@@ -476,23 +474,20 @@
       color: var(--text);
       border-color: var(--accent);
     }
-    .participant-add-row[aria-expanded="true"] {
-      min-height: 52px;
-      flex-direction: row;
-      border-style: solid;
-      background: var(--surface-muted);
-      color: var(--text);
-    }
-    .participant-add-row svg { width: 25px; height: 25px; flex: 0 0 auto; }
-    .participant-add-row[aria-expanded="true"] svg { width: 18px; height: 18px; }
+    .participant-add-row[aria-expanded="true"] { display: none; }
+    .participant-add-row svg { width: 23px; height: 23px; flex: 0 0 auto; }
     .participant-add-panel {
-      margin-top: 8px;
+      margin-top: 0;
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 11px;
       background: #fbfbf9;
     }
-    .participant-bulk-details { margin-top: 12px; }
+    details.participant-bulk-details {
+      margin-top: 12px;
+      padding-top: 0;
+      border-top: 0;
+    }
     .participant-bulk-details .bulk-body { margin-top: 12px; }
 
     .start-card {
@@ -4187,7 +4182,6 @@
         $('#participantName').value = '';
         renderRoster();
         showToast(translate('addedOne', { name }), { tone: 'success' });
-        $('#participantName').focus();
         return true;
       }
 
@@ -4330,9 +4324,19 @@
 
       $('#participantForm').addEventListener('submit', event => {
         event.preventDefault();
-        addParticipant($('#participantName').value);
+        const added = addParticipant($('#participantName').value);
+        if (!added) return;
+        setParticipantAddOpen(false);
+        requestAnimationFrame(() => $('#showParticipantAddButton').focus({ preventScroll: true }));
       });
       $('#participantName').addEventListener('input', () => setParticipantError(''));
+      $('#participantName').addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        setParticipantError('');
+        setParticipantAddOpen(false);
+        requestAnimationFrame(() => $('#showParticipantAddButton').focus({ preventScroll: true }));
+      });
       $('#bulkParticipants').addEventListener('input', () => setBulkError(''));
       $('#bulkAddButton').addEventListener('click', addBulkParticipants);
       $('#shuffleButton').addEventListener('click', shuffleParticipants);

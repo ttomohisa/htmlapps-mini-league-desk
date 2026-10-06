@@ -243,7 +243,71 @@ try {
     throw new Error("Drag did not release cleanly: " + JSON.stringify(value));
   }
 
-  console.log("[OK] Browser participant drag smoke test passed.");
+
+  const addState = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const button=document.getElementById('showParticipantAddButton');" +
+      "const area=document.querySelector('.participant-add-area');" +
+      "const bulk=document.getElementById('bulkDetails');" +
+      "const rect=button.getBoundingClientRect();" +
+      "return {height:rect.height,areaBorder:getComputedStyle(area).borderTopWidth,bulkBorder:getComputedStyle(bulk).borderTopWidth};" +
+      "})()",
+    returnByValue: true
+  });
+  const addMetrics = addState.result && addState.result.value;
+  if (!addMetrics || addMetrics.height > 96 || addMetrics.height < 64) {
+    throw new Error("Add participant card height is not compact: " + JSON.stringify(addMetrics));
+  }
+  if (addMetrics.areaBorder !== "0px" || addMetrics.bulkBorder !== "0px") {
+    throw new Error("Unexpected participant-add separator: " + JSON.stringify(addMetrics));
+  }
+
+  await cdp.send("Runtime.evaluate", {
+    expression: "document.getElementById('showParticipantAddButton').click()"
+  });
+  await sleep(120);
+
+  const opened = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const button=document.getElementById('showParticipantAddButton');" +
+      "const panel=document.getElementById('participantAddPanel');" +
+      "return {buttonVisible:button.offsetParent!==null,panelHidden:panel.hidden};" +
+      "})()",
+    returnByValue: true
+  });
+  const openedValue = opened.result && opened.result.value;
+  if (!openedValue || openedValue.buttonVisible !== false || openedValue.panelHidden !== false) {
+    throw new Error("Single-add card was not replaced by the form: " + JSON.stringify(openedValue));
+  }
+
+  await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const input=document.getElementById('participantName');" +
+      "input.value='Delta';" +
+      "input.dispatchEvent(new Event('input',{bubbles:true}));" +
+      "document.getElementById('participantForm').requestSubmit();" +
+      "})()"
+  });
+  await sleep(180);
+
+  const added = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => ({" +
+      "count:document.querySelectorAll('.participant-name').length," +
+      "buttonVisible:document.getElementById('showParticipantAddButton').offsetParent!==null," +
+      "panelHidden:document.getElementById('participantAddPanel').hidden" +
+      "}))()",
+    returnByValue: true
+  });
+  const addedValue = added.result && added.result.value;
+  if (!addedValue || addedValue.count !== 4 || addedValue.buttonVisible !== true || addedValue.panelHidden !== true) {
+    throw new Error("Single-add form did not collapse after success: " + JSON.stringify(addedValue));
+  }
+
+  console.log("[OK] Browser participant drag and add UX smoke test passed.");
 } finally {
   try { if (cdp) cdp.close(); } catch {}
   try { browser.kill(); } catch {}

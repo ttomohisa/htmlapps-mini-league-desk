@@ -7,7 +7,12 @@ $source = Get-Content -Raw -Encoding UTF8 $SourcePath
 
 $required = @(
   "participant-add-row",
-  "min-height: 112px",
+  "min-height: 84px",
+  '.participant-add-row[aria-expanded="true"] { display: none; }',
+  "details.participant-bulk-details",
+  "border-top: 0",
+  "const added = addParticipant",
+  "setParticipantAddOpen(false)",
   'id="showParticipantAddButton"',
   'id="participantAddPanel"',
   'id="bulkDetails"',
@@ -84,3 +89,12 @@ if (-not $source.Contains("translate('duplicateName')")) {
 }
 
 Write-Host "[OK] Participant setup UX regression checks passed." -ForegroundColor Green
+
+$addAreaMatch = [regex]::Match($source, '(?s)\.participant-add-area\s*\{(?<body>.*?)\}')
+if (-not $addAreaMatch.Success) { throw "Participant add-area CSS block is missing." }
+if ($addAreaMatch.Groups['body'].Value -match 'border-top|padding-top') {
+  throw "Participant add area must not render a horizontal separator."
+}
+if ($source -notmatch 'details\.participant-bulk-details\s*\{[\s\S]*?border-top:\s*0') {
+  throw "Bulk participant disclosure must not render a horizontal separator."
+}
