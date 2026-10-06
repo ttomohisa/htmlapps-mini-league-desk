@@ -169,7 +169,7 @@ try {
       "localStorage.setItem('mini-league-desk:active-event:v1',JSON.stringify(" + JSON.stringify(documentValue) + "));" +
       "location.reload();"
     );
-    await sleep(900);
+    await sleep(5800);
 
     const expectedLocal = language === "ja" ? "完全ローカル処理" : "Fully local processing";
     const markers = await evaluate(cdp,
