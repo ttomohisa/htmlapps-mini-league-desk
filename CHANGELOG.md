@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0 - Stable - 2026-10-06
+
+- Promoted the v0.9.0 release candidate to the first stable release without expanding tournament-format scope.
+- Kept the participant setup improvements, reliable pointer/touch drag reordering, inline rename with Undo, and compact add-participant flow.
+- Kept the interactive round-robin table with ○ / × / △ / — outcome symbols and row-oriented score display in score-entry mode.
+- Aligned application version metadata, release verification, specification, and Japanese / English documentation to v1.0.0.
+- Reworked both READMEs around the established Browser Kitty repository structure: live demo, features, quick start, usage, privacy, limitations, development, and license.
+- Preserved fully local runtime behavior with no third-party runtime dependencies and CSP `connect-src 'none'`.
+- Retained the full regression matrix, standalone/self-extract verification, release assets, and browser smoke coverage used for the release candidate.
+
 ## 0.9.0 - Release Candidate - 2026-10-04
 
 - Changed the hero copy to remove the comma in the Japanese headline.

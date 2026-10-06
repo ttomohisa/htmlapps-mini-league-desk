@@ -10,7 +10,7 @@ function Assert-Equal {
   }
 }
 
-function New-RcRoundRobinSchedule {
+function New-ReleaseRoundRobinSchedule {
   param([int]$ParticipantCount)
 
   $rotation = @(0..($ParticipantCount - 1))
@@ -51,8 +51,8 @@ $matrix = @(
 )
 
 foreach ($case in $matrix) {
-  $rounds = @(New-RcRoundRobinSchedule -ParticipantCount $case.Count)
-  Assert-Equal $rounds.Count $case.Rounds "RC round count for $($case.Count) participants."
+  $rounds = @(New-ReleaseRoundRobinSchedule -ParticipantCount $case.Count)
+  Assert-Equal $rounds.Count $case.Rounds "Release round count for $($case.Count) participants."
 
   $pairs = @{}
   $byes = @{}
@@ -61,9 +61,9 @@ foreach ($case in $matrix) {
   foreach ($round in $rounds) {
     $active = @{}
     foreach ($match in @($round.Matches)) {
-      if ($match.A -eq $match.B) { throw "RC self match for $($case.Count) participants." }
+      if ($match.A -eq $match.B) { throw "Release self match for $($case.Count) participants." }
       if ($active.ContainsKey($match.A) -or $active.ContainsKey($match.B)) {
-        throw "RC duplicate participant in one round for $($case.Count) participants."
+        throw "Release duplicate participant in one round for $($case.Count) participants."
       }
       $active[$match.A] = $true
       $active[$match.B] = $true
@@ -71,20 +71,20 @@ foreach ($case in $matrix) {
       $low = [Math]::Min($match.A, $match.B)
       $high = [Math]::Max($match.A, $match.B)
       $pairKey = ([string]$low + ":" + [string]$high)
-      if ($pairs.ContainsKey($pairKey)) { throw "RC duplicate pair $pairKey." }
+      if ($pairs.ContainsKey($pairKey)) { throw "Release duplicate pair $pairKey." }
       $pairs[$pairKey] = $true
       $matchCount += 1
     }
 
     if ($null -ne $round.Bye) {
-      if ($active.ContainsKey([int]$round.Bye)) { throw "RC Bye participant also plays." }
+      if ($active.ContainsKey([int]$round.Bye)) { throw "Release Bye participant also plays." }
       $byes[[int]$round.Bye] = $true
     }
   }
 
-  Assert-Equal $matchCount $case.Matches "RC match count for $($case.Count) participants."
-  Assert-Equal $pairs.Count $case.Matches "RC pair coverage for $($case.Count) participants."
-  Assert-Equal $byes.Count $case.Byes "RC Bye coverage for $($case.Count) participants."
+  Assert-Equal $matchCount $case.Matches "Release match count for $($case.Count) participants."
+  Assert-Equal $pairs.Count $case.Matches "Release pair coverage for $($case.Count) participants."
+  Assert-Equal $byes.Count $case.Byes "Release Bye coverage for $($case.Count) participants."
 }
 
 function Get-PngDimensions {
@@ -128,19 +128,31 @@ foreach ($shot in $screenshots) {
   if ($info.Bytes -lt 20000) { throw "Release screenshot looks unexpectedly small: $($shot.Path)" }
 }
 
-$legacyBlobs = @{
-  "assets\screenshot.png" = "66fc76b66a7a241b2507ad488ce0a5514e546258"
-  "assets\screenshot-mobile.png" = "9f854b8cf00453c4615d25fb3df5d37712fc6ae6"
+$staleScreenshotBlobs = @{
+  "assets\screenshot.png" = @(
+    "66fc76b66a7a241b2507ad488ce0a5514e546258",
+    "9363e057c0b6adcbcd9c3eca6e48d8c3b334aadf"
+  )
+  "assets\screenshot-mobile.png" = @(
+    "9f854b8cf00453c4615d25fb3df5d37712fc6ae6",
+    "aa77522b3548b9170d85f73a04c676581856760f"
+  )
+  "assets\screenshot-en.png" = @(
+    "f61cc56b3d535ab1dc192bf7268e490fb2f7d2ad"
+  )
+  "assets\screenshot-mobile-en.png" = @(
+    "06931ab3390938372bb29cc32b73920febe8363e"
+  )
 }
-foreach ($relative in $legacyBlobs.Keys) {
+foreach ($relative in $staleScreenshotBlobs.Keys) {
   $currentBlob = (& git -C $Root hash-object -- $relative).Trim()
-  if ($currentBlob -eq $legacyBlobs[$relative]) {
-    throw "Legacy template screenshot returned: $relative"
+  if (@($staleScreenshotBlobs[$relative]) -contains $currentBlob) {
+    throw "Stale release screenshot returned: $relative"
   }
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-Assert-Equal ([string]$app.version) "0.9.0" "Release candidate version."
+Assert-Equal ([string]$app.version) "1.0.0" "Stable release version."
 if (-not [bool]$app.build.blockRuntimeNetwork) { throw "blockRuntimeNetwork must remain true." }
 if (-not [bool]$app.build.selfExtract.enabled) { throw "Self-extract build must remain enabled." }
 
@@ -164,10 +176,10 @@ if ($faviconHash -ne "f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c6
 
 $readme = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.md")
 $readmeJa = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.ja.md")
-foreach ($token in @("v0.9.0", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.0", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
   if (-not $readme.Contains($token)) { throw "English README release marker is missing: $token" }
 }
-foreach ($token in @("v0.9.0", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.0", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
   if (-not $readmeJa.Contains($token)) { throw "Japanese README release marker is missing: $token" }
 }
 
@@ -182,6 +194,6 @@ foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
 $builtHtml = Get-Content -Raw -Encoding UTF8 $readable
 if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
 if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
-if (-not $builtHtml.Contains("v0.9.0")) { throw "Built standalone does not contain v0.9.0." }
+if (-not $builtHtml.Contains('"version":"1.0.0"')) { throw "Built standalone does not contain config version 1.0.0." }
 
-Write-Host "[OK] Release candidate checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green
+Write-Host "[OK] Stable release checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green

@@ -4,8 +4,8 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v0.9.0
-- **Target stable release:** v1.0.0
+- **Current app version:** v1.0.0
+- **Stable release:** v1.0.0
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
 - **Typical scale:** 3–16 participants. The UI may support larger rosters where browser performance remains reasonable.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- Current v0.9.0 stores the active event locally in addition to the language preference.
+- v1.0.0 stores the active event locally in addition to the language preference.
 
 ## 5. Event setup
 
@@ -322,38 +322,35 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v0.9.0 Release Candidate
+## 18. Current implementation milestone: v1.0.0 Stable Release
 
-v0.9.0 is the release candidate. Feature scope is frozen; changes in this milestone should be regression fixes, release documentation, screenshots, or verification improvements.
+v1.0.0 is the stable release promoted from the v0.9.0 release candidate. Feature scope remains frozen for this release: the work is final regression, version alignment, documentation, and release verification rather than adding another tournament format or major workflow.
 
-Release-candidate scope:
+Stable-release scope:
 
-- all v0.1.0–v0.8.0 functionality remains enabled
+- all v0.1.0–v0.9.0 functionality remains enabled
 - explicit regression coverage for 3, 4, 5, 8, and 16 participant events
 - existing 3..64 round-robin invariant coverage remains required
 - tie, score, result editing/removal, completion/reopen, persistence, malformed import, export, mobile, and accessibility regressions remain required
-- Japanese and English README content is aligned with the actual application
-- favicon and the in-app header icon use the approved Mini League Desk SVG supplied for this release; preserve that asset without recoloring or redesign
+- Japanese and English README content is aligned with the actual application and v1.0.0
+- favicon and the in-app header icon use the approved Mini League Desk SVG; preserve that asset without recoloring or redesign
 - release screenshots represent the current Mini League Desk UI rather than template/starter content
 - desktop and smartphone screenshots are maintained for Japanese and English
 - readable standalone, self-extract standalone, and repository-root readable HTML remain the required release artifacts
 - runtime CSP keeps `connect-src 'none'`
 - no runtime CDN, API, analytics, telemetry, remote font, or hidden network dependency
-- privacy statements must match the actual local-processing behavior
-- no new tournament format or major feature is added in the release candidate
+- privacy statements match the actual local-processing behavior
 - the local-processing badge reads `完全ローカル処理` in Japanese and `Fully local processing` in English
 - release capture verifies 390 CSS px mobile pages with scrollWidth equal to innerWidth
-- release screenshots are current Mini League Desk UI in Japanese and English on desktop and smartphone
-- RC review fixed a mobile min-content overflow in the event action area before final screenshots
-- post-RC user feedback adds spacing below the bulk participant textarea
-- participant creation is consolidated under the participant list: one full-width dashed add card with centered plus for single entry, followed by the disclosure-style multiline add UI
-- participant names can be edited inline with validation and Undo
-- drag uses a pointer-following floating card, a separate in-list placeholder, animated sibling reflow, global release/cancel handling, and drop animation so the item visibly moves and reliably releases
-- participant setup supports drag-handle reordering while retaining keyboard-accessible arrow controls
-- Matches provides an explicit Match list / Round-robin table switcher
-- round-robin matrix cells use ○ = win, × = loss, △ = draw, and — = pending; score-entry events keep the same symbols and also show the row participant's score underneath (for example ○ with 3–1, while the opposite cell shows × with 1–3); each cell opens the corresponding result dialog
+- participant creation remains consolidated under the participant list with single-entry and multiline-add flows
+- participant names remain editable inline with validation and Undo
+- participant reordering keeps pointer/touch drag plus keyboard-accessible arrow controls
+- Matches provides the Match list / Round-robin table switcher
+- round-robin matrix cells use ○ = win, × = loss, △ = draw, and — = pending
+- score-entry events keep the same symbols and show the row participant's score underneath, for example ○ with 3–1 while the opposite cell shows × with 1–3
+- each matrix match cell opens the corresponding result dialog
 
-## 19. v0.9.0 release-candidate acceptance criteria
+## 19. v1.0.0 stable-release acceptance criteria
 
 ### Core event matrix
 
@@ -383,6 +380,7 @@ For each case:
 - Result add/edit/remove and Undo still recalculate standings and progress.
 - Completing all matches enters the completion state.
 - Removing or undoing one result after completion reopens the event.
+- Round-robin cells keep ○ / × / △ / — outcome symbols, and score mode keeps the row-oriented score display.
 
 ### Persistence / import
 
@@ -402,7 +400,7 @@ For each case:
 
 ### Mobile / i18n / accessibility
 
-- 320–380px narrow-layout protections remain present.
+- narrow-layout protections remain present.
 - mobile bottom navigation and toast separation remain present.
 - Japanese and English translation-key parity remains enforced.
 - static i18n references resolve in both languages.
@@ -410,11 +408,11 @@ For each case:
 
 ### Release assets and documentation
 
-- `assets/favicon.svg` exists, is used as the canonical Mini League Desk icon, and matches the approved SVG (SHA-256 `f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c66bac45`).
-- `assets/screenshot.png` is the current Japanese desktop screenshot.
-- `assets/screenshot-mobile.png` is the current Japanese smartphone screenshot.
-- `assets/screenshot-en.png` is the current English desktop screenshot.
-- `assets/screenshot-mobile-en.png` is the current English smartphone screenshot.
+- `assets/favicon.svg` exists, is used as the canonical Mini League Desk icon, and matches the approved SVG.
+- `assets/screenshot.png` is the Japanese desktop screenshot.
+- `assets/screenshot-mobile.png` is the Japanese smartphone screenshot.
+- `assets/screenshot-en.png` is the English desktop screenshot.
+- `assets/screenshot-mobile-en.png` is the English smartphone screenshot.
 - Japanese README references the Japanese screenshots.
 - English README references the English screenshots.
 - screenshots must not contain template/starter application UI.
@@ -429,12 +427,14 @@ For each case:
 - CSP contains `connect-src 'none'`.
 - source has no external runtime script, stylesheet, image, frame, font, API, analytics, or telemetry dependency.
 - README privacy claims remain consistent with source and CSP.
+- built standalone contains the v1.0.0 version marker.
 
 ### Verification claims
 
 Automated checks may be reported as passed only when their CI jobs pass.
 
 Do not claim real screen-reader, OS print-dialog, real mobile-device, or manual DevTools network-panel verification unless it was actually performed.
+
 
 ## 20. Planned development sequence
 
@@ -498,12 +498,12 @@ Do not claim real screen-reader, OS print-dialog, real mobile-device, or manual 
 - README and screenshots
 - standalone and privacy checks
 
-### v1.0.0 — Stable
+### v1.0.0 — Stable — implemented
 
 - release fixes only
 - final regression
 - version alignment
-- final screenshots
+- release documentation
 - final standalone/network/privacy verification
 
 ## 21. Browser targets
