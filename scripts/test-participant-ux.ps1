@@ -57,8 +57,11 @@ foreach ($token in @('id="showParticipantAddButton"','id="showBulkAddButton"','i
   if (-not $rosterBlock.Contains($token)) { throw "Participant panel is missing: $token" }
 }
 
-if ($source -notmatch "candidate\\.id !== participantId[\\s\\S]*?duplicateName") {
-  throw "Inline rename duplicate-name validation is missing."
+if (-not $source.Contains("candidate.id !== participantId")) {
+  throw "Inline rename must exclude the participant being edited from duplicate checks."
+}
+if (-not $source.Contains("translate('duplicateName')")) {
+  throw "Inline rename duplicate-name error handling is missing."
 }
 
 Write-Host "[OK] Participant setup UX regression checks passed." -ForegroundColor Green
