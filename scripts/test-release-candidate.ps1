@@ -182,6 +182,6 @@ foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
 $builtHtml = Get-Content -Raw -Encoding UTF8 $readable
 if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
 if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
-if (-not $builtHtml.Contains("v1.0.0")) { throw "Built standalone does not contain v1.0.0." }
+if (-not $builtHtml.Contains('"version":"1.0.0"')) { throw "Built standalone does not contain config version 1.0.0." }
 
 Write-Host "[OK] Stable release checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green
