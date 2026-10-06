@@ -4239,11 +4239,7 @@
 
       $('#showParticipantAddButton').addEventListener('click', () => {
         const open = $('#showParticipantAddButton').getAttribute('aria-expanded') === 'true';
-        setParticipantAddMode(open ? null : 'single');
-      });
-      $('#showBulkAddButton').addEventListener('click', () => {
-        const open = $('#showBulkAddButton').getAttribute('aria-expanded') === 'true';
-        setParticipantAddMode(open ? null : 'bulk');
+        setParticipantAddOpen(!open);
       });
 
       $('#participantForm').addEventListener('submit', event => {
