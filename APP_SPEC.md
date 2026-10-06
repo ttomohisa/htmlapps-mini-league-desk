@@ -346,9 +346,9 @@ Release-candidate scope:
 - release screenshots are current Mini League Desk UI in Japanese and English on desktop and smartphone
 - RC review fixed a mobile min-content overflow in the event action area before final screenshots
 - post-RC user feedback adds spacing below the bulk participant textarea
-- participant creation is consolidated under the participant list via visible plus actions for single and multiline entry
+- participant creation is consolidated under the participant list: one full-width plus row for single entry, followed by the disclosure-style multiline add UI
 - participant names can be edited inline with validation and Undo
-- dragged participant cards use lift/scale/shadow feedback instead of becoming translucent
+- drag uses a pointer-following floating card, an in-list placeholder, and animated sibling reflow so the item visibly moves with the pointer/finger
 - participant setup supports drag-handle reordering while retaining keyboard-accessible arrow controls
 - Matches provides an explicit Match list / Round-robin table switcher
 - round-robin matrix cells show pending/result state and open the corresponding result dialog

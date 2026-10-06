@@ -3,9 +3,9 @@
 ## 0.9.0 - Release Candidate - 2026-10-04
 
 - Changed the hero copy to remove the comma in the Japanese headline.
-- Moved participant-add workflows under the participant list with visible plus actions for single and multiline entry.
+- Moved participant entry under the list: one full-width + Add participant row and the previous disclosure-style bulk-add UI.
 - Added inline participant-name editing with validation and Undo.
-- Strengthened drag feedback so the participant card visually lifts while held.
+- Reworked drag feedback to a pointer-following floating card with an in-list placeholder and animated sibling reflow.
 - Replaced the app icon / favicon with the approved lightweight Mini League Desk SVG.
 - Changed the local-processing badge from `端末内で処理` to `完全ローカル処理` and aligned the English badge to `Fully local processing`.
 - Froze feature scope for the release candidate.

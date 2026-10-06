@@ -6,21 +6,27 @@ $SourcePath = Join-Path $Root "src\index.template.html"
 $source = Get-Content -Raw -Encoding UTF8 $SourcePath
 
 $required = @(
-  "participant-add-actions",
+  "participant-add-row",
   'id="showParticipantAddButton"',
-  'id="showBulkAddButton"',
   'id="participantAddPanel"',
-  'id="bulkAddPanel"',
-  "function setParticipantAddMode",
+  'id="bulkDetails"',
+  "participant-bulk-details",
+  "function setParticipantAddOpen",
   "function startParticipantEdit",
   "function commitParticipantEdit",
   "participant-edit-input",
   "createActionButton('edit'",
   "createActionButton('save'",
   "createActionButton('cancel'",
+  "participant-drag-ghost",
+  "is-drag-placeholder",
+  "function positionRosterDragGhost",
+  "function animateRosterReflow",
+  "cloneNode(true)",
+  "ghost.style.left",
+  "element.animate(",
+  "window.scrollBy",
   "body.is-roster-dragging",
-  "transform: translateY(-3px) scale(1.018)",
-  "box-shadow: 0 16px 34px",
   "document.body.classList.add('is-roster-dragging')",
   "document.body.classList.remove('is-roster-dragging')"
 )
@@ -53,8 +59,14 @@ if ($settingsBlock.Contains('id="participantForm"') -or $settingsBlock.Contains(
 $rosterEnd = $source.IndexOf('</section>', $rosterStart)
 if ($rosterEnd -lt 0) { throw "Participant panel end could not be located." }
 $rosterBlock = $source.Substring($rosterStart, $rosterEnd - $rosterStart)
-foreach ($token in @('id="showParticipantAddButton"','id="showBulkAddButton"','id="participantForm"','id="bulkParticipants"')) {
+foreach ($token in @('id="showParticipantAddButton"','id="bulkDetails"','id="participantForm"','id="bulkParticipants"')) {
   if (-not $rosterBlock.Contains($token)) { throw "Participant panel is missing: $token" }
+}
+if ($rosterBlock.Contains('id="showBulkAddButton"') -or $rosterBlock.Contains('id="bulkAddPanel"')) {
+  throw "Bulk add must use the disclosure-style details UI rather than a second add button."
+}
+if (-not $rosterBlock.Contains('class="participant-add-row"')) {
+  throw "Single participant add must use one full-width add row."
 }
 
 if (-not $source.Contains("candidate.id !== participantId")) {
