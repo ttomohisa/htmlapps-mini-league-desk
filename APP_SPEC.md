@@ -351,7 +351,7 @@ Release-candidate scope:
 - drag uses a pointer-following floating card, a separate in-list placeholder, animated sibling reflow, global release/cancel handling, and drop animation so the item visibly moves and reliably releases
 - participant setup supports drag-handle reordering while retaining keyboard-accessible arrow controls
 - Matches provides an explicit Match list / Round-robin table switcher
-- round-robin matrix cells use ○ = win, × = loss, △ = draw, and — = pending; score-entry events still use these outcome symbols rather than showing scores in the matrix, and each cell opens the corresponding result dialog
+- round-robin matrix cells use ○ = win, × = loss, △ = draw, and — = pending; score-entry events keep the same symbols and also show the row participant's score underneath (for example ○ with 3–1, while the opposite cell shows × with 1–3); each cell opens the corresponding result dialog
 
 ## 19. v0.9.0 release-candidate acceptance criteria
 
