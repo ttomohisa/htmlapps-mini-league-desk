@@ -454,28 +454,37 @@
     }
     .participant-add-row {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       gap: 8px;
       width: 100%;
-      min-height: 46px;
-      padding: 9px 12px;
+      min-height: 112px;
+      padding: 18px 14px;
       border: 1px dashed var(--line-strong);
-      border-radius: 11px;
+      border-radius: 12px;
       background: var(--surface);
-      color: var(--text);
+      color: var(--muted);
       font: inherit;
       font-size: 12px;
       font-weight: 750;
       cursor: pointer;
-      text-align: left;
+      text-align: center;
     }
-    .participant-add-row:hover { background: var(--surface-hover); }
+    .participant-add-row:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--accent);
+    }
     .participant-add-row[aria-expanded="true"] {
+      min-height: 52px;
+      flex-direction: row;
       border-style: solid;
       background: var(--surface-muted);
+      color: var(--text);
     }
-    .participant-add-row svg { width: 17px; height: 17px; flex: 0 0 auto; }
+    .participant-add-row svg { width: 25px; height: 25px; flex: 0 0 auto; }
+    .participant-add-row[aria-expanded="true"] svg { width: 18px; height: 18px; }
     .participant-add-panel {
       margin-top: 8px;
       padding: 12px;
@@ -3103,15 +3112,51 @@
         });
       }
 
+      function addRosterDragListeners() {
+        window.addEventListener('pointermove', moveParticipantDrag, { capture: true, passive: false });
+        window.addEventListener('pointerup', endParticipantDrag, true);
+        window.addEventListener('pointercancel', endParticipantDrag, true);
+        window.addEventListener('blur', cancelParticipantDrag, true);
+      }
+
+      function removeRosterDragListeners() {
+        window.removeEventListener('pointermove', moveParticipantDrag, true);
+        window.removeEventListener('pointerup', endParticipantDrag, true);
+        window.removeEventListener('pointercancel', endParticipantDrag, true);
+        window.removeEventListener('blur', cancelParticipantDrag, true);
+      }
+
+      function restoreDraggedParticipantStyle(drag) {
+        if (drag.originalStyle == null) drag.item.removeAttribute('style');
+        else drag.item.setAttribute('style', drag.originalStyle);
+      }
+
+      function rosterOrderFromPlaceholder(drag) {
+        return Array.from($('#rosterList').children).flatMap(element => {
+          if (element === drag.placeholder) return [drag.participantId];
+          if (element === drag.item) return [];
+          return element instanceof HTMLElement && element.classList.contains('participant') && element.dataset.participantId
+            ? [element.dataset.participantId]
+            : [];
+        });
+      }
+
       function beginParticipantDrag(event, participantId) {
-        if (state.participants.length < 2) return;
+        if (state.participants.length < 2 || rosterDrag) return;
         if (event.pointerType === 'mouse' && event.button !== 0) return;
+
         const handle = event.currentTarget;
         const item = handle.closest('.participant');
         const list = $('#rosterList');
-        if (!(item instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
+        if (!(handle instanceof HTMLElement) || !(item instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
 
         const rect = item.getBoundingClientRect();
+        const placeholder = document.createElement('li');
+        placeholder.className = 'participant is-drag-placeholder';
+        placeholder.style.height = rect.height + 'px';
+        placeholder.setAttribute('aria-hidden', 'true');
+        list.insertBefore(placeholder, item);
+
         const ghost = item.cloneNode(true);
         ghost.classList.add('participant-drag-ghost');
         ghost.setAttribute('aria-hidden', 'true');
@@ -3121,12 +3166,23 @@
         ghost.querySelectorAll('button,input').forEach(control => control.setAttribute('tabindex', '-1'));
         document.body.append(ghost);
 
+        const originalStyle = item.getAttribute('style');
+        item.style.position = 'fixed';
+        item.style.left = '-10000px';
+        item.style.top = '-10000px';
+        item.style.width = rect.width + 'px';
+        item.style.height = rect.height + 'px';
+        item.style.visibility = 'hidden';
+        item.style.pointerEvents = 'none';
+
         rosterDrag = {
           participantId,
           pointerId: event.pointerId,
           handle,
           item,
+          placeholder,
           ghost,
+          originalStyle,
           offsetX: event.clientX - rect.left,
           offsetY: event.clientY - rect.top,
           before: state.participants.map(participant => participant.id),
@@ -3134,10 +3190,10 @@
         };
 
         positionRosterDragGhost(rosterDrag, event.clientX, event.clientY);
-        item.classList.add('is-drag-placeholder');
         list.classList.add('is-dragging');
         document.body.classList.add('is-roster-dragging');
-        handle.setPointerCapture?.(event.pointerId);
+        try { handle.setPointerCapture?.(event.pointerId); } catch {}
+        addRosterDragListeners();
         event.preventDefault();
       }
 
@@ -3151,8 +3207,8 @@
         else if (event.clientY > window.innerHeight - edge) window.scrollBy({ top: 10, behavior: 'auto' });
 
         const list = $('#rosterList');
-        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
-        if (!(target instanceof HTMLElement) || target === drag.item || target.parentElement !== list) {
+        let target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
+        if (!(target instanceof HTMLElement) || target === drag.placeholder || target === drag.item || target.parentElement !== list) {
           event.preventDefault();
           return;
         }
@@ -3160,31 +3216,35 @@
         const rect = target.getBoundingClientRect();
         const after = event.clientY > rect.top + rect.height / 2;
         const nextSibling = after ? target.nextSibling : target;
-        if (nextSibling === drag.item) {
+        if (nextSibling === drag.placeholder) {
           event.preventDefault();
           return;
         }
 
-        const siblings = Array.from(list.querySelectorAll('.participant')).filter(element => element !== drag.item);
+        const siblings = Array.from(list.querySelectorAll('.participant')).filter(element =>
+          element !== drag.placeholder &&
+          element !== drag.item &&
+          element.offsetParent !== null
+        );
         const beforeTops = new Map(siblings.map(element => [element, element.getBoundingClientRect().top]));
-        list.insertBefore(drag.item, nextSibling);
+        list.insertBefore(drag.placeholder, nextSibling);
         animateRosterReflow(siblings, beforeTops);
         drag.moved = true;
         event.preventDefault();
       }
 
-      function finishParticipantDrag(drag, changed) {
-        drag.item.classList.remove('is-drag-placeholder');
+      function completeParticipantDrag(drag, order, changed) {
+        drag.placeholder.remove();
+        drag.ghost.remove();
+        restoreDraggedParticipantStyle(drag);
         $('#rosterList').classList.remove('is-dragging');
         document.body.classList.remove('is-roster-dragging');
-        drag.ghost.remove();
 
         if (!changed) {
           renderRoster();
           return;
         }
 
-        const order = Array.from($('#rosterList').querySelectorAll('.participant')).map(item => item.dataset.participantId);
         const byId = new Map(state.participants.map(participant => [participant.id, participant]));
         state.participants = order.map(id => byId.get(id)).filter(Boolean);
         renderRoster();
@@ -3192,14 +3252,21 @@
       }
 
       function endParticipantDrag(event) {
-        if (!rosterDrag || event.pointerId !== rosterDrag.pointerId) return;
+        if (!rosterDrag) return;
+        if ('pointerId' in event && event.pointerId !== rosterDrag.pointerId) return;
+
         const drag = rosterDrag;
         rosterDrag = null;
-        try { drag.handle.releasePointerCapture?.(event.pointerId); } catch {}
+        removeRosterDragListeners();
+        try { drag.handle.releasePointerCapture?.(drag.pointerId); } catch {}
 
-        const order = Array.from($('#rosterList').querySelectorAll('.participant')).map(item => item.dataset.participantId);
-        const changed = drag.moved && order.length === drag.before.length && order.some((id, index) => id !== drag.before[index]);
-        const finalRect = drag.item.getBoundingClientRect();
+        const order = rosterOrderFromPlaceholder(drag);
+        const changed = drag.moved &&
+          order.length === drag.before.length &&
+          order.some((id, index) => id !== drag.before[index]);
+
+        $('#rosterList').insertBefore(drag.item, drag.placeholder);
+        const finalRect = drag.placeholder.getBoundingClientRect();
         const ghostRect = drag.ghost.getBoundingClientRect();
         const dx = finalRect.left - ghostRect.left;
         const dy = finalRect.top - ghostRect.top;
@@ -3212,10 +3279,25 @@
             ],
             { duration: 125, easing: 'cubic-bezier(.2,.8,.2,1)' }
           );
-          animation.finished.then(() => finishParticipantDrag(drag, changed)).catch(() => finishParticipantDrag(drag, changed));
+          animation.finished.then(() => completeParticipantDrag(drag, order, changed))
+            .catch(() => completeParticipantDrag(drag, order, changed));
         } else {
-          finishParticipantDrag(drag, changed);
+          completeParticipantDrag(drag, order, changed);
         }
+      }
+
+      function cancelParticipantDrag() {
+        if (!rosterDrag) return;
+        const drag = rosterDrag;
+        rosterDrag = null;
+        removeRosterDragListeners();
+        try { drag.handle.releasePointerCapture?.(drag.pointerId); } catch {}
+        drag.placeholder.remove();
+        drag.ghost.remove();
+        restoreDraggedParticipantStyle(drag);
+        $('#rosterList').classList.remove('is-dragging');
+        document.body.classList.remove('is-roster-dragging');
+        renderRoster();
       }
 
       function startParticipantEdit(participantId) {
@@ -3309,9 +3391,6 @@
           order.textContent = String(index + 1);
           dragHandle.append(order);
           dragHandle.addEventListener('pointerdown', event => beginParticipantDrag(event, participant.id));
-          dragHandle.addEventListener('pointermove', moveParticipantDrag);
-          dragHandle.addEventListener('pointerup', endParticipantDrag);
-          dragHandle.addEventListener('pointercancel', endParticipantDrag);
 
           const editing = participant.id === editingParticipantId;
           dragHandle.disabled = editing;
