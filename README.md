@@ -30,7 +30,7 @@ Current release candidate: **v0.9.0**
 - Result add / edit / removal with Undo
 - Live standings with shared-rank handling
 - Progress / Matches / Standings workflow
-- Matches can switch between a round/list view and an interactive round-robin table using ○ / × / △ / — for win / loss / draw / pending
+- Matches can switch between a round/list view and an interactive round-robin table using ○ / × / △; score mode also shows each head-to-head score using ○ / × / △ / — for win / loss / draw / pending
 - Suggested next match without forcing match order
 - Per-participant remaining and completed opponents
 - Automatic event completion and final standings
