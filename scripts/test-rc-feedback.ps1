@@ -58,8 +58,13 @@ $matrixStart = $source.IndexOf("function matrixResultText")
 $matrixEnd = $source.IndexOf("function renderRoundRobinMatrix", $matrixStart)
 if ($matrixStart -lt 0 -or $matrixEnd -le $matrixStart) { throw "Matrix result function block is missing." }
 $matrixBlock = $source.Substring($matrixStart, $matrixEnd - $matrixStart)
-if ($matrixBlock.Contains("scoreA") -or $matrixBlock.Contains("scoreB")) {
-  throw "Round-robin matrix must show outcome symbols instead of scores."
+foreach ($token in @("function matrixScoreText", "scoreA", "scoreB", "matrix-result-symbol", "matrix-result-score")) {
+  if (-not $source.Contains($token)) {
+    throw "Round-robin score display marker is missing: $token"
+  }
+}
+if (-not $matrixBlock.Contains("state.settings.resultMode !== 'score'")) {
+  throw "Round-robin score text must be limited to score-entry mode."
 }
 
 if (-not $source.Contains('id="roundMatchView"') -or -not $source.Contains('id="roundsContainer"')) {
