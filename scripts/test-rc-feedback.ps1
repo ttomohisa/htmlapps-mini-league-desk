@@ -20,6 +20,7 @@ $requiredTokens = @(
   'id="roundRobinMatrix"',
   "function renderRoundRobinMatrix",
   "function matrixResultText",
+  "function matrixResultAria",
   "matrix-cell-button",
   "matchView: 'rounds'",
   "matchView: state.ui.matchView",
@@ -43,6 +44,22 @@ if ($source -notmatch 'renderRoundRobinMatrix\(\)[\s\S]*?matrixPairKey') {
 
 if ($source -notmatch 'matrix-cell-button[\s\S]*?openResultDialog') {
   throw "Round-robin matrix cells must open match result entry."
+}
+
+$circle = [string][char]0x25CB
+$cross = [string][char]0x00D7
+$triangle = [string][char]0x25B3
+foreach ($symbol in @($circle, $cross, $triangle)) {
+  if (-not $source.Contains($symbol)) {
+    throw "Round-robin outcome symbol is missing."
+  }
+}
+$matrixStart = $source.IndexOf("function matrixResultText")
+$matrixEnd = $source.IndexOf("function renderRoundRobinMatrix", $matrixStart)
+if ($matrixStart -lt 0 -or $matrixEnd -le $matrixStart) { throw "Matrix result function block is missing." }
+$matrixBlock = $source.Substring($matrixStart, $matrixEnd - $matrixStart)
+if ($matrixBlock.Contains("scoreA") -or $matrixBlock.Contains("scoreB")) {
+  throw "Round-robin matrix must show outcome symbols instead of scores."
 }
 
 if (-not $source.Contains('id="roundMatchView"') -or -not $source.Contains('id="roundsContainer"')) {

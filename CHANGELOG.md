@@ -22,6 +22,7 @@
 - Added pointer/touch drag-handle reordering for participants while keeping the existing arrow controls.
 - Added a Match list / Round-robin table switcher to the Matches screen.
 - Added an interactive round-robin matrix whose match cells open result entry directly.
+- Changed round-robin matrix result cells to ○ / × / △ / — so the table reads as a conventional win/loss grid, including score-entry events.
 
 ## 0.8.0 - i18n / Accessibility / Polish - 2026-10-04
 
