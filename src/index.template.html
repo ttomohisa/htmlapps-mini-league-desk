@@ -344,13 +344,24 @@
       background: var(--surface);
       transition: border-color .14s ease,box-shadow .14s ease,transform .14s ease;
     }
-    .participant.is-dragging {
-      z-index: 10;
-      transform: translateY(-3px) scale(1.018);
+    .participant.is-drag-placeholder {
+      border-style: dashed;
+      border-color: var(--line-strong);
+      background: var(--surface-muted);
+      box-shadow: inset 0 0 0 1px rgba(22,98,79,.05);
+    }
+    .participant.is-drag-placeholder > * { visibility: hidden; }
+    .participant-drag-ghost {
+      position: fixed;
+      z-index: 1000;
+      margin: 0;
+      pointer-events: none;
+      transform: rotate(.5deg) scale(1.018);
+      transform-origin: center;
       border-color: var(--line-strong);
       background: var(--surface);
-      box-shadow: 0 16px 34px rgba(25,35,31,.18),0 4px 10px rgba(25,35,31,.1);
-      will-change: transform;
+      box-shadow: 0 20px 42px rgba(25,35,31,.22),0 6px 14px rgba(25,35,31,.12);
+      will-change: left,top,transform;
     }
     .participant-drag-handle {
       display: inline-flex;
@@ -369,8 +380,7 @@
       user-select: none;
     }
     .participant-drag-handle:hover { background: var(--surface-hover); color: var(--text); }
-    .participant-drag-handle:active,
-    .participant.is-dragging .participant-drag-handle { cursor: grabbing; }
+    .participant-drag-handle:active { cursor: grabbing; }
     body.is-roster-dragging,
     body.is-roster-dragging * { cursor: grabbing !important; }
     .participant-drag-handle svg { width: 13px; height: 17px; flex: 0 0 auto; }
@@ -442,43 +452,39 @@
       padding-top: 14px;
       border-top: 1px solid var(--line);
     }
-    .participant-add-actions {
-      display: grid;
-      grid-template-columns: repeat(2,minmax(0,1fr));
-      gap: 8px;
-    }
-    .participant-add-toggle {
-      display: inline-flex;
+    .participant-add-row {
+      display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 7px;
-      min-width: 0;
-      min-height: 44px;
-      padding: 8px 11px;
+      justify-content: flex-start;
+      gap: 8px;
+      width: 100%;
+      min-height: 46px;
+      padding: 9px 12px;
       border: 1px dashed var(--line-strong);
-      border-radius: 10px;
+      border-radius: 11px;
       background: var(--surface);
       color: var(--text);
       font: inherit;
       font-size: 12px;
       font-weight: 750;
       cursor: pointer;
+      text-align: left;
     }
-    .participant-add-toggle:hover { background: var(--surface-hover); }
-    .participant-add-toggle[aria-expanded="true"] {
+    .participant-add-row:hover { background: var(--surface-hover); }
+    .participant-add-row[aria-expanded="true"] {
       border-style: solid;
       background: var(--surface-muted);
     }
-    .participant-add-toggle svg { width: 16px; height: 16px; flex: 0 0 auto; }
+    .participant-add-row svg { width: 17px; height: 17px; flex: 0 0 auto; }
     .participant-add-panel {
-      margin-top: 10px;
+      margin-top: 8px;
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 11px;
       background: #fbfbf9;
     }
-    .participant-add-panel .bulk-body { margin-top: 0; }
-    .participant-add-panel .bulk-add-button { margin-top: 12px; }
+    .participant-bulk-details { margin-top: 12px; }
+    .participant-bulk-details .bulk-body { margin-top: 12px; }
 
     .start-card {
       margin-top: 16px;
@@ -1475,7 +1481,6 @@
       .participant { grid-template-columns: 44px minmax(0,1fr); }
       .participant-actions { grid-column: 1 / -1; justify-content: flex-end; }
       .participant-edit-form { grid-template-columns: minmax(0,1fr) auto auto; grid-column: 2 / -1; }
-      .participant-add-actions { grid-template-columns: 1fr; }
       .small-icon-button { width: 44px; height: 44px; }
       .progress-stat { padding-inline: 5px; text-align: center; }
       .completion-standing { grid-template-columns: 26px minmax(0,1fr); }
