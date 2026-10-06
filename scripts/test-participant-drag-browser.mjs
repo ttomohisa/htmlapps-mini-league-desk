@@ -308,6 +308,92 @@ try {
   }
 
   console.log("[OK] Browser participant drag and add UX smoke test passed.");
+
+  const scoreDocument = {
+    format: "mini-league-desk",
+    schemaVersion: 1,
+    appVersion: "0.9.0",
+    event: {
+      id: "matrix-score-smoke",
+      name: "Matrix Score Smoke",
+      phase: "fixtures",
+      settings: { resultMode: "score", scoreDrawsAllowed: true },
+      participants: [
+        { id: "p1", name: "Alpha" },
+        { id: "p2", name: "Bravo" },
+        { id: "p3", name: "Charlie" }
+      ],
+      rounds: [
+        {
+          number: 1,
+          byeParticipantId: "p1",
+          matches: [
+            { id: "m1", round: 1, order: 1, participantAId: "p2", participantBId: "p3", status: "completed", scoreA: 2, scoreB: 2, result: "draw", winnerId: null }
+          ]
+        },
+        {
+          number: 2,
+          byeParticipantId: "p3",
+          matches: [
+            { id: "m2", round: 2, order: 2, participantAId: "p1", participantBId: "p2", status: "completed", scoreA: 3, scoreB: 1, result: "win", winnerId: "p1" }
+          ]
+        },
+        {
+          number: 3,
+          byeParticipantId: "p2",
+          matches: [
+            { id: "m3", round: 3, order: 3, participantAId: "p3", participantBId: "p1", status: "pending", scoreA: null, scoreB: null, result: null, winnerId: null }
+          ]
+        }
+      ],
+      ui: { matchFilter: "all", matchView: "matrix", participantFocusId: "p1", activePage: "matches" },
+      createdAt: "2026-10-06T00:00:00.000Z",
+      updatedAt: "2026-10-06T00:00:00.000Z"
+    }
+  };
+
+  await cdp.send("Runtime.evaluate", {
+    expression:
+      "localStorage.setItem('mini-league-desk:active-event:v1',JSON.stringify(" +
+      JSON.stringify(scoreDocument) +
+      "));location.reload();"
+  });
+  await sleep(900);
+
+  const matrixState = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const read=(matchId,rowName)=>{" +
+      "const buttons=[...document.querySelectorAll('[data-match-id=\\\"'+matchId+'\\\"]')];" +
+      "const button=buttons.find(candidate=>candidate.closest('tr')?.querySelector('th')?.textContent.trim()===rowName);" +
+      "return button?{symbol:button.querySelector('.matrix-result-symbol')?.textContent.trim()||'',score:button.querySelector('.matrix-result-score')?.textContent.trim()||''}:null;" +
+      "};" +
+      "return {" +
+      "alphaBravo:read('m2','Alpha')," +
+      "bravoAlpha:read('m2','Bravo')," +
+      "bravoCharlie:read('m1','Bravo')," +
+      "charlieBravo:read('m1','Charlie')," +
+      "alphaCharlie:read('m3','Alpha')" +
+      "};" +
+      "})()",
+    returnByValue: true
+  });
+
+  const matrixValue = matrixState.result && matrixState.result.value;
+  const circle = "\u25CB";
+  const cross = "\u00D7";
+  const triangle = "\u25B3";
+  if (!matrixValue ||
+      matrixValue.alphaBravo?.symbol !== circle || matrixValue.alphaBravo?.score !== "3\u20131" ||
+      matrixValue.bravoAlpha?.symbol !== cross || matrixValue.bravoAlpha?.score !== "1\u20133" ||
+      matrixValue.bravoCharlie?.symbol !== triangle || matrixValue.bravoCharlie?.score !== "2\u20132" ||
+      matrixValue.charlieBravo?.symbol !== triangle || matrixValue.charlieBravo?.score !== "2\u20132" ||
+      matrixValue.alphaCharlie?.symbol !== "\u2014" || matrixValue.alphaCharlie?.score !== "") {
+    throw new Error("Round-robin symbol/score display is incorrect: " + JSON.stringify(matrixValue));
+  }
+
+  console.log("[OK] Browser round-robin symbol and score smoke test passed.");
+
 } finally {
   try { if (cdp) cdp.close(); } catch {}
   try { browser.kill(); } catch {}
