@@ -77,7 +77,7 @@ foreach ($case in $matrix) {
     }
 
     if ($null -ne $round.Bye) {
-      if ($active.ContainsKey([int]$round.Bye)) { throw "RC Bye participant also plays." }
+      if ($active.ContainsKey([int]$round.Bye)) { throw "Release Bye participant also plays." }
       $byes[[int]$round.Bye] = $true
     }
   }
