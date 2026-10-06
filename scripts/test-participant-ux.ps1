@@ -7,6 +7,7 @@ $source = Get-Content -Raw -Encoding UTF8 $SourcePath
 
 $required = @(
   "participant-add-row",
+  "min-height: 112px",
   'id="showParticipantAddButton"',
   'id="participantAddPanel"',
   'id="bulkDetails"',
@@ -22,8 +23,14 @@ $required = @(
   "is-drag-placeholder",
   "function positionRosterDragGhost",
   "function animateRosterReflow",
+  "function rosterOrderFromPlaceholder",
+  "function cancelParticipantDrag",
   "cloneNode(true)",
   "ghost.style.left",
+  "window.addEventListener('pointermove'",
+  "window.addEventListener('pointerup'",
+  "window.addEventListener('pointercancel'",
+  "window.addEventListener('blur'",
   "element.animate(",
   "window.scrollBy",
   "body.is-roster-dragging",
@@ -66,7 +73,7 @@ if ($rosterBlock.Contains('id="showBulkAddButton"') -or $rosterBlock.Contains('i
   throw "Bulk add must use the disclosure-style details UI rather than a second add button."
 }
 if (-not $rosterBlock.Contains('class="participant-add-row"')) {
-  throw "Single participant add must use one full-width add row."
+  throw "Single participant add must use one full-width dashed add card."
 }
 
 if (-not $source.Contains("candidate.id !== participantId")) {

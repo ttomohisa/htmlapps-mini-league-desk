@@ -21,7 +21,7 @@ Current release candidate: **v0.9.0**
 - Event setup with an optional event name
 - 3–64 participants
 - Round-robin fixtures with automatic Bye handling for odd rosters
-- Participant management from one list: a full-width + Add participant row, disclosure-style bulk add, rename, remove, shuffle, and reorder
+- Participant management from one list: a full-width dashed + Add participant card, disclosure-style bulk add, rename, remove, shuffle, and reorder
 - Participant ordering by drag handle or keyboard-accessible arrow buttons
 - Three result modes:
   - Win / loss
