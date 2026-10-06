@@ -128,14 +128,26 @@ foreach ($shot in $screenshots) {
   if ($info.Bytes -lt 20000) { throw "Release screenshot looks unexpectedly small: $($shot.Path)" }
 }
 
-$legacyBlobs = @{
-  "assets\screenshot.png" = "66fc76b66a7a241b2507ad488ce0a5514e546258"
-  "assets\screenshot-mobile.png" = "9f854b8cf00453c4615d25fb3df5d37712fc6ae6"
+$staleScreenshotBlobs = @{
+  "assets\screenshot.png" = @(
+    "66fc76b66a7a241b2507ad488ce0a5514e546258",
+    "9363e057c0b6adcbcd9c3eca6e48d8c3b334aadf"
+  )
+  "assets\screenshot-mobile.png" = @(
+    "9f854b8cf00453c4615d25fb3df5d37712fc6ae6",
+    "aa77522b3548b9170d85f73a04c676581856760f"
+  )
+  "assets\screenshot-en.png" = @(
+    "f61cc56b3d535ab1dc192bf7268e490fb2f7d2ad"
+  )
+  "assets\screenshot-mobile-en.png" = @(
+    "06931ab3390938372bb29cc32b73920febe8363e"
+  )
 }
-foreach ($relative in $legacyBlobs.Keys) {
+foreach ($relative in $staleScreenshotBlobs.Keys) {
   $currentBlob = (& git -C $Root hash-object -- $relative).Trim()
-  if ($currentBlob -eq $legacyBlobs[$relative]) {
-    throw "Legacy template screenshot returned: $relative"
+  if (@($staleScreenshotBlobs[$relative]) -contains $currentBlob) {
+    throw "Stale release screenshot returned: $relative"
   }
 }
 
