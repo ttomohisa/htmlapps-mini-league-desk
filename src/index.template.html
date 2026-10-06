@@ -4239,7 +4239,14 @@
 
       $('#showParticipantAddButton').addEventListener('click', () => {
         const open = $('#showParticipantAddButton').getAttribute('aria-expanded') === 'true';
-        setParticipantAddOpen(!open);
+        const nextOpen = !open;
+        if (nextOpen) $('#bulkDetails').open = false;
+        setParticipantAddOpen(nextOpen);
+      });
+      $('#bulkDetails').addEventListener('toggle', () => {
+        if (!$('#bulkDetails').open) return;
+        setParticipantAddOpen(false);
+        requestAnimationFrame(() => $('#bulkParticipants').focus({ preventScroll: true }));
       });
 
       $('#participantForm').addEventListener('submit', event => {
