@@ -3074,20 +3074,34 @@
         render();
       }
 
-      function setParticipantAddMode(mode) {
-        const singleOpen = mode === 'single';
-        const bulkOpen = mode === 'bulk';
-        $('#participantAddPanel').hidden = !singleOpen;
-        $('#bulkAddPanel').hidden = !bulkOpen;
-        $('#showParticipantAddButton').setAttribute('aria-expanded', singleOpen ? 'true' : 'false');
-        $('#showBulkAddButton').setAttribute('aria-expanded', bulkOpen ? 'true' : 'false');
-        if (singleOpen) requestAnimationFrame(() => $('#participantName').focus({ preventScroll: true }));
-        if (bulkOpen) requestAnimationFrame(() => $('#bulkParticipants').focus({ preventScroll: true }));
+      function setParticipantAddOpen(open) {
+        $('#participantAddPanel').hidden = !open;
+        $('#showParticipantAddButton').setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) requestAnimationFrame(() => $('#participantName').focus({ preventScroll: true }));
       }
 
       let editingParticipantId = null;
       let editingParticipantDraft = '';
       let rosterDrag = null;
+
+      function positionRosterDragGhost(drag, clientX, clientY) {
+        drag.ghost.style.left = Math.round(clientX - drag.offsetX) + 'px';
+        drag.ghost.style.top = Math.round(clientY - drag.offsetY) + 'px';
+      }
+
+      function animateRosterReflow(elements, beforeTops) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        elements.forEach(element => {
+          const before = beforeTops.get(element);
+          if (before == null) return;
+          const delta = before - element.getBoundingClientRect().top;
+          if (Math.abs(delta) < 1) return;
+          element.animate(
+            [{ transform: 'translateY(' + delta + 'px)' }, { transform: 'translateY(0)' }],
+            { duration: 155, easing: 'cubic-bezier(.2,.8,.2,1)' }
+          );
+        });
+      }
 
       function beginParticipantDrag(event, participantId) {
         if (state.participants.length < 2) return;
@@ -3096,15 +3110,31 @@
         const item = handle.closest('.participant');
         const list = $('#rosterList');
         if (!(item instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
+
+        const rect = item.getBoundingClientRect();
+        const ghost = item.cloneNode(true);
+        ghost.classList.add('participant-drag-ghost');
+        ghost.setAttribute('aria-hidden', 'true');
+        ghost.removeAttribute('data-participant-id');
+        ghost.style.width = rect.width + 'px';
+        ghost.style.height = rect.height + 'px';
+        ghost.querySelectorAll('button,input').forEach(control => control.setAttribute('tabindex', '-1'));
+        document.body.append(ghost);
+
         rosterDrag = {
           participantId,
           pointerId: event.pointerId,
           handle,
           item,
+          ghost,
+          offsetX: event.clientX - rect.left,
+          offsetY: event.clientY - rect.top,
           before: state.participants.map(participant => participant.id),
           moved: false
         };
-        item.classList.add('is-dragging');
+
+        positionRosterDragGhost(rosterDrag, event.clientX, event.clientY);
+        item.classList.add('is-drag-placeholder');
         list.classList.add('is-dragging');
         document.body.classList.add('is-roster-dragging');
         handle.setPointerCapture?.(event.pointerId);
@@ -3113,15 +3143,52 @@
 
       function moveParticipantDrag(event) {
         if (!rosterDrag || event.pointerId !== rosterDrag.pointerId) return;
-        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
+        const drag = rosterDrag;
+        positionRosterDragGhost(drag, event.clientX, event.clientY);
+
+        const edge = 72;
+        if (event.clientY < edge) window.scrollBy({ top: -10, behavior: 'auto' });
+        else if (event.clientY > window.innerHeight - edge) window.scrollBy({ top: 10, behavior: 'auto' });
+
         const list = $('#rosterList');
-        if (!(target instanceof HTMLElement) || target === rosterDrag.item || target.parentElement !== list) return;
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.participant');
+        if (!(target instanceof HTMLElement) || target === drag.item || target.parentElement !== list) {
+          event.preventDefault();
+          return;
+        }
+
         const rect = target.getBoundingClientRect();
         const after = event.clientY > rect.top + rect.height / 2;
-        if (after) list.insertBefore(rosterDrag.item, target.nextSibling);
-        else list.insertBefore(rosterDrag.item, target);
-        rosterDrag.moved = true;
+        const nextSibling = after ? target.nextSibling : target;
+        if (nextSibling === drag.item) {
+          event.preventDefault();
+          return;
+        }
+
+        const siblings = Array.from(list.querySelectorAll('.participant')).filter(element => element !== drag.item);
+        const beforeTops = new Map(siblings.map(element => [element, element.getBoundingClientRect().top]));
+        list.insertBefore(drag.item, nextSibling);
+        animateRosterReflow(siblings, beforeTops);
+        drag.moved = true;
         event.preventDefault();
+      }
+
+      function finishParticipantDrag(drag, changed) {
+        drag.item.classList.remove('is-drag-placeholder');
+        $('#rosterList').classList.remove('is-dragging');
+        document.body.classList.remove('is-roster-dragging');
+        drag.ghost.remove();
+
+        if (!changed) {
+          renderRoster();
+          return;
+        }
+
+        const order = Array.from($('#rosterList').querySelectorAll('.participant')).map(item => item.dataset.participantId);
+        const byId = new Map(state.participants.map(participant => [participant.id, participant]));
+        state.participants = order.map(id => byId.get(id)).filter(Boolean);
+        renderRoster();
+        showToast(translate('moved'));
       }
 
       function endParticipantDrag(event) {
@@ -3129,18 +3196,26 @@
         const drag = rosterDrag;
         rosterDrag = null;
         try { drag.handle.releasePointerCapture?.(event.pointerId); } catch {}
-        drag.item.classList.remove('is-dragging');
-        $('#rosterList').classList.remove('is-dragging');
-        document.body.classList.remove('is-roster-dragging');
-        if (!drag.moved) return;
+
         const order = Array.from($('#rosterList').querySelectorAll('.participant')).map(item => item.dataset.participantId);
-        const byId = new Map(state.participants.map(participant => [participant.id, participant]));
-        const next = order.map(id => byId.get(id)).filter(Boolean);
-        const changed = next.length === state.participants.length && order.some((id, index) => id !== drag.before[index]);
-        if (!changed) { renderRoster(); return; }
-        state.participants = next;
-        renderRoster();
-        showToast(translate('moved'));
+        const changed = drag.moved && order.length === drag.before.length && order.some((id, index) => id !== drag.before[index]);
+        const finalRect = drag.item.getBoundingClientRect();
+        const ghostRect = drag.ghost.getBoundingClientRect();
+        const dx = finalRect.left - ghostRect.left;
+        const dy = finalRect.top - ghostRect.top;
+
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+          const animation = drag.ghost.animate(
+            [
+              { transform: 'translate3d(0,0,0) rotate(.5deg) scale(1.018)' },
+              { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) rotate(0deg) scale(1)' }
+            ],
+            { duration: 125, easing: 'cubic-bezier(.2,.8,.2,1)' }
+          );
+          animation.finished.then(() => finishParticipantDrag(drag, changed)).catch(() => finishParticipantDrag(drag, changed));
+        } else {
+          finishParticipantDrag(drag, changed);
+        }
       }
 
       function startParticipantEdit(participantId) {
