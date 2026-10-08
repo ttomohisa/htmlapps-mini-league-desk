@@ -52,6 +52,7 @@ $required = @(
   "scripts\test-release-candidate.ps1",
   "scripts\test-rc-feedback.ps1",
   "scripts\test-participant-ux.ps1",
+  "scripts\test-png-header-browser.mjs",
   "README.md",
   "README.ja.md",
   "LICENSE",

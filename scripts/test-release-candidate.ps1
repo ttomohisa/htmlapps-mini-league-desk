@@ -152,7 +152,7 @@ foreach ($relative in $staleScreenshotBlobs.Keys) {
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-Assert-Equal ([string]$app.version) "1.0.0" "Stable release version."
+Assert-Equal ([string]$app.version) "1.0.1" "Stable release version."
 if (-not [bool]$app.build.blockRuntimeNetwork) { throw "blockRuntimeNetwork must remain true." }
 if (-not [bool]$app.build.selfExtract.enabled) { throw "Self-extract build must remain enabled." }
 
@@ -176,10 +176,10 @@ if ($faviconHash -ne "f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c6
 
 $readme = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.md")
 $readmeJa = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.ja.md")
-foreach ($token in @("v1.0.0", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.1", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
   if (-not $readme.Contains($token)) { throw "English README release marker is missing: $token" }
 }
-foreach ($token in @("v1.0.0", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.1", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
   if (-not $readmeJa.Contains($token)) { throw "Japanese README release marker is missing: $token" }
 }
 
@@ -194,6 +194,6 @@ foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
 $builtHtml = Get-Content -Raw -Encoding UTF8 $readable
 if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
 if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
-if (-not $builtHtml.Contains('"version":"1.0.0"')) { throw "Built standalone does not contain config version 1.0.0." }
+if (-not $builtHtml.Contains('"version":"1.0.1"')) { throw "Built standalone does not contain config version 1.0.1." }
 
 Write-Host "[OK] Stable release checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green
