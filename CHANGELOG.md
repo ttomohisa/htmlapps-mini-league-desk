@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - 2026-10-08
+
+- Fixed the exported English standings PNG record heading overlapping the Difference column in score mode.
+- Preserved complete labels, scoring, output values, canvas geometry, and the application UI.
+- Added a real-browser PNG renderer regression for both languages and every scoring mode, including draws enabled/disabled.
+
 ## 1.0.0 - Stable - 2026-10-06
 
 - Promoted the v0.9.0 release candidate to the first stable release without expanding tournament-format scope.

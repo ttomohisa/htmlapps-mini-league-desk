@@ -4,8 +4,8 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v1.0.0
-- **Stable release:** v1.0.0
+- **Current app version:** v1.0.1
+- **Stable release:** v1.0.1
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
 - **Typical scale:** 3–16 participants. The UI may support larger rosters where browser performance remains reasonable.
@@ -322,7 +322,7 @@ Provide print CSS for standings and results.
 
 Every file-producing feature must offer an editable safe filename before saving.
 
-## 18. Current implementation milestone: v1.0.0 Stable Release
+## 18. Stable feature baseline: v1.0.0
 
 v1.0.0 is the stable release promoted from the v0.9.0 release candidate. Feature scope remains frozen for this release: the work is final regression, version alignment, documentation, and release verification rather than adding another tournament format or major workflow.
 
@@ -427,7 +427,7 @@ For each case:
 - CSP contains `connect-src 'none'`.
 - source has no external runtime script, stylesheet, image, frame, font, API, analytics, or telemetry dependency.
 - README privacy claims remain consistent with source and CSP.
-- built standalone contains the v1.0.0 version marker.
+- built standalone contains the current app.config.json version marker.
 
 ### Verification claims
 
@@ -550,3 +550,7 @@ correct event state
 ```
 
 The goal is not to accumulate tournament features. The goal is to make a small round-robin event easy to run.
+
+## 24. v1.0.1 PNG heading correction
+
+The exported standings PNG keeps its full localized record heading within its available column. In score mode, its ink must leave at least 20 px before the Difference column. Keep the existing 1200 px canvas width, row geometry, labels, standings values, CSV/JSON behavior, and application UI unchanged. Verify Japanese and English in Win/Loss, Win/Draw/Loss, and Score modes with draws enabled and disabled.

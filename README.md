@@ -8,7 +8,9 @@
 
 Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and keeps the active event on the device without requiring an account.
 
-Current stable release: **v1.0.0**
+Current stable release: **v1.0.1**
+
+v1.0.1 keeps the full English record heading inside its column in exported standings PNGs. Scoring rules, export values, and the application UI are unchanged.
 
 ## 🚀 Live demo
 
@@ -156,7 +158,7 @@ Best effort:
 ```text
 .
 ├─ src/index.template.html       # Editable application source
-├─ app.config.json               # App metadata and v1.0.0 version
+├─ app.config.json               # App metadata and v1.0.1 version
 ├─ assets/
 │  ├─ favicon.svg
 │  ├─ screenshot.png

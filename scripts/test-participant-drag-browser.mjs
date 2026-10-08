@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { spawn } from "node:child_process";
+import { runPngHeaderSmoke } from "./test-png-header-browser.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const dist = path.join(root, "dist", "index.html");
@@ -393,6 +394,7 @@ try {
   }
 
   console.log("[OK] Browser round-robin symbol and score smoke test passed.");
+  await runPngHeaderSmoke(cdp);
 
 } finally {
   try { if (cdp) cdp.close(); } catch {}
