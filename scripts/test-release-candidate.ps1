@@ -145,14 +145,14 @@ $staleScreenshotBlobs = @{
   )
 }
 foreach ($relative in $staleScreenshotBlobs.Keys) {
-  $currentBlob = (& git -C $Root hash-object -- $relative).Trim()
+  $currentBlob = (& git -C $Root hash-object -- (Join-Path $Root $relative)).Trim()
   if (@($staleScreenshotBlobs[$relative]) -contains $currentBlob) {
     throw "Stale release screenshot returned: $relative"
   }
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-Assert-Equal ([string]$app.version) "1.0.1" "Stable release version."
+Assert-Equal ([string]$app.version) "1.0.2" "Stable release version."
 if (-not [bool]$app.build.blockRuntimeNetwork) { throw "blockRuntimeNetwork must remain true." }
 if (-not [bool]$app.build.selfExtract.enabled) { throw "Self-extract build must remain enabled." }
 
@@ -170,16 +170,16 @@ if ($source.Contains($jaOldLocal)) { throw "Old local-processing badge copy rema
 
 $faviconPath = Join-Path $Root "assets\favicon.svg"
 $faviconHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $faviconPath).Hash.ToLowerInvariant()
-if ($faviconHash -ne "f193a4a50de2bb3ed918a076dee6b4a557ed218c03fffb438e3613b6c66bac45") {
+if ($faviconHash -ne "49785deb702cea23f0a50874af9eb980dd79ddd453ed340245ae5f862c6412ab") {
   throw "Favicon must match the approved Mini League Desk SVG."
 }
 
 $readme = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.md")
 $readmeJa = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "README.ja.md")
-foreach ($token in @("v1.0.1", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.2", "assets/screenshot-en.png", "assets/screenshot-mobile-en.png", "connect-src 'none'")) {
   if (-not $readme.Contains($token)) { throw "English README release marker is missing: $token" }
 }
-foreach ($token in @("v1.0.1", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
+foreach ($token in @("v1.0.2", "assets/screenshot.png", "assets/screenshot-mobile.png", "connect-src 'none'")) {
   if (-not $readmeJa.Contains($token)) { throw "Japanese README release marker is missing: $token" }
 }
 
@@ -194,6 +194,6 @@ foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
 $builtHtml = Get-Content -Raw -Encoding UTF8 $readable
 if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
 if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
-if (-not $builtHtml.Contains('"version":"1.0.1"')) { throw "Built standalone does not contain config version 1.0.1." }
+if (-not $builtHtml.Contains('"version":"1.0.2"')) { throw "Built standalone does not contain config version 1.0.2." }
 
 Write-Host "[OK] Stable release checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green

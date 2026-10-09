@@ -4,8 +4,8 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v1.0.1
-- **Stable release:** v1.0.1
+- **Current app version:** v1.0.2
+- **Stable release:** v1.0.2
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
 - **Typical scale:** 3–16 participants. The UI may support larger rosters where browser performance remains reasonable.
@@ -554,3 +554,9 @@ The goal is not to accumulate tournament features. The goal is to make a small r
 ## 24. v1.0.1 PNG heading correction
 
 The exported standings PNG keeps its full localized record heading within its available column. In score mode, its ink must leave at least 20 px before the Difference column. Keep the existing 1200 px canvas width, row geometry, labels, standings values, CSV/JSON behavior, and application UI unchanged. Verify Japanese and English in Win/Loss, Win/Draw/Loss, and Score modes with draws enabled and disabled.
+
+## v1.0.2 icon consistency
+
+- The canonical icon background and matching green details use `#16624f`.
+- Background corner radii are exactly 25% of their corresponding width and height; existing bounds, padding, and foreground artwork are preserved.
+- Header, favicon, and self-extract loader inherit the canonical `assets/favicon.svg`.
