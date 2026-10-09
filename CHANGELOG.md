@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2026-10-09
+
+### Fixed
+- Normalize the canonical app icon to `#16624f` with exact 25% background corner radii, preserving existing artwork and padding.
+- Keep the app header, favicon, and generated standalone variants synchronized.
+
 ## 1.0.1 - 2026-10-08
 
 - Fixed the exported English standings PNG record heading overlapping the Difference column in score mode.
