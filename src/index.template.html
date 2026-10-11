@@ -33,6 +33,8 @@
     }
     * { box-sizing: border-box; }
     html { min-height: 100%; background: var(--bg); }
+    html:has(dialog:modal),
+    body:has(dialog:modal) { overflow: hidden; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -1235,6 +1237,10 @@
       box-shadow: var(--shadow-md);
     }
     dialog::backdrop { background: rgba(15,17,14,.52); backdrop-filter: blur(4px); }
+    #backupExportDialog[open],
+    #exportDialog[open],
+    #resultDialog[open],
+    #appConfirmDialog[open] { display: flex; flex-direction: column; }
     #helpDialog[open] { display: flex; flex-direction: column; max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
     .dialog-header {
       display: flex;
@@ -1271,6 +1277,7 @@
     .app-confirm-dialog { width: min(420px,calc(100% - 24px)); max-width: 100%; }
     .app-confirm-header {
       display: flex;
+      flex: 0 0 auto;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -1291,7 +1298,7 @@
     }
     .app-confirm-close:hover { background: var(--surface-hover); }
     .app-confirm-close svg { width: 19px; height: 19px; }
-    .app-confirm-body { padding: 18px; }
+    .app-confirm-body { min-height: 0; flex: 1 1 auto; padding: 18px; overflow: auto; overscroll-behavior: contain; }
     .app-confirm-message { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
     .app-confirm-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 18px; }
     .app-confirm-button {
@@ -2005,6 +2012,7 @@
         <li data-i18n="helpNoteNoSave">大会内容はこの端末に自動保存されます。別の端末へ移す場合はJSONバックアップを利用できます。</li>
         <li data-i18n="helpNoteNames">同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。</li>
         <li data-i18n="helpNoteScope">スマホでは下部の進行・対戦・順位で切り替えます。CSV・順位PNG・印刷も端末内で生成できます。</li>
+        <li data-i18n="helpModalScroll">ダイアログを開いている間は背景のスクロールが止まります。見出しは固定され、下の項目や操作へはダイアログ内をスクロールして進めます。</li>
       </ul>
       <p class="dialog-note" data-i18n="helpOffline">配布用HTMLはローカルで直接開いて利用できます。</p>
       <!-- APP:HELP:END -->
@@ -2143,6 +2151,7 @@
           helpNoteNoSave: '大会内容はこの端末に自動保存されます。別のブラウザや端末へ移す場合はJSONバックアップを利用できます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
           helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。大会中はCSV・順位PNG・印刷で結果を出力できます。',
+          helpModalScroll: 'ダイアログを開いている間は背景のスクロールが止まります。見出しは固定され、下の項目や操作へはダイアログ内をスクロールして進めます。',
           helpOffline: '配布用HTMLはローカルで直接開いて利用できます。'
         },
         en: {
@@ -2183,6 +2192,7 @@
           helpNoteNoSave: 'The event is saved automatically on this device. Use JSON backup when moving it to another browser or device.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
           helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. During an event you can export CSV files, a standings PNG, or a print layout.',
+          helpModalScroll: 'Background scrolling is paused while a dialog is open. Scroll inside it to reach lower fields and actions; the header stays visible.',
           helpOffline: 'The distributable HTML can be opened directly from local storage.'
         }
       };

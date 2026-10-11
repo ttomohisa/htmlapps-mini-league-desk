@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3] - 2026-10-11
+
+### Fixed
+- Pause background page scrolling while a native modal dialog is open.
+- Keep Backup, Output, Result, and Confirmation headers visible while their bodies scroll to all lower actions in short viewports.
+- Preserve Help's bounded reading-area scroll, existing dialog behavior, and local-processing shield.
+- Add modal-layout contracts for source and every generated HTML representation, with Japanese and English Help/documentation updates.
+
 ## [1.0.2] - 2026-10-09
 
 ### Fixed
