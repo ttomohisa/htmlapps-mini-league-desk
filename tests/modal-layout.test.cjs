@@ -27,11 +27,11 @@ test('native modal root and body locks are scoped to an open modal', () => {
     'Both document scrolling roots must lock only while a native modal is open.');
 });
 
-test('JA and EN Help document the temporary background lock', () => {
+test('Help omits internal layout and focus audit prose', () => {
   const help = html.match(/<!-- APP:HELP:BEGIN -->([\s\S]*?)<!-- APP:HELP:END -->/)[1];
-  assert.match(help, /data-i18n="helpModalScroll"/);
-  assert.ok(html.includes("helpModalScroll: 'ダイアログを開いている間は背景のスクロールが止まります。見出しは固定され、下の項目や操作へはダイアログ内をスクロールして進めます。'"));
-  assert.ok(html.includes("helpModalScroll: 'Background scrolling is paused while a dialog is open. Scroll inside it to reach lower fields and actions; the header stays visible.'"));
+  assert.doesNotMatch(help, /data-i18n="helpModalScroll"/);
+  assert.ok(!html.includes("helpModalScroll: 'ダイアログを開いている間は背景のスクロールが止まります。見出しは固定され、下の項目や操作へはダイアログ内をスクロールして進めます。'"));
+  assert.ok(!html.includes("helpModalScroll: 'Background scrolling is paused while a dialog is open. Scroll inside it to reach lower fields and actions; the header stays visible.'"));
 });
 
 test('Help retains its bounded open-only shell and independent reading scroll', () => {
