@@ -53,6 +53,7 @@ $required = @(
   "scripts\test-rc-feedback.ps1",
   "scripts\test-participant-ux.ps1",
   "scripts\test-png-header-browser.mjs",
+  "tests\modal-layout.test.cjs",
   "README.md",
   "README.ja.md",
   "LICENSE",
@@ -308,6 +309,17 @@ if ($rootHtmlHash -ne $readableOutputHash) {
 
 Write-Host "[OK] Repository-root HTML matches the readable standalone build: $rootHtmlPath" -ForegroundColor Green
 & (Join-Path $Root "scripts\test-release-candidate.ps1")
+
+# Apply modal-layout contracts to source and all shipped representations.
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Node.js 18 or newer is required for modal-layout regression checks." }
+$previousLeagueSource = $env:MINI_LEAGUE_DESK_SOURCE
+try {
+  foreach ($runtimePath in @("src/index.template.html", "mini-league-desk.html", "dist/index.html", "dist/index.self-extract.html")) {
+    $env:MINI_LEAGUE_DESK_SOURCE = $runtimePath
+    & node --test (Join-Path $Root "tests/modal-layout.test.cjs")
+    if ($LASTEXITCODE -ne 0) { throw "Modal-layout regression tests failed: $runtimePath" }
+  }
+} finally { $env:MINI_LEAGUE_DESK_SOURCE = $previousLeagueSource }
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
 
 # WebRTC readiness DataChannel regression

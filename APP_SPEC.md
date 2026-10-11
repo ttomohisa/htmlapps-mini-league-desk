@@ -4,8 +4,8 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v1.0.2
-- **Stable release:** v1.0.2
+- **Current app version:** v1.0.3
+- **Stable release:** v1.0.3
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
 - **Typical scale:** 3–16 participants. The UI may support larger rosters where browser performance remains reasonable.
@@ -560,3 +560,11 @@ The exported standings PNG keeps its full localized record heading within its av
 - The canonical icon background and matching green details use `#16624f`.
 - Background corner radii are exactly 25% of their corresponding width and height; existing bounds, padding, and foreground artwork are preserved.
 - Header, favicon, and self-extract loader inherit the canonical `assets/favicon.svg`.
+
+## v1.0.3 modal scrolling
+
+- Pause document scrolling while any native modal dialog is open, then restore normal scrolling when it closes.
+- Bound Backup, Output, Result, and Confirmation dialogs to the viewport with an open-only flex column, a non-shrinking header, and a shrinking independently scrolling body containing all lower actions.
+- Preserve the Help dialog's fixed header, independent reading-area scroll, safe-area padding, dismissal, and focus return.
+- Keep result entry, standings, persistence, exports, and the existing local-processing shield unchanged.
+- Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
