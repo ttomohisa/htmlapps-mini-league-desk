@@ -568,3 +568,7 @@ The exported standings PNG keeps its full localized record heading within its av
 - Preserve the Help dialog's fixed header, independent reading-area scroll, safe-area padding, dismissal, and focus return.
 - Keep result entry, standings, persistence, exports, and the existing local-processing shield unchanged.
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
+
+## Shared phone layout
+
+- Hide only the informational footer at the existing 600px phone breakpoint; preserve functional controls and canonical Fully local processing wording.
