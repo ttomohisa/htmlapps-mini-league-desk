@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Hide only the informational footer at the existing 600px phone breakpoint; preserve functional controls and canonical Fully local processing wording.
+
+
 - Clarify Japanese and English help by removing internal layout, implementation, and audit commentary while preserving usage guidance and cautions.
 
 ## [1.0.3] - 2026-10-11

@@ -13,12 +13,13 @@ function findBrowser() {
   const pf = process.env.ProgramFiles || "C:\\Program Files";
   const pfx86 = process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
   const candidates = [
+    process.env.BROWSER_EXECUTABLE_PATH,
     path.join(pf, "Google", "Chrome", "Application", "chrome.exe"),
     path.join(pfx86, "Google", "Chrome", "Application", "chrome.exe"),
     path.join(pf, "Microsoft", "Edge", "Application", "msedge.exe"),
     path.join(pfx86, "Microsoft", "Edge", "Application", "msedge.exe")
   ];
-  const found = candidates.find(candidate => fs.existsSync(candidate));
+  const found = candidates.find(candidate => candidate && fs.existsSync(candidate));
   if (!found) throw new Error("Chrome or Edge was not found.");
   return found;
 }
@@ -58,12 +59,15 @@ const browser = spawn(findBrowser(), [
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-async function fetchJson(url, attempts = 50) {
+async function fetchJson(url, attempts = 50, ready = () => true) {
   let lastError;
   for (let i = 0; i < attempts; i += 1) {
     try {
       const response = await fetch(url);
-      if (response.ok) return await response.json();
+      if (response.ok) {
+        const value = await response.json();
+        if (ready(value)) return value;
+      }
     } catch (error) {
       lastError = error;
     }
@@ -108,8 +112,8 @@ class Cdp {
 
 let cdp;
 try {
-  const pages = await fetchJson("http://127.0.0.1:" + debugPort + "/json/list");
-  const page = pages.find(item => item.type === "page");
+  const pages = await fetchJson("http://127.0.0.1:" + debugPort + "/json/list", 50, pages => pages.some(item => item.type === "page" && item.webSocketDebuggerUrl));
+  const page = pages.find(item => item.type === "page" && item.webSocketDebuggerUrl);
   if (!page || !page.webSocketDebuggerUrl) throw new Error("Page target was not found.");
 
   cdp = new Cdp(page.webSocketDebuggerUrl);

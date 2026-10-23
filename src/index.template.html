@@ -1566,7 +1566,9 @@
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
-  </style>
+  
+    @media (max-width: 600px) { body > footer { display: none; } }
+</style>
 </head>
 <body>
   <header class="app-header">
