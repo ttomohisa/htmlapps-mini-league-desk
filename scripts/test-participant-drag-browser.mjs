@@ -13,12 +13,13 @@ function findBrowser() {
   const pf = process.env.ProgramFiles || "C:\\Program Files";
   const pfx86 = process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
   const candidates = [
+    process.env.BROWSER_EXECUTABLE_PATH,
     path.join(pf, "Google", "Chrome", "Application", "chrome.exe"),
     path.join(pfx86, "Google", "Chrome", "Application", "chrome.exe"),
     path.join(pf, "Microsoft", "Edge", "Application", "msedge.exe"),
     path.join(pfx86, "Microsoft", "Edge", "Application", "msedge.exe")
   ];
-  const found = candidates.find(candidate => fs.existsSync(candidate));
+  const found = candidates.find(candidate => candidate && fs.existsSync(candidate));
   if (!found) throw new Error("Chrome or Edge was not found.");
   return found;
 }

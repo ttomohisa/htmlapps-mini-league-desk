@@ -58,7 +58,12 @@ jobs:
         retention-days: 3
     - name: Browser smoke test participant drag
       shell: pwsh
-      run: node ./scripts/test-participant-drag-browser.mjs
+      run: |
+        $env:NODE_PATH = Join-Path $env:RUNNER_TEMP "mobile-layout-tests/node_modules"
+        $env:BROWSER_EXECUTABLE_PATH = node -e "process.stdout.write(require('playwright').chromium.executablePath())"
+        if ($LASTEXITCODE -ne 0) { throw "Chromium executable lookup failed." }
+        node ./scripts/test-participant-drag-browser.mjs
+        if ($LASTEXITCODE -ne 0) { throw "Participant drag browser regression failed." }
     - name: Upload static preview site
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       with:
