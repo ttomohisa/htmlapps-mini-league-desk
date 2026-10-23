@@ -14,7 +14,7 @@ try{await page.goto(pathToFileURL(path.resolve(file)).href);await page.locator('
 if(await page.locator('html').getAttribute('lang')!==language)await page.locator('#languageButton').click();
 assert.equal((await page.locator('[data-i18n="localBadge"]').textContent()).trim(),language==='ja'?'完全ローカル処理':'Fully local processing');if(await page.locator('.local-badge').isVisible())await bounds(page.locator('.local-badge'),width,height,label,false);
 assert.equal(await page.locator('body > footer').isVisible(),width>cfg.bp,label+': informational footer');
-await page.locator('#showParticipantAddButton').click();for(const name of ['Synthetic A','Synthetic B','Synthetic C']){await page.locator('#participantName').fill(name);await page.locator('#addParticipantButton').click();}await page.locator('#confirmParticipantsButton').click();await page.locator('#fixtureView').waitFor();
+for(const name of ['Synthetic A','Synthetic B','Synthetic C']){await page.locator('#showParticipantAddButton').click();await page.locator('#participantName').fill(name);await page.locator('#addParticipantButton').click();}await page.locator('#confirmParticipantsButton').click();await page.locator('#fixtureView').waitFor();
 if(cfg.nav){assert.equal(await page.locator(cfg.nav).isVisible(),width<=cfg.bp,label+': functional navigation');if(width<=cfg.bp)await bounds(page.locator(cfg.nav),width,height,label);}
 for(const w of [cfg.bp+1,cfg.bp,width]){await page.setViewportSize({width:w,height});assert.equal(await page.locator('body > footer').isVisible(),w>cfg.bp,label+': footer resize');}
 await page.evaluate(()=>scrollTo({left:0,top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
