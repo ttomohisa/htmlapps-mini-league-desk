@@ -96,8 +96,8 @@
       border-radius: 999px;
       color: var(--muted);
       background: var(--surface-muted);
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 650;
       vertical-align: 2px;
     }
     .brand-meta {
@@ -130,6 +130,8 @@
       background: var(--surface);
       cursor: pointer;
     }
+    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; }
+    .dialog-close svg { width: 18px; height: 18px; }
     .icon-button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
     .header-icon-button {
       width: auto;
@@ -172,13 +174,13 @@
       gap: 7px;
       flex: 0 0 auto;
       margin-top: 3px;
-      padding: 7px 10px;
-      border: 1px solid color-mix(in srgb,var(--accent) 24%,var(--line));
-      border-radius: 999px;
+      padding: 7px 0;
+      border: 0;
+      border-radius: 0;
       color: var(--accent);
-      background: var(--accent-soft);
+      background: transparent;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
       white-space: nowrap;
     }
     .local-badge svg { width: 15px; height: 15px; }
@@ -1871,7 +1873,7 @@
     </button>
   </nav>
 
-  <footer><span>Mini League Desk</span> · MIT License · <span data-i18n="footer">ブラウザだけで使える小大会運営ツール</span></footer>
+  <footer><span>Mini League Desk</span> · MIT License · <span data-i18n="footer">大会の運営はブラウザー内で完結</span></footer>
 
   <div class="app-toast" id="appToast" role="status" aria-live="polite" aria-atomic="true" data-tone="default">
     <span class="app-toast-message" id="appToastMessage"></span>
@@ -1900,8 +1902,8 @@
   <dialog class="backup-dialog" id="backupExportDialog" aria-labelledby="backupExportTitle" aria-describedby="backupFilenameHelp">
     <div class="dialog-header">
       <h2 id="backupExportTitle" data-i18n="backupExportTitle">JSONバックアップを保存</h2>
-      <button class="icon-button" id="closeBackupExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      <button class="dialog-close" id="closeBackupExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12"/><path d="M18 6 6 18"/></svg>
       </button>
     </div>
     <form class="dialog-body" id="backupExportForm">
@@ -1921,8 +1923,8 @@
   <dialog class="export-dialog" id="exportDialog" aria-labelledby="exportTitle" aria-describedby="exportFilenameHelp">
     <div class="dialog-header">
       <h2 id="exportTitle" data-i18n="exportTitle">大会結果を出力</h2>
-      <button class="icon-button" id="closeExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      <button class="dialog-close" id="closeExportButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12"/><path d="M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="dialog-body">
@@ -1955,8 +1957,8 @@
   <dialog class="result-dialog" id="resultDialog" aria-labelledby="resultDialogTitle" aria-describedby="resultDialogMeta">
     <div class="dialog-header">
       <h2 id="resultDialogTitle" data-i18n="resultDialogTitle">試合結果</h2>
-      <button class="icon-button" id="closeResultButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      <button class="dialog-close" id="closeResultButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12"/><path d="M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="dialog-body">
@@ -1995,8 +1997,8 @@
   <dialog id="helpDialog" aria-labelledby="helpTitle">
     <div class="dialog-header">
       <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
-      <button class="icon-button" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      <button class="dialog-close" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12"/><path d="M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="dialog-body">
@@ -2134,7 +2136,7 @@
           navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixHelp: '○=勝ち、×=負け、△=引き分け。得点入力では点数も表示します。横にスクロールできます。', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixCorner: '対戦', matrixPending: '—', matrixWinLabel: '勝ち', matrixLossLabel: '負け', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixCellScoreLabel: '{result}、{score}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
           backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
-          defaultTournament: '新しい大会', footer: 'ブラウザだけで使える小大会運営ツール',
+          defaultTournament: '新しい大会', footer: '大会の運営はブラウザー内で完結',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
           bulkTooMany: '追加すると64人を超えます。', addedOne: '{name} を追加しました。', addedMany: '{count}人を追加しました。',
@@ -2175,7 +2177,7 @@
           navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixHelp: '○ = win, × = loss, △ = draw. Score mode also shows the score. Scroll horizontally when needed.', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixCorner: 'vs', matrixPending: '—', matrixWinLabel: 'Win', matrixLossLabel: 'Loss', matrixCellLabel: '{row} vs {opponent}: {result}', matrixCellScoreLabel: '{result}, {score}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
           backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
-          defaultTournament: 'New event', footer: 'A small-event desk that runs entirely in your browser',
+          defaultTournament: 'New event', footer: 'League management stays in the browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
           bulkTooMany: 'Adding these names would exceed 64 participants.', addedOne: 'Added {name}.', addedMany: 'Added {count} participants.',
