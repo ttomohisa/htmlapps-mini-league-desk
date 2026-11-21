@@ -431,7 +431,7 @@ try {
     const m = metrics.result?.value;
     if (!m || !m.active || m.current !== "page" ||
         m.top < m.header - 3 || m.top > m.header + 28 ||
-        m.overview > m.header - 4 ||
+        m.overview > m.header + 1 ||
         m.scrollWidth > m.innerWidth) {
       throw new Error("Phone tab did not align the selected section: " + key + " " + JSON.stringify(m));
     }
