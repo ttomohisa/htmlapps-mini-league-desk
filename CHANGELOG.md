@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixed (v1.0.4 candidate)
+- Prevent stale-tab saves from replacing another tab's results; show persistent warnings for conflicts and storage failure.
+- Include score-for in score-mode standings PNG.
+- Normalize participant-name Unicode limits, use local dates in export names, and prevent imported pairing-key collisions.
+
+
 - Hide only the informational footer at the existing 600px phone breakpoint; preserve functional controls and canonical Fully local processing wording.
 
 

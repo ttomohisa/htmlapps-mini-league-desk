@@ -8,7 +8,7 @@
 
 Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and keeps the active event on the device without requiring an account.
 
-Current stable release: **v1.0.3**
+Current source version: **v1.0.4** (unreleased). Latest tagged release: **v1.0.3**
 
 v1.0.3 pauses background page scrolling while a dialog is open. Dialog headers stay visible while their bodies scroll, keeping backup, output, result-entry, and confirmation actions reachable in short windows. Help retains its fixed header and independently scrollable reading area.
 
@@ -85,6 +85,8 @@ The active event is saved to browser local storage and normally returns after re
 
 Browser or operating-system actions can still clear site data. JSON backup is therefore the recovery and portability path for important events.
 
+If an event changes in another tab, the current tab stops automatic saving. Export a JSON backup first if needed, then reload. Failed browser-storage writes also show a persistent warning. Score-based PNG standings include score-for.
+
 Exports available during an event:
 
 - Match Results CSV
@@ -158,7 +160,7 @@ Best effort:
 ```text
 .
 ├─ src/index.template.html       # Editable application source
-├─ app.config.json               # App metadata and v1.0.3 version
+├─ app.config.json               # App metadata and v1.0.4 version
 ├─ assets/
 │  ├─ favicon.svg
 │  ├─ screenshot.png

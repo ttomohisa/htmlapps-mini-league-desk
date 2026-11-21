@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v1.0.3
+- **Current app version:** v1.0.4 (unreleased)
 - **Stable release:** v1.0.3
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -568,6 +568,13 @@ The exported standings PNG keeps its full localized record heading within its av
 - Preserve the Help dialog's fixed header, independent reading-area scroll, safe-area padding, dismissal, and focus return.
 - Keep result entry, standings, persistence, exports, and the existing local-processing shield unchanged.
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
+
+## v1.0.4 correctness fixes
+- Stop stale tabs from overwriting another tab's event changes; ignore navigation and timestamps for conflicts.
+- Retain localized warnings on storage failure; offer confirmed reload or JSON backup.
+- Include score-for in score-mode standings PNG exports.
+- Validate 80 Unicode code points consistently across participant-name entry.
+- Use local dates in filenames and collision-free participant-ID pair keys.
 
 ## Shared phone layout
 
