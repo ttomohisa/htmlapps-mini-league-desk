@@ -398,6 +398,46 @@ try {
   }
 
   console.log("[OK] Browser round-robin symbol and score smoke test passed.");
+
+  // Mobile bottom navigation: each selection must bring its own section just below
+  // the sticky header, not leave the overview as the scroll destination.
+  await cdp.send("Emulation.setDeviceMetricsOverride", {
+    width: 390, height: 780, deviceScaleFactor: 1, mobile: true
+  });
+  await sleep(200);
+  for (const [key, pageId] of [
+    ["standings", "standingsPage"],
+    ["matches", "matchesPage"],
+    ["progress", "progressPage"],
+    ["standings", "standingsPage"]
+  ]) {
+    await cdp.send("Runtime.evaluate", {
+      expression: "document.querySelector('[data-mobile-key=\"" + key + "\"]').click()"
+    });
+    await sleep(240);
+    const metrics = await cdp.send("Runtime.evaluate", {
+      expression:
+        "(() => {" +
+        "const page=document.getElementById('" + pageId + "');" +
+        "const rect=page.getBoundingClientRect();" +
+        "return {top:rect.top,header:document.querySelector('.app-header').getBoundingClientRect().height," +
+        "overview:document.querySelector('.fixture-hero').getBoundingClientRect().bottom," +
+        "active:page.classList.contains('is-mobile-active')," +
+        "current:document.querySelector('[data-mobile-key=\"" + key + "\"]').getAttribute('aria-current')," +
+        "scrollWidth:document.documentElement.scrollWidth,innerWidth:window.innerWidth};" +
+        "})()",
+      returnByValue: true
+    });
+    const m = metrics.result?.value;
+    if (!m || !m.active || m.current !== "page" ||
+        m.top < m.header - 3 || m.top > m.header + 28 ||
+        m.overview > m.header - 4 ||
+        m.scrollWidth > m.innerWidth) {
+      throw new Error("Phone tab did not align the selected section: " + key + " " + JSON.stringify(m));
+    }
+  }
+  console.log("[OK] Phone navigation scrolls to the selected section, not the overview.");
+
   await runPngHeaderSmoke(cdp);
 
 } finally {

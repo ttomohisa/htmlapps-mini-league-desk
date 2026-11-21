@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Design refinement (v1.0.4 candidate)
+- Restyle event overview edit/output and other secondary actions as quiet text links; reduce button visual weight while preserving clear confirmation controls.
+- Align the tapped mobile tab's section just below the sticky header, including short standing lists; verify navigation in Chromium.
 - Restore a restrained white outline around the event overview, keeping its internal statistics flat and unboxed.
 - Keep the large setup and event section cards, but present internal statistics, round fixtures, matches, standings and settings as open lists with gentle separators.
 - Preserve button affordances, the single highlighted next-match area, keyboard focus, the roster's drag feedback, and mobile navigation.

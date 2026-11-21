@@ -570,6 +570,9 @@ The exported standings PNG keeps its full localized record heading within its av
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
 
 ## v1.0.4 visual hierarchy
+- Event edit and export are low-emphasis link-style buttons; primary confirmation actions retain a clear filled state. Touch areas and focus outlines remain accessible.
+- Mobile bottom navigation reveals and scrolls to the selected section below the sticky app header, never to the event overview; short sections reserve enough scroll height.
+
 - Keep top-level section boundaries but avoid nested framed cards for statistics, options, schedules, match results, and standings.
 - Use whitespace, lightweight dividers, and typography for nested content; use a single restrained accent surface to focus the upcoming match.
 - Preserve touch targets, keyboard focus, radio selection states, drag feedback, accessible names, and small-screen readability.

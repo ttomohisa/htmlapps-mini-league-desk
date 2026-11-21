@@ -1744,6 +1744,140 @@
     }
 
 
+
+    /* Quiet controls: navigation and exports read as links; confirmations remain buttons. */
+    .button {
+      min-height: 42px;
+      padding: 8px 13px;
+      border: 1px solid #d6dad4;
+      border-radius: 8px;
+      background: #fbfcfa;
+      font-size: 13px;
+      font-weight: 650;
+      box-shadow: none;
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
+    }
+    .button:hover:not(:disabled) {
+      border-color: #b9c7bf;
+      background: #f1f6f2;
+    }
+    .button:active:not(:disabled) { transform: none; }
+    .button.primary {
+      border-color: var(--accent);
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+    .button.primary:hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
+    .button.text-link {
+      min-height: 44px;
+      width: auto;
+      padding: 9px 3px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #56645b;
+      font-size: 12px;
+      font-weight: 650;
+      text-align: left;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      text-underline-offset: 4px;
+      cursor: pointer;
+    }
+    .button.text-link:hover:not(:disabled) {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      text-decoration-color: currentColor;
+    }
+    .button.text-link.danger-ghost { color: var(--muted); }
+    .button.text-link.danger-ghost:hover:not(:disabled) { color: var(--danger); }
+    .fixture-actions.data-actions { gap: 22px; align-items: center; }
+    .fixture-actions.data-actions .button.text-link { width: auto; white-space: nowrap; }
+    .backup-details > summary { padding-inline: 3px; }
+    .backup-detail-actions { gap: 20px; }
+    .backup-detail-actions .button {
+      min-height: 40px;
+      padding: 7px 2px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .backup-detail-actions .button:hover:not(:disabled) {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .participant-add-row {
+      flex-direction: row;
+      min-height: 68px;
+      gap: 10px;
+      border-color: #d0d7d1;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .participant-add-row svg { width: 18px; height: 18px; }
+    .participant-add-row:hover { background: #f1f7f3; border-color: #94b5a4; color: var(--accent); }
+    .result-choice {
+      min-height: 52px;
+      padding: 12px 9px;
+      border: 0;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+    }
+    .result-choice:hover { border-color: var(--line); border-left-color: transparent; background: #f4f8f5; }
+    .result-choice.is-current { border-color: var(--line); border-left-color: var(--accent); background: #edf5f0; }
+    .export-option {
+      min-height: 72px;
+      padding: 12px 8px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .export-option:hover { border-color: var(--line); background: #f4f8f5; }
+    .app-confirm-button { border-radius: 8px; font-weight: 700; }
+
+    @media (max-width: 520px) {
+      .fixture-actions.data-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        width: auto;
+      }
+      .fixture-actions.data-actions .button.text-link {
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        padding-inline: 3px;
+      }
+      .roster-toolbar .button-row { width: auto; }
+      .roster-toolbar .button.text-link { flex: 0 0 auto; }
+      .result-choice { min-height: 56px; }
+    }
+    @media (max-width: 600px) {
+      body.has-mobile-page-tabs .app-mobile-page.is-mobile-active {
+        /* Reserve enough page height so even short standings can align below the sticky header. */
+        min-height: calc(100dvh - var(--header-height) - var(--app-mobile-bottom-bar-height) + 8px);
+        scroll-margin-top: calc(var(--header-height) + 12px);
+      }
+    }
+
+
     @media print {
       @page { size: auto; margin: 12mm; }
       body { background: #fff !important; color: #111 !important; }
@@ -1872,7 +2006,7 @@
         <div class="section-divider"></div>
 
         <div class="button-row">
-          <button class="button danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
+          <button class="button text-link danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
         </div>
         <details class="backup-details">
           <summary data-i18n="backupDetails">バックアップ・復元</summary>
@@ -1908,7 +2042,7 @@
             <div class="roster-toolbar">
               <span class="field-note" id="reorderHelp" data-i18n="reorderHelp">ドラッグまたは矢印で順番を調整できます。</span>
               <div class="button-row">
-                <button class="button" id="shuffleButton" type="button" data-i18n="shuffle">シャッフル</button>
+                <button class="button text-link" id="shuffleButton" type="button" data-i18n="shuffle">シャッフル</button>
               </div>
             </div>
             <ol class="roster-list" id="rosterList"></ol>
@@ -1967,8 +2101,8 @@
           <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
         </div>
         <div class="fixture-actions data-actions">
-          <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
-          <button class="button primary" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
+          <button class="button text-link" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
+          <button class="button text-link" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
         </div>
         <details class="backup-details fixture-backup-details">
           <summary data-i18n="backupDetails">バックアップ・復元</summary>
@@ -2008,7 +2142,7 @@
               <div class="following-list" id="followingMatches"></div>
             </div>
             <div class="progress-actions">
-              <button class="button" id="viewPendingButton" type="button"><span data-i18n="viewPending">未実施試合を見る</span> <span id="viewPendingCount"></span></button>
+              <button class="button text-link" id="viewPendingButton" type="button"><span data-i18n="viewPending">未実施試合を見る</span> <span id="viewPendingCount"></span></button>
             </div>
           </div>
           <div class="completion-card" id="completionState" hidden>
@@ -2016,8 +2150,8 @@
             <p data-i18n="eventCompleteLead">最終順位が確定しました。</p>
             <div class="completion-standings" id="completionStandings"></div>
             <div class="progress-actions">
-              <button class="button primary" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
-              <button class="button" id="completionExportButton" type="button" data-i18n="exportOpen">出力</button>
+              <button class="button text-link" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
+              <button class="button text-link" id="completionExportButton" type="button" data-i18n="exportOpen">出力</button>
             </div>
           </div>
         </section>
@@ -2073,7 +2207,7 @@
           <div class="rounds-grid" id="roundsContainer"></div>
           <div class="match-filter-empty" id="matchFilterEmpty" hidden>
             <div data-i18n="filterEmpty">該当する試合はありません。</div>
-            <button class="button" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
+            <button class="button text-link" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
           </div>
         </div>
 
@@ -2594,7 +2728,6 @@
           if (!(root instanceof HTMLElement)) throw new TypeError('A mobile bottom bar root element is required.');
           const buttons = Array.from(root.querySelectorAll('.app-mobile-bottom-item'));
           const mobileQuery = window.matchMedia?.('(max-width: 600px)') || null;
-          const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
           let currentPageKey = null;
           function setActive(key) {
             buttons.forEach(button => {
@@ -2618,11 +2751,14 @@
             persistEvent();
             if (mobileQuery?.matches && showOptions.scroll !== false) {
               const page = document.getElementById(button.dataset.mobilePageTarget);
-              const topTarget = document.getElementById(options.pageTopTarget || '') || page;
-              if (topTarget) {
-                const top = Math.max(0, topTarget.getBoundingClientRect().top + window.scrollY - (options.pageTopOffset || 0));
-                window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
-              }
+              // Measure the newly visible page after layout, not the event overview.
+              // A short standings page has sufficient minimum height for this target.
+              requestAnimationFrame(() => {
+                if (!page || currentPageKey !== key || !mobileQuery.matches) return;
+                const headerHeight = document.querySelector('.app-header')?.getBoundingClientRect().height || 0;
+                const top = Math.max(0, page.getBoundingClientRect().top + window.scrollY - headerHeight - 12);
+                window.scrollTo({ top, behavior: 'instant' });
+              });
             }
             return true;
           }
@@ -4877,9 +5013,7 @@
       let outputFilename = '';
 
       let leagueMobileBar = AppMobileBottomBar.mount($('#leagueBottomBar'), {
-        initialPage: 'progress',
-        pageTopTarget: 'fixtureView',
-        pageTopOffset: 12
+        initialPage: 'progress'
       });
 
       restorePersistedEvent();

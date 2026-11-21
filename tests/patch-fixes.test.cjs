@@ -147,3 +147,17 @@ test('event overview keeps one clear outer boundary without nested stat cards', 
   assert.match(stats[1], /background: transparent/);
   assert.match(visual, /@media \(max-width: 380px\)[\s\S]*?\.fixture-hero \{ padding: 15px 12px; \}/);
 });
+
+
+test('quiet secondary actions and real mobile-page scroll target', () => {
+  for (const id of ['backToEditButton','openExportButton','shuffleButton',
+    'viewPendingButton','viewFinalStandingsButton','completionExportButton']) {
+    assert.match(source, new RegExp('class="button text-link" id="' + id + '"'));
+  }
+  assert.match(source, /id="confirmParticipantsButton" type="button"/);
+  assert.match(source, /const page = document\.getElementById\(button\.dataset\.mobilePageTarget\)/);
+  assert.match(source, /page\.getBoundingClientRect\(\)\.top \+ window\.scrollY - headerHeight - 12/);
+  assert.doesNotMatch(source, /pageTopTarget: 'fixtureView'/);
+  assert.match(source, /min-height: calc\(100dvh - var\(--header-height\) - var\(--app-mobile-bottom-bar-height\) \+ 8px\)/);
+  assert.match(source, /\.fixture-actions\.data-actions \.button\.text-link\s*\{\s*width: auto/);
+});
