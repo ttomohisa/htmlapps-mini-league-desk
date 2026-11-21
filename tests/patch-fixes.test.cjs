@@ -91,3 +91,29 @@ test('a reset can discard unsaved work even if local storage is unavailable', ()
   assert.equal(guard.reset(), true);
   assert.equal(guard.status().persistenceFailed, false);
 });
+
+test('compact intro, backup disclosure and smartphone layout contracts', () => {
+  assert.doesNotMatch(source, /id="heroTitle"/);
+  assert.match(source, /id="pageIntro" class="page-intro"/);
+  assert.match(source, /\$\('#pageIntro'\)\.hidden = inEvent/);
+  assert.equal((source.match(/<details class="backup-details/g) || []).length, 2);
+  assert.equal((source.match(/<summary data-i18n="backupDetails">/g) || []).length, 2);
+  for (const id of ['setupExportBackupButton','setupImportBackupButton','exportBackupButton','importBackupButton']) {
+    assert.match(source, new RegExp('id="' + id + '"'));
+  }
+  for (const removed of ['tournamentNameNote','fixtureLead','progressLead','standingsEmpty','matrixHelp']) {
+    assert.doesNotMatch(source, new RegExp('data-i18n="' + removed + '"'));
+  }
+  assert.match(source, /class="fixture-save-status"/);
+  assert.match(source, /body > footer, \.local-badge \{ display: none; \}/);
+  assert.match(source, /\.brand-name \{ font-size: 15px; line-height: 1\.5; padding-bottom: 3px; \}/);
+});
+
+test('validated main build creates tag and GitHub Release once', () => {
+  const workflow = fs.readFileSync(path.resolve(__dirname, '../.github/workflows/deploy-pages.yml'), 'utf8');
+  assert.match(workflow, /  release:\n    name: Publish versioned GitHub Release\n    needs: build/);
+  assert.match(workflow, /contents: write/);
+  assert.match(workflow, /gh release view "\$RELEASE_TAG"/);
+  assert.match(workflow, /gh release create "\$RELEASE_TAG"/);
+  assert.match(workflow, /dist\/index\.self-extract\.html/);
+});

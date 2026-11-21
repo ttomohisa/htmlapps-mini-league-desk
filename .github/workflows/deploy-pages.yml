@@ -100,3 +100,57 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  release:
+    name: Publish versioned GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: mini-league-desk-github-release
+      cancel-in-progress: false
+    steps:
+      - name: Checkout merged main
+        uses: actions/checkout@v6
+
+      - name: Read and validate semantic version
+        id: version
+        shell: bash
+        run: |
+          version="$(jq -r '.version' app.config.json)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid app version: $version" >&2
+            exit 1
+          fi
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download verified standalone HTML files
+        uses: actions/download-artifact@v4
+        with:
+          name: standalone-html-${{ github.sha }}
+          path: release-artifacts
+
+      - name: Create release tag and upload single-file apps
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub Release $RELEASE_TAG already exists; skipping."
+            exit 0
+          fi
+
+          test -s release-artifacts/dist/index.html
+          test -s release-artifacts/dist/index.self-extract.html
+          normal="release-artifacts/dist/index.html#mini-league-desk.html"
+          self_extract="release-artifacts/dist/index.self-extract.html#mini-league-desk.self-extract.html"
+
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" "$normal" "$self_extract" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+          else
+            gh release create "$RELEASE_TAG" "$normal" "$self_extract" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --generate-notes
+          fi

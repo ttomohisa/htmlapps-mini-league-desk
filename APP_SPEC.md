@@ -569,6 +569,15 @@ The exported standings PNG keeps its full localized record heading within its av
 - Keep result entry, standings, persistence, exports, and the existing local-processing shield unchanged.
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
 
+## v1.0.4 presentation and release workflow
+
+- Replace the duplicate hero heading with a compact introduction; hide the introduction when an event starts.
+- Remove instructions duplicated by controls in the event hero, progress, initial standings, and matrix.
+- Keep JSON backup/restore behind accessible closed-by-default disclosure controls in setup and event modes.
+- Show successful autosave as quiet status, reserving prominent warning UI for actual failures and tab conflicts.
+- Hide the local-processing badge on phones and provide enough vertical space for header descenders.
+- After a merge into `main`, create a semantic-version tag and GitHub Release only once the standalone build passes. Attach both single-file HTML variants.
+
 ## v1.0.4 correctness fixes
 - Stop stale tabs from overwriting another tab's event changes; ignore navigation and timestamps for conflicts.
 - Retain localized warnings on storage failure; offer confirmed reload or JSON backup.

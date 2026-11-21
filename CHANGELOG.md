@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed (v1.0.4 candidate)
+- Remove redundant hero and section descriptions in Japanese and English, and reclaim space during events.
+- Collapse JSON backup and restore under a secondary disclosure; tone down routine autosave status.
+- Fix phone brand descender clipping and hide the local-processing badge on phones.
+- Create a version tag and GitHub Release automatically after a successful merged-main standalone build.
+
 ### Fixed (v1.0.4 candidate)
 - Prevent stale-tab saves from replacing another tab's results; show persistent warnings for conflicts and storage failure.
 - Include score-for in score-mode standings PNG.

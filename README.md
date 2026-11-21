@@ -8,7 +8,7 @@
 
 Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and keeps the active event on the device without requiring an account.
 
-Current source version: **v1.0.4** (unreleased). Latest tagged release: **v1.0.3**
+Current source version: **v1.0.4**. When changes reach `main`, CI creates the matching version tag and GitHub Release.
 
 v1.0.3 pauses background page scrolling while a dialog is open. Dialog headers stay visible while their bodies scroll, keeping backup, output, result-entry, and confirmation actions reachable in short windows. Help retains its fixed header and independently scrollable reading area.
 
@@ -64,6 +64,8 @@ The build also produces `dist/index.self-extract.html` and the repository-root r
 8. Use **Standings** to review the current ranking.
 9. Use **Export** for CSV, PNG, or print output.
 10. For important events, also export a JSON backup so the event can be restored after browser/site data is cleared or moved to another device.
+
+**Backup and restore:** In Event setup or the running event view, open **Backup & restore** to export or import JSON. These less frequently used actions are collapsed by default.
 
 ## Ranking rules
 
@@ -154,6 +156,10 @@ Best effort:
 - The active event lives in browser storage. Clearing site data can remove it unless you exported a JSON backup.
 - Score-mode tiebreaks are league points → score difference → score for. Direct head-to-head tiebreaking is not included.
 - The hard participant limit is 64; the product is designed primarily for small events where operating the league from one browser remains practical.
+
+## Release automation
+
+After a merge into `main`, the existing Pages workflow validates and builds the standalone app before creating a semantic-version tag and GitHub Release. The release attaches readable and self-extracting HTML files. Existing releases are not recreated.
 
 ## Development and build layout
 
