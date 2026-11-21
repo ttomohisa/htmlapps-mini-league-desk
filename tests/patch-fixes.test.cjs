@@ -112,6 +112,7 @@ test('compact intro, backup disclosure and smartphone layout contracts', () => {
 test('validated main build creates tag and GitHub Release once', () => {
   const workflow = fs.readFileSync(path.resolve(__dirname, '../.github/workflows/deploy-pages.yml'), 'utf8');
   assert.match(workflow, /  release:\n    name: Publish versioned GitHub Release\n    needs: build/);
+  assert.match(workflow, /if: github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /contents: write/);
   assert.match(workflow, /gh release view "\$RELEASE_TAG"/);
   assert.match(workflow, /gh release create "\$RELEASE_TAG"/);
