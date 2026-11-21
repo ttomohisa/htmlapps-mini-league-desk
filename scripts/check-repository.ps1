@@ -320,6 +320,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Modal-layout regression tests failed: $runtimePath" }
   }
 } finally { $env:MINI_LEAGUE_DESK_SOURCE = $previousLeagueSource }
+& node --test (Join-Path $Root "tests\patch-fixes.test.cjs")
+if ($LASTEXITCODE -ne 0) { throw "Patch regression tests failed." }
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
 
 # WebRTC readiness DataChannel regression
