@@ -133,3 +133,17 @@ test('visual hierarchy uses cards only for the main sections', () => {
   assert.match(css, /\.participant\.is-drag-placeholder[\s\S]*?border: 1px dashed/);
   assert.match(css, /\.match-row[\s\S]*?border-bottom: 1px solid var\(--line\)/);
 });
+
+test('event overview keeps one clear outer boundary without nested stat cards', () => {
+  const visual = source.split('/* Visual hierarchy: section containers are cards; their contents are open lists. */')[1];
+  assert.ok(visual);
+  const overview = visual.match(/\.fixture-hero\s*\{([^}]+)\}/);
+  assert.ok(overview, 'Missing event overview style');
+  assert.match(overview[1], /border: 1px solid var\(--line\)/);
+  assert.match(overview[1], /background: var\(--surface\)/);
+  assert.match(overview[1], /border-radius: 14px/);
+  const stats = visual.match(/\.fixture-stat, \.progress-stat\s*\{([^}]+)\}/);
+  assert.ok(stats);
+  assert.match(stats[1], /background: transparent/);
+  assert.match(visual, /@media \(max-width: 380px\)[\s\S]*?\.fixture-hero \{ padding: 15px 12px; \}/);
+});

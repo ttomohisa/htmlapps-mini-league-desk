@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Design refinement (v1.0.4 candidate)
+- Restore a restrained white outline around the event overview, keeping its internal statistics flat and unboxed.
 - Keep the large setup and event section cards, but present internal statistics, round fixtures, matches, standings and settings as open lists with gentle separators.
 - Preserve button affordances, the single highlighted next-match area, keyboard focus, the roster's drag feedback, and mobile navigation.
 
