@@ -79,3 +79,15 @@ test('warning UI and Unicode name validation are present', () => {
   assert.doesNotMatch(source, /input\.maxLength\s*=\s*80/);
   assert.match(source, /ctx\.fillText\(translate\('csvScoreFor'\), 990, 217, 60\)/);
 });
+
+test('a reset can discard unsaved work even if local storage is unavailable', () => {
+  const code = [
+    'let storageConflict=false,lastStoredEventRaw=null,persistenceFailed=true,persistenceWarningShown=true;',
+    'function hasCurrentStoredEvent(){return true;} function refreshStorageAlert(){} function removeStorage(){throw new Error("must not call storage");}',
+    extract('clearPersistedEvent'),
+    'return {reset:clearPersistedEvent,status:()=>({persistenceFailed,persistenceWarningShown})};'
+  ].join('\n');
+  const guard = new Function(code)();
+  assert.equal(guard.reset(), true);
+  assert.equal(guard.status().persistenceFailed, false);
+});

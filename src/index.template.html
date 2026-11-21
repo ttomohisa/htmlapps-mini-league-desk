@@ -2542,6 +2542,14 @@
       }
       function clearPersistedEvent() {
         if (storageConflict || !hasCurrentStoredEvent()) return false;
+        // If there is nothing in storage, resetting unsaved work must still work
+        // even when the browser refuses localStorage access.
+        if (lastStoredEventRaw === null) {
+          persistenceFailed = false;
+          persistenceWarningShown = false;
+          refreshStorageAlert();
+          return true;
+        }
         const ok = removeStorage(storageKeys.event);
         if (ok) {
           lastStoredEventRaw = null; persistenceFailed = false; persistenceWarningShown = false;
