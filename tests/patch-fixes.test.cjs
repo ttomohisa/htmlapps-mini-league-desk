@@ -118,3 +118,18 @@ test('validated main build creates tag and GitHub Release once', () => {
   assert.match(workflow, /gh release create "\$RELEASE_TAG"/);
   assert.match(workflow, /dist\/index\.self-extract\.html/);
 });
+
+test('visual hierarchy uses cards only for the main sections', () => {
+  const start=source.indexOf('/* Visual hierarchy: section containers are cards; their contents are open lists. */');
+  assert.ok(start >= 0, 'Missing visual hierarchy style group');
+  const end=source.indexOf('@media print', start);
+  const css=source.slice(start, end);
+  for (const selector of ['.panel, .league-page, .ready-view', '.result-mode-card', '.participant',
+    '.fixture-hero', '.round-card', '.match-row', '.standing-row', '.next-match-card',
+    '.next-match-button', '.participant-match-panel', '.opponent-group']) {
+    assert.ok(css.includes(selector), 'Missing flattened visual treatment: '+selector);
+  }
+  assert.match(css, /\.next-match-card, \.completion-card[\s\S]*?background: #eaf4ee/);
+  assert.match(css, /\.participant\.is-drag-placeholder[\s\S]*?border: 1px dashed/);
+  assert.match(css, /\.match-row[\s\S]*?border-bottom: 1px solid var\(--line\)/);
+});

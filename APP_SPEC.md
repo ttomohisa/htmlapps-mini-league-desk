@@ -569,6 +569,11 @@ The exported standings PNG keeps its full localized record heading within its av
 - Keep result entry, standings, persistence, exports, and the existing local-processing shield unchanged.
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
 
+## v1.0.4 visual hierarchy
+- Keep top-level section boundaries but avoid nested framed cards for statistics, options, schedules, match results, and standings.
+- Use whitespace, lightweight dividers, and typography for nested content; use a single restrained accent surface to focus the upcoming match.
+- Preserve touch targets, keyboard focus, radio selection states, drag feedback, accessible names, and small-screen readability.
+
 ## v1.0.4 presentation and release workflow
 
 - Replace the duplicate hero heading with a compact introduction; hide the introduction when an event starts.

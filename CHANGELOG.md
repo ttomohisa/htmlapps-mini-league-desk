@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Design refinement (v1.0.4 candidate)
+- Keep the large setup and event section cards, but present internal statistics, round fixtures, matches, standings and settings as open lists with gentle separators.
+- Preserve button affordances, the single highlighted next-match area, keyboard focus, the roster's drag feedback, and mobile navigation.
+
+
 ### Changed (v1.0.4 candidate)
 - Remove redundant hero and section descriptions in Japanese and English, and reclaim space during events.
 - Collapse JSON backup and restore under a secondary disclosure; tone down routine autosave status.

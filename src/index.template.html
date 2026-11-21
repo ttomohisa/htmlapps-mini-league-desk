@@ -1521,6 +1521,230 @@
     }
 
 
+
+    /* Visual hierarchy: section containers are cards; their contents are open lists. */
+    .panel, .league-page, .ready-view {
+      border-color: #e1e3de;
+      border-radius: 14px;
+      box-shadow: none;
+    }
+    .panel, .league-page { padding: 22px; }
+    .result-mode-options { gap: 0; }
+    .result-mode-card {
+      padding: 13px 10px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .result-mode-card:last-child { border-bottom: 0; }
+    .result-mode-card:hover { background: var(--surface-muted); }
+    .result-mode-card:has(input:checked) { background: #edf5f1; color: var(--accent); }
+    .result-mode-card:has(input:checked) small { color: var(--muted); }
+    .check-row { border-radius: 0; background: transparent; }
+
+    .roster-list { gap: 0; }
+    .participant {
+      padding-block: 11px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      transition: background .14s ease, transform .14s ease;
+    }
+    .participant:hover { background: #f7f8f5; }
+    .participant.is-drag-placeholder {
+      border: 1px dashed var(--line-strong);
+      border-radius: 10px;
+    }
+    .participant-drag-ghost {
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+    }
+    .empty-state { min-height: 148px; padding: 24px 18px; border: 0; border-radius: 0; }
+    .participant-add-panel { padding: 10px 0; border: 0; border-radius: 0; background: transparent; }
+    .start-card {
+      margin-top: 22px;
+      padding: 18px 0 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .ready-view { box-shadow: none; }
+    .ready-summary {
+      padding: 16px 0;
+      border-block: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .ready-count { border-radius: 0; background: transparent; }
+
+    /* The event header should not be another card above the three main pages. */
+    .fixture-hero {
+      padding: 10px 0 22px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    .fixture-kicker, .ready-kicker {
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+    .fixture-hero h3 { margin: 8px 0 2px; font-size: clamp(23px,3vw,29px); }
+    .fixture-mode { margin-top: 6px; padding: 0; border-radius: 0; background: transparent; }
+    .fixture-stats, .progress-summary { gap: 0; }
+    .fixture-stat, .progress-stat {
+      padding: 5px 16px;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .fixture-stat:first-child, .progress-stat:first-child { padding-left: 0; }
+    .fixture-stat:last-child, .progress-stat:last-child { border-right: 0; }
+    .desktop-league-nav { gap: 18px; }
+    .desktop-league-nav button {
+      padding: 6px 1px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      font-size: 12px;
+    }
+    .desktop-league-nav button:hover {
+      border-color: transparent;
+      border-bottom-color: var(--accent);
+      background: transparent;
+      color: var(--accent);
+    }
+
+    /* Fixtures and standings are rows of data, not rows of mini-cards. */
+    .rounds-grid { gap: 26px 22px; }
+    .round-card {
+      padding: 12px 0 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-list, .standings-list { gap: 0; }
+    .match-row {
+      min-height: 56px;
+      padding: 11px 6px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-row:hover { border-color: var(--line); background: #f3f6f3; }
+    .match-row.completed { border-color: var(--line); }
+    .match-row.completed .match-result { color: var(--accent); }
+    .standing-row {
+      padding: 12px 0;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .standing-row:last-child { border-bottom: 0; }
+    .standing-rank {
+      border-radius: 0;
+      background: transparent;
+      color: var(--accent);
+      font-size: 15px;
+    }
+
+    /* Only the next match receives an accented surface; its action is not boxed again. */
+    .next-match-card, .completion-card {
+      padding: 17px;
+      border: 0;
+      border-radius: 11px;
+      background: #eaf4ee;
+    }
+    .next-match-button {
+      margin-top: 8px;
+      padding: 10px 0;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      text-align: left;
+    }
+    .next-match-button:hover { border-color: transparent; color: var(--accent); }
+    .following-list, .completion-standings { gap: 0; }
+    .following-match, .opponent-match {
+      min-height: 42px;
+      padding: 9px 3px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .following-match:hover, .opponent-match:hover {
+      border-color: var(--line);
+      background: #f7f8f5;
+      color: var(--accent);
+    }
+    .completion-standing {
+      padding: 9px 1px;
+      border-bottom: 1px solid rgba(22,98,79,.16);
+      border-radius: 0;
+      background: transparent;
+    }
+    .completion-standing:last-child { border-bottom: 0; }
+
+    .match-view-switcher {
+      gap: 16px;
+      padding: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-view-button {
+      padding: 8px 1px;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+    }
+    .match-view-button.is-active {
+      border-bottom-color: var(--accent);
+      background: transparent;
+      box-shadow: none;
+    }
+    .match-filter {
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-filter:hover, .match-filter.is-active {
+      border-color: transparent;
+      border-bottom-color: var(--accent);
+      background: transparent;
+    }
+    .participant-match-panel {
+      margin: 0 0 20px;
+      padding: 16px 0 18px;
+      border-block: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .opponent-group { padding: 6px 0; border-radius: 0; background: transparent; }
+
+    @media (max-width: 520px) {
+      .panel, .league-page { padding: 14px; }
+      .fixture-stat, .progress-stat { padding: 5px 10px; }
+      .fixture-stat:first-child, .progress-stat:first-child { padding-left: 0; }
+    }
+    @media (max-width: 380px) {
+      .panel, .league-page { padding: 12px; }
+      .fixture-hero { padding: 8px 0 16px; }
+      .fixture-stat, .progress-stat { padding: 5px 7px; }
+      .fixture-stat:first-child, .progress-stat:first-child { padding-left: 0; }
+    }
+
+
     @media print {
       @page { size: auto; margin: 12mm; }
       body { background: #fff !important; color: #111 !important; }
