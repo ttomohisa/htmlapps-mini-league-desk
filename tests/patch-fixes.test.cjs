@@ -216,3 +216,8 @@ test('event library and rename dialogs scroll inside short viewports', () => {
   assert.match(source, /#eventLibraryDialog\[open\], #renameEventDialog\[open\] \{ display: flex; flex-direction: column; \}/);
   assert.match(source, /#eventLibraryDialog \.dialog-body, #renameEventDialog \.dialog-body/);
 });
+
+test('archive will never write a collection larger than its own read limit', () => {
+  assert.match(source, /function archivedEvents\(\)[\s\S]*?parsed\.events\.length > 500/);
+  assert.match(source, /function saveArchivedEvents\(entries\)[\s\S]*?if \(entries\.length > 500\)/);
+});
