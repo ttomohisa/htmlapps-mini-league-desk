@@ -469,6 +469,147 @@ try {
   }
   console.log("[OK] Phone navigation scrolls to the selected section, not the overview.");
 
+
+  // The active document created by an older app version must survive rename,
+  // switching, reload, import, Undo, and deletion of an unrelated event.
+  const renamed = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const key='mini-league-desk:active-event:v1';" +
+      "const before=JSON.parse(localStorage.getItem(key));" +
+      "document.getElementById('renameEventButton').click();" +
+      "const field=document.getElementById('renameEventInput');" +
+      "field.value='Renamed Original';" +
+      "document.getElementById('renameEventForm').requestSubmit();" +
+      "const after=JSON.parse(localStorage.getItem(key));" +
+      "return {name:after.event.name,unchanged:JSON.stringify(before.event.rounds)===JSON.stringify(after.event.rounds)," +
+      "completed:document.getElementById('fixtureCompletedCount').textContent," +
+      "dialogClosed:!document.getElementById('renameEventDialog').open};" +
+      "})()",
+    returnByValue: true
+  });
+  const renamedValue = renamed.result?.value;
+  if (!renamedValue || renamedValue.name !== "Renamed Original" ||
+      !renamedValue.unchanged || renamedValue.completed !== "2" || !renamedValue.dialogClosed) {
+    throw new Error("Renaming changed match data: " + JSON.stringify(renamedValue));
+  }
+
+  const archived = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const shown=document.querySelectorAll('.event-library-row').length;" +
+      "document.getElementById('createNewEventButton').click();" +
+      "const library=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1'));" +
+      "return {shown,phase:!document.getElementById('setupView').hidden,active:localStorage.getItem('mini-league-desk:active-event:v1')," +
+      "archived:library.events.map(doc=>({id:doc.event.id,done:doc.event.rounds.flatMap(r=>r.matches).filter(m=>m.status==='completed').length}))};" +
+      "})()",
+    returnByValue: true
+  });
+  const archivedValue = archived.result?.value;
+  if (!archivedValue || archivedValue.shown !== 1 || !archivedValue.phase || archivedValue.active !== null ||
+      archivedValue.archived.length !== 1 || archivedValue.archived[0].id !== "matrix-score-smoke" ||
+      archivedValue.archived[0].done !== 2) {
+    throw new Error("Current event was not safely archived: " + JSON.stringify(archivedValue));
+  }
+
+  const second = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const title=document.getElementById('tournamentName');" +
+      "title.value='Second Event';title.dispatchEvent(new Event('input',{bubbles:true}));" +
+      "for(const name of ['Delta','Echo','Foxtrot']) {" +
+      "document.getElementById('showParticipantAddButton').click();" +
+      "document.getElementById('participantName').value=name;" +
+      "document.getElementById('participantForm').requestSubmit();" +
+      "}" +
+      "document.getElementById('confirmParticipantsButton').click();" +
+      "const doc=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "return {name:doc.event.name,id:doc.event.id,phase:doc.event.phase,people:doc.event.participants.length};" +
+      "})()",
+    returnByValue: true
+  });
+  const secondValue = second.result?.value;
+  if (!secondValue || secondValue.name !== "Second Event" ||
+      secondValue.id === "matrix-score-smoke" || secondValue.phase !== "fixtures" || secondValue.people !== 3) {
+    throw new Error("Second event setup failed: " + JSON.stringify(secondValue));
+  }
+
+  const switchedBack = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const rows=[...document.querySelectorAll('.event-library-row')];" +
+      "const original=rows.find(row=>row.querySelector('.event-library-name')?.textContent==='Renamed Original');" +
+      "const open=original?.querySelector('.event-library-actions .button:not(.danger-ghost)');" +
+      "if(!open)return {error:'original not listed',names:rows.map(row=>row.textContent)};" +
+      "open.click();" +
+      "const doc=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "const archives=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events;" +
+      "return {id:doc.event.id,done:doc.event.rounds.flatMap(r=>r.matches).filter(m=>m.status==='completed').length," +
+      "secondStored:archives.some(item=>item.event.id===" + JSON.stringify(secondValue.id) + ")};" +
+      "})()",
+    returnByValue: true
+  });
+  const switched = switchedBack.result?.value;
+  if (!switched || switched.id !== "matrix-score-smoke" || switched.done !== 2 || !switched.secondStored) {
+    throw new Error("Switching lost saved results: " + JSON.stringify(switched));
+  }
+
+  await cdp.send("Runtime.evaluate", { expression: "location.reload()" });
+  await sleep(800);
+  const reloaded = await cdp.send("Runtime.evaluate", {
+    expression: "(() => ({id:JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1')).event.id," +
+      "archived:JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events.length," +
+      "completed:document.getElementById('fixtureCompletedCount').textContent}))()",
+    returnByValue: true
+  });
+  const reloadValue = reloaded.result?.value;
+  if (!reloadValue || reloadValue.id !== "matrix-score-smoke" ||
+      reloadValue.archived !== 1 || reloadValue.completed !== "2") {
+    throw new Error("Saved event not restored after reload: " + JSON.stringify(reloadValue));
+  }
+
+  // Import must create a fresh event ID and provide Undo without overwriting either event.
+  await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const doc=localStorage.getItem('mini-league-desk:active-event:v1');" +
+      "const input=document.getElementById('backupFileInput');" +
+      "const transfer=new DataTransfer();" +
+      "transfer.items.add(new File([doc], 'original.json',{type:'application/json'}));" +
+      "input.files=transfer.files;" +
+      "input.dispatchEvent(new Event('change',{bubbles:true}));" +
+      "})()"
+  });
+  await sleep(400);
+  const imported = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const doc=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "const saved=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events;" +
+      "return {id:doc.event.id,hasOriginal:saved.some(item=>item.event.id==='matrix-score-smoke')," +
+      "hasSecond:saved.some(item=>item.event.name==='Second Event')," +
+      "undoShown:!document.getElementById('appToastAction').hidden};" +
+      "})()",
+    returnByValue: true
+  });
+  const importedValue = imported.result?.value;
+  if (!importedValue || importedValue.id === "matrix-score-smoke" ||
+      !importedValue.hasOriginal || !importedValue.hasSecond || !importedValue.undoShown) {
+    throw new Error("JSON import replaced or lost an event: " + JSON.stringify(importedValue));
+  }
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('appToastAction').click()" });
+  await sleep(220);
+  const undoImport = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const active=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "const archives=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events;" +
+      "return {active:active.event.id,importStillSaved:archives.some(item=>item.event.id===" + JSON.stringify(importedValue.id) + ")," +
+      "secondSaved:archives.some(item=>item.event.name==='Second Event')};" +
+      "})()",
+    returnByValue: true
+  });
+  const undoValue = undoImport.result?.value;
+  if (!undoValue || undoValue.active !== "matrix-score-smoke" || undoValue.importStillSaved || !undoValue.secondSaved) {
+    throw new Error("Import Undo lost event state: " + JSON.stringify(undoValue));
+  }
+  console.log("[OK] Legacy data, rename, new event, switching, reload and import Undo passed.");
+
   await runPngHeaderSmoke(cdp);
 
 } finally {
