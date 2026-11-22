@@ -570,6 +570,8 @@ The exported standings PNG keeps its full localized record heading within its av
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
 
 ## v1.0.4 visual hierarchy
+- Event overview: a single restrained outline, a first row with title/mode and three compact counts, and a slim action/navigation row. Autosave explanation lives inside the existing backup disclosure.
+- Compact event overview must preserve backup, export, participant-edit, keyboard focus and phone tab alignment.
 - Event edit and export are low-emphasis link-style buttons; primary confirmation actions retain a clear filled state. Touch areas and focus outlines remain accessible.
 - Mobile bottom navigation reveals and scrolls to the selected section below the sticky app header, never to the event overview; short sections reserve enough scroll height.
 

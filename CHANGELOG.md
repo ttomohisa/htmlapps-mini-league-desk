@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Design refinement (v1.0.4 candidate)
+- Condense the bordered event overview into title/mode and three small counts above one compact toolbar; keep secondary actions and backup accessible without making them separate vertical sections.
+- Keep automatic-save information in the backup disclosure and verify overview size on desktop/phone in Chromium.
 - Restyle event overview edit/output and other secondary actions as quiet text links; reduce button visual weight while preserving clear confirmation controls.
 - Align the tapped mobile tab's section just below the sticky header, including short standing lists; verify navigation in Chromium.
 - Restore a restrained white outline around the event overview, keeping its internal statistics flat and unboxed.

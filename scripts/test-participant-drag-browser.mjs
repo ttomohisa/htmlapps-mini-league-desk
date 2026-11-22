@@ -399,12 +399,43 @@ try {
 
   console.log("[OK] Browser round-robin symbol and score smoke test passed.");
 
+
+  const desktopOverview = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const hero=document.querySelector('.fixture-hero');" +
+      "const styles=getComputedStyle(hero);" +
+      "const details=hero.querySelector('.fixture-backup-details');" +
+      "return {height:hero.getBoundingClientRect().height,border:styles.borderTopWidth," +
+      "backupClosed:!details.open,toolbar:!!hero.querySelector('.fixture-overview-toolbar')};" +
+      "})()",
+    returnByValue: true
+  });
+  const desktopOverviewMetrics=desktopOverview.result?.value;
+  if (!desktopOverviewMetrics || desktopOverviewMetrics.height > 185 ||
+      desktopOverviewMetrics.border === "0px" || !desktopOverviewMetrics.backupClosed ||
+      !desktopOverviewMetrics.toolbar) {
+    throw new Error("Desktop overview is not compact: " + JSON.stringify(desktopOverviewMetrics));
+  }
+  console.log("[OK] Compact event overview retains one outer border and functional controls.");
+
   // Mobile bottom navigation: each selection must bring its own section just below
   // the sticky header, not leave the overview as the scroll destination.
   await cdp.send("Emulation.setDeviceMetricsOverride", {
     width: 390, height: 780, deviceScaleFactor: 1, mobile: true
   });
   await sleep(200);
+
+  const phoneOverview = await cdp.send("Runtime.evaluate", {
+    expression: "(() => ({height:document.querySelector('.fixture-hero').getBoundingClientRect().height," +
+      "overflow:document.documentElement.scrollWidth>window.innerWidth}))()",
+    returnByValue:true
+  });
+  const phoneMetrics=phoneOverview.result?.value;
+  if(!phoneMetrics || phoneMetrics.height > 245 || phoneMetrics.overflow) {
+    throw new Error("Phone overview is too tall or overflows: " + JSON.stringify(phoneMetrics));
+  }
+
   for (const [key, pageId] of [
     ["standings", "standingsPage"],
     ["matches", "matchesPage"],

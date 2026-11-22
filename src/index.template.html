@@ -1878,6 +1878,129 @@
     }
 
 
+
+    /* Compact event overview: two deliberate rows rather than a stack of cards. */
+    .fixture-hero {
+      display: grid;
+      gap: 11px;
+      padding: 16px 20px 12px;
+      min-width: 0;
+    }
+    .fixture-overview-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-width: 0;
+    }
+    .fixture-identity { min-width: 0; flex: 1 1 220px; }
+    .fixture-hero .fixture-identity h3 {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 24px);
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+    .fixture-hero .fixture-mode {
+      margin-top: 2px;
+      font-size: 11px;
+      gap: 7px;
+    }
+    .fixture-hero .fixture-stats {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: stretch;
+      gap: 0;
+      margin: 0;
+    }
+    .fixture-hero .fixture-stat {
+      min-width: 72px;
+      padding: 0 17px;
+    }
+    .fixture-hero .fixture-stat:first-child { padding-left: 0; }
+    .fixture-hero .fixture-stat:last-child { padding-right: 0; }
+    .fixture-hero .fixture-stat strong {
+      font-size: 19px;
+      line-height: 1.2;
+    }
+    .fixture-hero .fixture-stat span {
+      margin-top: 1px;
+      font-size: 10px;
+    }
+    .fixture-overview-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      padding-top: 7px;
+      border-top: 1px solid var(--line);
+    }
+    .fixture-overview-toolbar .desktop-league-nav {
+      flex: 0 0 auto;
+      gap: 16px;
+      margin: 0;
+    }
+    .fixture-overview-toolbar .desktop-league-nav button {
+      min-height: 38px;
+      padding-block: 6px;
+    }
+    .fixture-overview-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 12px 17px;
+      min-width: 0;
+      margin-left: auto;
+    }
+    .fixture-overview-tools .fixture-actions.data-actions {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      width: auto;
+      margin: 0;
+    }
+    .fixture-overview-tools .fixture-actions.data-actions .button.text-link {
+      width: auto;
+      min-width: 0;
+      padding-inline: 2px;
+      white-space: nowrap;
+    }
+    .fixture-overview-tools .fixture-backup-details { margin: 0; min-width: 0; }
+    .fixture-overview-tools .fixture-backup-details > summary {
+      min-height: 40px;
+      padding: 7px 2px;
+    }
+    .fixture-overview-tools .backup-detail-actions { gap: 14px; }
+    .fixture-overview-tools .fixture-save-status { margin: 5px 0 4px; }
+    @media (max-width: 700px) {
+      .fixture-overview-main { align-items: flex-start; flex-wrap: wrap; gap: 11px; }
+      .fixture-identity { flex-basis: 100%; }
+      .fixture-hero .fixture-stats { width: 100%; }
+      .fixture-hero .fixture-stat { flex: 1 1 0; padding: 0 12px; min-width: 0; }
+      .fixture-hero .fixture-stat:first-child { padding-left: 0; }
+      .fixture-hero .fixture-stat:last-child { padding-right: 0; }
+      .fixture-overview-toolbar { flex-wrap: wrap; }
+    }
+    @media (max-width: 600px) {
+      .fixture-hero { gap: 9px; padding: 13px 15px 9px; }
+      .fixture-hero .fixture-identity h3 { font-size: 20px; }
+      .fixture-overview-toolbar { padding-top: 8px; }
+      .fixture-overview-tools {
+        justify-content: flex-start;
+        gap: 8px 16px;
+        width: 100%;
+        margin: 0;
+      }
+    }
+    @media (max-width: 380px) {
+      .fixture-hero { padding: 12px 12px 8px; }
+      .fixture-hero .fixture-stat { padding-inline: 8px; }
+      .fixture-hero .fixture-stat strong { font-size: 17px; }
+      .fixture-overview-tools { column-gap: 12px; }
+      .fixture-overview-tools .fixture-actions.data-actions { gap: 13px; }
+    }
+
     @media print {
       @page { size: auto; margin: 12mm; }
       body { background: #fff !important; color: #111 !important; }
@@ -2089,34 +2212,39 @@
 
     <section id="fixtureView" class="fixture-view" hidden aria-labelledby="fixtureTitle">
       <div class="fixture-hero">
-        <span class="fixture-kicker">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M7 8h10M7 16h10"/></svg>
-          <span data-i18n="fixtureKicker">大会を進行中</span>
-        </span>
-        <h3 id="fixtureTitle"></h3>
-        <div class="fixture-mode"><span data-i18n="resultModeShort">記録方式</span><strong id="fixtureModeLabel"></strong></div>
-        <div class="fixture-stats" aria-live="polite">
-          <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
-          <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
-          <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
-        </div>
-        <div class="fixture-actions data-actions">
-          <button class="button text-link" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
-          <button class="button text-link" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
-        </div>
-        <details class="backup-details fixture-backup-details">
-          <summary data-i18n="backupDetails">バックアップ・復元</summary>
-          <div class="backup-detail-actions">
-            <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
-            <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+        <div class="fixture-overview-main">
+          <div class="fixture-identity">
+            <span class="fixture-kicker sr-only" data-i18n="fixtureKicker">大会を進行中</span>
+            <h3 id="fixtureTitle"></h3>
+            <div class="fixture-mode"><span data-i18n="resultModeShort">記録方式</span><strong id="fixtureModeLabel"></strong></div>
           </div>
-        </details>
-        <div class="desktop-league-nav" data-i18n-aria-label="leagueNavLabel" aria-label="大会内ナビゲーション">
-          <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
-          <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
-          <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
+          <div class="fixture-stats" aria-live="polite">
+            <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
+            <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
+            <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
+          </div>
         </div>
-        <p class="fixture-save-status" data-i18n="draftNotice">大会はこの端末に自動保存されます。</p>
+        <div class="fixture-overview-toolbar">
+          <div class="desktop-league-nav" data-i18n-aria-label="leagueNavLabel" aria-label="大会内ナビゲーション">
+            <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
+            <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
+            <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
+          </div>
+          <div class="fixture-overview-tools">
+            <div class="fixture-actions data-actions">
+              <button class="button text-link" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
+              <button class="button text-link" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
+            </div>
+            <details class="backup-details fixture-backup-details">
+              <summary data-i18n="backupDetails">バックアップ・復元</summary>
+              <div class="backup-detail-actions">
+                <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
+                <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+              </div>
+              <p class="fixture-save-status" data-i18n="draftNotice">大会はこの端末に自動保存されます。</p>
+            </details>
+          </div>
+        </div>
       </div>
 
       <div class="league-overview-grid">

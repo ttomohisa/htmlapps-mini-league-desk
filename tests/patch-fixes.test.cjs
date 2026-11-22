@@ -161,3 +161,22 @@ test('quiet secondary actions and real mobile-page scroll target', () => {
   assert.match(source, /min-height: calc\(100dvh - var\(--header-height\) - var\(--app-mobile-bottom-bar-height\) \+ 8px\)/);
   assert.match(source, /\.fixture-actions\.data-actions \.button\.text-link\s*\{\s*width: auto/);
 });
+
+
+test('event overview is a compact header with essential information and intact actions', () => {
+  assert.match(source, /class="fixture-overview-main"/);
+  assert.match(source, /class="fixture-overview-toolbar"/);
+  assert.match(source, /class="fixture-overview-tools"/);
+  const hero = source.split('<div class="fixture-hero">')[1].split('<div class="league-overview-grid">')[0];
+  assert.equal((hero.match(/class="fixture-stats"/g) || []).length, 1);
+  for (const id of ['fixtureTitle','fixtureModeLabel','fixtureParticipantCount','fixtureMatchCount','fixtureRoundCount',
+    'backToEditButton','openExportButton','exportBackupButton','importBackupButton']) {
+    assert.match(hero, new RegExp('id="' + id + '"'), id);
+  }
+  assert.match(hero, /<details class="backup-details fixture-backup-details">[\s\S]*?<p class="fixture-save-status"/);
+  assert.match(hero, /class="fixture-kicker sr-only"/);
+  const style = source.split('/* Compact event overview: two deliberate rows rather than a stack of cards. */')[1].split('@media print')[0];
+  assert.match(style, /\.fixture-hero\s*\{[\s\S]*?padding: 16px 20px 12px/);
+  assert.match(style, /\.fixture-overview-toolbar[\s\S]*?border-top: 1px solid var\(--line\)/);
+  assert.match(style, /@media \(max-width: 600px\)[\s\S]*?\.fixture-hero \{ gap: 9px; padding: 13px 15px 9px; \}/);
+});
