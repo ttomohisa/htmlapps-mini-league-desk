@@ -3301,6 +3301,244 @@
         setBulkError('');
         updateResultModeControls();
       }
+
+      // Keep the legacy active-event storage key unchanged. Inactive events are
+      // archived separately. A write-ahead copy precedes every switch: if the
+      // browser closes between writes, duplicate snapshots can be recovered.
+      function archivedEvents() {
+        const raw = readStorage(storageKeys.archives);
+        if (raw !== lastArchivedEventsRaw) { markStorageConflict(); return null; }
+        if (!raw) return [];
+        try {
+          const parsed = JSON.parse(raw);
+          if (!isPlainObject(parsed) || parsed.format !== 'mini-league-desk-archive' ||
+              parsed.schemaVersion !== SCHEMA_VERSION || !Array.isArray(parsed.events) ||
+              parsed.events.length > 500) throw new Error('archive schema');
+          const ids = new Set();
+          for (const doc of parsed.events) {
+            const normalized = normalizeImportedEvent(doc);
+            if (!normalized.ok || ids.has(normalized.value.meta.eventId)) throw new Error('invalid archived event');
+            ids.add(normalized.value.meta.eventId);
+          }
+          return parsed.events;
+        } catch {
+          showToast(translate('eventLibraryInvalid'), { tone: 'warning', duration: 7000 });
+          return null;
+        }
+      }
+      function saveArchivedEvents(entries) {
+        if (storageConflict || readStorage(storageKeys.archives) !== lastArchivedEventsRaw) {
+          markStorageConflict();
+          return false;
+        }
+        const raw = JSON.stringify({ format: 'mini-league-desk-archive', schemaVersion: SCHEMA_VERSION, events: entries });
+        if (!writeStorage(storageKeys.archives, raw)) {
+          persistenceFailed = true;
+          refreshStorageAlert();
+          showToast(translate('saveFailed'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
+        lastArchivedEventsRaw = raw;
+        return true;
+      }
+      function archiveActiveEvent() {
+        if (storageConflict || !hasCurrentStoredEvent()) return false;
+        const archives = archivedEvents();
+        if (!archives) return false;
+        if (!meaningfulEventState()) return true;
+        if (!persistEvent()) return false;
+        const doc = buildEventDocument({ touchUpdated: false });
+        return saveArchivedEvents([...archives.filter(item => item.event.id !== doc.event.id), doc]);
+      }
+      function setActiveEventDocument(doc) {
+        if (storageConflict || !hasCurrentStoredEvent()) return false;
+        const serialized = doc ? JSON.stringify(doc) : null;
+        const ok = serialized === null ? removeStorage(storageKeys.event) : writeStorage(storageKeys.event, serialized);
+        if (!ok) {
+          persistenceFailed = true;
+          refreshStorageAlert();
+          showToast(translate('eventLibrarySwitchFailed'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
+        lastStoredEventRaw = serialized;
+        persistenceFailed = false;
+        persistenceWarningShown = false;
+        refreshStorageAlert();
+        return true;
+      }
+      function resetActiveEventState() {
+        state.phase = 'setup';
+        state.tournamentName = '';
+        state.participants = [];
+        state.rounds = [];
+        state.settings = defaultSettings();
+        state.ui = defaultUi();
+        state.meta = { eventId: '', createdAt: '', updatedAt: '' };
+        $('#tournamentName').value = '';
+        $('#participantName').value = '';
+        $('#bulkParticipants').value = '';
+        setParticipantError('');
+        setBulkError('');
+        editingParticipantId = null;
+      }
+      function closeEventLibrary() {
+        if ($('#eventLibraryDialog').open) $('#eventLibraryDialog').close();
+      }
+      function bringEventToTop() { window.scrollTo({ top: 0, behavior: 'instant' }); }
+      function beginAnotherEvent() {
+        if (!archiveActiveEvent() || !setActiveEventDocument(null)) return false;
+        resetActiveEventState();
+        closeEventLibrary();
+        render();
+        bringEventToTop();
+        showToast(translate('eventLibraryCreated'), { tone: 'success' });
+        return true;
+      }
+      function switchSavedEvent(eventId) {
+        if (!eventId || storageConflict || !hasCurrentStoredEvent()) return false;
+        if (meaningfulEventState() && state.meta.eventId === eventId) { closeEventLibrary(); return true; }
+        const entries = archivedEvents();
+        if (!entries) return false;
+        const target = entries.find(doc => doc.event.id === eventId);
+        const normalized = target && normalizeImportedEvent(target);
+        if (!normalized?.ok) {
+          showToast(translate('eventLibraryNotFound'), { tone: 'warning' });
+          return false;
+        }
+        if (!archiveActiveEvent() || !setActiveEventDocument(target)) return false;
+        // Remove the newly active copy only after activation. If this cleanup
+        // fails, a duplicate is retained rather than losing the original.
+        const remaining = archivedEvents();
+        if (remaining) saveArchivedEvents(remaining.filter(doc => doc.event.id !== eventId));
+        applyEventState(normalized.value);
+        closeEventLibrary();
+        render();
+        bringEventToTop();
+        return true;
+      }
+      function addImportedEvent(doc) {
+        const archives = archivedEvents();
+        if (!archives || storageConflict || !hasCurrentStoredEvent()) return null;
+        const ids = new Set(archives.map(item => item.event.id));
+        if (meaningfulEventState()) ids.add(state.meta.eventId);
+        const copy = JSON.parse(JSON.stringify(doc));
+        do { copy.event.id = createId(); } while (ids.has(copy.event.id));
+        copy.event.createdAt = new Date().toISOString();
+        copy.event.updatedAt = copy.event.createdAt;
+        const normalized = normalizeImportedEvent(copy);
+        if (!normalized.ok) return null;
+        if (!archiveActiveEvent() || !setActiveEventDocument(copy)) return null;
+        applyEventState(normalized.value);
+        render();
+        bringEventToTop();
+        return copy;
+      }
+      function renderEventLibrary() {
+        const root = $('#eventLibraryList');
+        root.replaceChildren();
+        const archives = archivedEvents();
+        if (!archives) {
+          const notice = document.createElement('p');
+          notice.className = 'event-library-empty';
+          notice.textContent = translate('eventLibraryInvalid');
+          root.append(notice);
+          $('#createNewEventButton').disabled = true;
+          return;
+        }
+        $('#createNewEventButton').disabled = storageConflict;
+        const activeId = meaningfulEventState() ? state.meta.eventId : null;
+        const docs = archives.filter(doc => doc.event.id !== activeId).map(doc => ({ doc, active: false }));
+        if (activeId) docs.push({ doc: buildEventDocument({ touchUpdated: false }), active: true });
+        docs.sort((a, b) => Date.parse(b.doc.event.updatedAt) - Date.parse(a.doc.event.updatedAt));
+        if (!docs.length) {
+          const empty = document.createElement('p');
+          empty.className = 'event-library-empty';
+          empty.textContent = translate('eventLibraryEmpty');
+          root.append(empty);
+        }
+        docs.forEach(({ doc, active }) => {
+          const name = doc.event.name || translate('defaultTournament');
+          const row = document.createElement('div');
+          row.className = 'event-library-row' + (active ? ' is-current' : '');
+          row.setAttribute('role', 'listitem');
+          const info = document.createElement('div');
+          info.className = 'event-library-info';
+          const title = document.createElement('strong');
+          title.className = 'event-library-name';
+          title.textContent = name;
+          const meta = document.createElement('span');
+          meta.className = 'event-library-meta';
+          if (doc.event.phase === 'fixtures') {
+            const matches = doc.event.rounds.flatMap(round => round.matches);
+            meta.textContent = translate('eventLibraryProgress', {
+              done: matches.filter(match => match.status === 'completed').length, total: matches.length
+            });
+          } else meta.textContent = translate('eventLibraryDraft');
+          info.append(title, meta);
+          const actions = document.createElement('div');
+          actions.className = 'event-library-actions';
+          if (active) {
+            const current = document.createElement('span');
+            current.className = 'event-library-current';
+            current.textContent = translate('eventLibraryActive');
+            actions.append(current);
+          } else {
+            const open = document.createElement('button');
+            open.type = 'button';
+            open.className = 'button text-link';
+            open.textContent = translate('eventLibraryOpenAction');
+            open.setAttribute('aria-label', translate('eventLibraryOpenAction') + ': ' + name);
+            open.addEventListener('click', () => switchSavedEvent(doc.event.id));
+            actions.append(open);
+          }
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'button text-link danger-ghost';
+          remove.textContent = translate('eventLibraryDelete');
+          remove.setAttribute('aria-label', translate('eventLibraryDelete') + ': ' + name);
+          remove.addEventListener('click', () => deleteSavedEvent(doc.event.id, name));
+          actions.append(remove);
+          row.append(info, actions);
+          root.append(row);
+        });
+      }
+      function openEventLibrary() {
+        if (storageConflict) {
+          showToast(translate('storageConflictShort'), { tone: 'warning' });
+          return;
+        }
+        renderEventLibrary();
+        const dialog = $('#eventLibraryDialog');
+        rememberDialogOpener(dialog);
+        dialog.showModal();
+      }
+      async function deleteSavedEvent(id, name) {
+        if (storageConflict || !hasCurrentStoredEvent() || !archivedEvents()) return;
+        const confirmed = await AppConfirm.ask({
+          title: translate('eventLibraryDeleteTitle'),
+          message: translate('eventLibraryDeleteMessage', { name }),
+          confirmLabel: translate('eventLibraryDeleteAction'),
+          cancelLabel: translate('cancel'),
+          tone: 'danger'
+        });
+        if (!confirmed || storageConflict || !hasCurrentStoredEvent()) return;
+        const entries = archivedEvents();
+        if (!entries) return;
+        if (meaningfulEventState() && state.meta.eventId === id) {
+          // Remove a possible interrupted-switch duplicate before clearing active.
+          if (entries.some(doc => doc.event.id === id) &&
+              !saveArchivedEvents(entries.filter(doc => doc.event.id !== id))) return;
+          if (!setActiveEventDocument(null)) return;
+          resetActiveEventState();
+          render();
+        } else {
+          if (!entries.some(doc => doc.event.id === id)) return;
+          if (!saveArchivedEvents(entries.filter(doc => doc.event.id !== id))) return;
+        }
+        renderEventLibrary();
+        showToast(translate('eventLibraryDeleted'), { tone: 'success' });
+      }
+
       function restorePersistedEvent() {
         const raw = readStorage(storageKeys.event);
         lastStoredEventRaw = raw;
@@ -3321,7 +3559,13 @@
         }
       }
       window.addEventListener('storage', event => {
-        if (!persistenceReady || storageConflict || (event.key !== storageKeys.event && event.key !== null)) return;
+        if (!persistenceReady || storageConflict) return;
+        if ((event.key === storageKeys.archives || event.key === null) &&
+            readStorage(storageKeys.archives) !== lastArchivedEventsRaw) {
+          markStorageConflict();
+          return;
+        }
+        if (event.key !== storageKeys.event && event.key !== null) return;
         const raw = readStorage(storageKeys.event);
         if (raw === lastStoredEventRaw) return;
         if (eventDataSignature(raw) === eventDataSignature(lastStoredEventRaw)) lastStoredEventRaw = raw;
@@ -3380,6 +3624,7 @@
         closeBackupExportDialog();
         showToast(translate('backupSaved'), { tone: 'success' });
       }
+
       async function importBackupFile(file) {
         let parsed;
         try {
@@ -3389,40 +3634,28 @@
           showToast(translate('backupReadError'), { tone: 'warning', duration: 6000 });
           return;
         }
-
         const normalized = normalizeImportedEvent(parsed);
         if (!normalized.ok) {
           showToast(translate(normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid'), { tone: 'warning', duration: 6000 });
           return;
         }
-
-        if (meaningfulEventState()) {
-          const confirmed = await AppConfirm.ask({
-            title: translate('backupReplaceTitle'),
-            message: translate('backupReplaceMessage'),
-            confirmLabel: translate('backupReplaceAction'),
-            cancelLabel: translate('cancel'),
-            tone: 'danger'
-          });
-          if (!confirmed) return;
-        }
-
-        const before = meaningfulEventState() ? JSON.parse(JSON.stringify(buildEventDocument({ touchUpdated: false }))) : null;
-        applyEventState(normalized.value);
-        render();
-        persistEvent();
-        showToast(translate('backupImported'), {
+        const priorId = meaningfulEventState() ? state.meta.eventId : null;
+        const imported = addImportedEvent(parsed);
+        if (!imported) return;
+        showToast(translate('eventLibraryImported'), {
           tone: 'success',
-          actionLabel: before ? translate('undo') : '',
+          actionLabel: translate('undo'),
           duration: 6000,
-          onAction: before ? () => {
-            const previous = normalizeImportedEvent(before);
-            if (!previous.ok) return;
-            applyEventState(previous.value);
-            render();
-            persistEvent();
-            showToast(translate('undone'));
-          } : null
+          onAction: () => {
+            if (state.meta.eventId !== imported.event.id ||
+                eventDataSignature(JSON.stringify(buildEventDocument({ touchUpdated: false }))) !==
+                eventDataSignature(JSON.stringify(imported))) return;
+            const switched = priorId ? switchSavedEvent(priorId) : beginAnotherEvent();
+            if (!switched) return;
+            const saved = archivedEvents();
+            if (!saved || !saveArchivedEvents(saved.filter(doc => doc.event.id !== imported.event.id))) return;
+            showToast(translate('undone'), { tone: 'success' });
+          }
         });
       }
       function updateBackupButtons() {
@@ -5096,6 +5329,19 @@
       $('#cancelRenameEventButton').addEventListener('click', () => $('#renameEventDialog').close());
       $('#renameEventDialog').addEventListener('close', () => restoreDialogOpener($('#renameEventDialog')));
 
+
+      $('#setupEventLibraryButton').addEventListener('click', openEventLibrary);
+      $('#fixtureEventLibraryButton').addEventListener('click', openEventLibrary);
+      $('#createNewEventButton').addEventListener('click', beginAnotherEvent);
+      $('#closeEventLibraryButton').addEventListener('click', closeEventLibrary);
+      $('#eventLibraryDialog').addEventListener('close', () => restoreDialogOpener($('#eventLibraryDialog')));
+      $('#eventLibraryDialog').addEventListener('click', event => {
+        const dialog = $('#eventLibraryDialog');
+        const bounds = dialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right ||
+            event.clientY < bounds.top || event.clientY > bounds.bottom) closeEventLibrary();
+      });
+
       $('#backToEditButton').addEventListener('click', async () => {
         const hasResults = allMatches().some(match => match.status === 'completed');
         if (hasResults) {
@@ -5263,6 +5509,7 @@
       });
 
       restorePersistedEvent();
+      if (!archivedEvents()) startupNoticeKey = 'eventLibraryInvalid';
       persistenceReady = true;
       $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
       updateStaticLanguage();
