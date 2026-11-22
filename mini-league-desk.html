@@ -2012,6 +2012,33 @@
       .rename-event-dialog .backup-dialog-actions .button { width: 100%; min-height: 48px; }
     }
 
+
+    .event-library-dialog { width: min(600px, calc(100% - 28px)); }
+    .event-library-dialog .dialog-body { padding: 10px 20px calc(22px + env(safe-area-inset-bottom)); }
+    .event-library-list { display: grid; }
+    .event-library-row {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center; gap: 10px 16px; padding: 15px 0;
+      border-bottom: 1px solid var(--line); min-width: 0;
+    }
+    .event-library-row:last-child { border-bottom: 0; }
+    .event-library-row.is-current { border-left: 3px solid var(--accent); padding-left: 11px; }
+    .event-library-info { min-width: 0; }
+    .event-library-name { display: block; overflow-wrap: anywhere; font-size: 14px; }
+    .event-library-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .event-library-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+    .event-library-actions .button.text-link { min-height: 44px; padding-inline: 5px; }
+    .event-library-current { color: var(--accent); font-size: 11px; font-weight: 700; padding: 8px 5px; }
+    .event-library-empty { margin: 20px 0; color: var(--muted); font-size: 13px; }
+    .event-library-note { margin: 16px 0 14px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .event-library-new { width: 100%; min-height: 46px; }
+    @media (max-width: 600px) {
+      .event-library-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 20px 20px 0 0; }
+      .event-library-dialog .dialog-body { padding-inline: 16px; }
+      .event-library-row { grid-template-columns: minmax(0,1fr); gap: 3px; }
+      .event-library-actions { justify-content: flex-start; }
+    }
+
     @media print {
       @page { size: auto; margin: 12mm; }
       body { background: #fff !important; color: #111 !important; }
@@ -2104,6 +2131,7 @@
             <h3 id="settingsTitle" data-i18n="settingsTitle">大会設定</h3>
             <p data-i18n="settingsLead">大会名と結果の記録方法を決めます。</p>
           </div>
+          <button class="button text-link" id="setupEventLibraryButton" type="button" data-i18n="eventLibraryOpen">大会一覧</button>
         </div>
 
         <label class="field" for="tournamentName">
@@ -2243,6 +2271,7 @@
           </div>
           <div class="fixture-overview-tools">
             <div class="fixture-actions data-actions">
+              <button class="button text-link" id="fixtureEventLibraryButton" type="button" data-i18n="eventLibraryOpen">大会一覧</button>
               <button class="button text-link" id="renameEventButton" type="button" data-i18n="renameEvent">大会名を変更</button>
               <button class="button text-link" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
               <button class="button text-link" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
@@ -2403,6 +2432,21 @@
 
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden>
 
+
+
+  <dialog class="event-library-dialog" id="eventLibraryDialog" aria-labelledby="eventLibraryTitle">
+    <div class="dialog-header">
+      <h2 id="eventLibraryTitle" data-i18n="eventLibraryTitle">この端末の大会</h2>
+      <button class="dialog-close" id="closeEventLibraryButton" type="button" data-i18n-aria-label="close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="event-library-list" id="eventLibraryList" role="list"></div>
+      <p class="event-library-note" data-i18n="eventLibraryNote">大会はこのブラウザ内に保存されます。端末のデータを消去すると失われるため、必要な大会はJSONでバックアップしてください。</p>
+      <button class="button primary event-library-new" id="createNewEventButton" type="button" data-i18n="eventLibraryNew">新しい大会を作る</button>
+    </div>
+  </dialog>
 
   <dialog class="rename-event-dialog" id="renameEventDialog" aria-labelledby="renameEventTitle">
     <div class="dialog-header">
@@ -2651,6 +2695,7 @@
           resultModeLegend: '結果の記録方法', resultModeShort: '記録方式', modeWinLoss: '勝敗だけ', modeWinLossHelp: '勝ち1、負け0で順位を計算します。', modeWinDrawLoss: '勝ち・引き分け', modeWinDrawLossHelp: '勝ち3、引き分け1、負け0で順位を計算します。', modeScore: '得点を入力', modeScoreHelp: '双方の得点を入力し、○×△と順位を自動判定します。', scoreDrawsAllowed: '同点を引き分けとして認める',
           addParticipant: '参加者を追加', participantName: '参加者名', participantPlaceholder: '例：山田', add: '追加',
           bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
+          eventLibraryOpen: '大会一覧', eventLibraryTitle: 'この端末の大会', eventLibraryNew: '新しい大会を作る', eventLibraryEmpty: '保存された大会はありません。', eventLibraryNote: '大会はこのブラウザ内に保存されます。端末のデータを消去すると失われるため、必要な大会はJSONでバックアップしてください。', eventLibraryActive: '表示中', eventLibraryOpenAction: '開く', eventLibraryDelete: '削除', eventLibraryDeleteTitle: '大会を削除しますか？', eventLibraryDeleteMessage: '「{name}」をこの端末から削除します。元に戻せないため、必要なら先にJSONバックアップを保存してください。', eventLibraryDeleteAction: '削除する', eventLibraryDeleted: '大会を削除しました。', eventLibraryCreated: '新しい大会を作成できます。', eventLibraryDraft: '準備中', eventLibraryProgress: '{done}/{total}試合終了', eventLibraryInvalid: '保存された大会一覧を読み込めません。データを保護するため、大会の切り替え・削除を停止しました。', eventLibraryNotFound: 'この大会が見つかりません。', eventLibrarySwitchFailed: '大会を切り替えられませんでした。端末の保存領域を確認してください。', eventLibraryImported: '大会を追加しました。',
           reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', backupDetails: 'バックアップ・復元', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '追加・編集・並べ替えをここで行います。', participantAddActionsLabel: '参加者を追加', people: '人',
           emptyTitle: 'まだ参加者がいません', emptyBody: '下の＋ボタンから参加者を追加してください。',
           reorderHelp: 'ドラッグまたは矢印で順番を調整できます。', dragLabel: '{name} をドラッグして並べ替え', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
@@ -2675,7 +2720,7 @@
           helpStep3: '大会開始後は「進行」で次の試合、「対戦」で対戦一覧・総当たり表・参加者別の残り対戦、「順位」で現在順位を確認できます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名、参加者、対戦、結果、順位、JSON・CSV・PNGの出力データはこのページ内で処理し、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: '大会内容はこの端末に自動保存されます。JSONファイルの保存・読み込みは「バックアップ・復元」から行えます。保存できない場合や別タブで更新された場合は警告が表示されます。',
+          helpNoteNoSave: '大会はこの端末に自動保存されます。「大会一覧」から切り替えられます。ブラウザのデータを消去すると失われるため、必要なら「バックアップ・復元」からJSONを保存してください。保存できない場合や別タブで更新された場合は警告が表示されます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
           helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。大会中はCSV・順位PNG・印刷で結果を出力できます。',
 
@@ -2691,6 +2736,7 @@
           resultModeLegend: 'Result entry', resultModeShort: 'Result mode', modeWinLoss: 'Win / loss', modeWinLossHelp: 'A win is 1 point and a loss is 0.', modeWinDrawLoss: 'Win / draw / loss', modeWinDrawLossHelp: 'Win 3, draw 1, loss 0.', modeScore: 'Enter scores', modeScoreHelp: 'Enter both scores to derive ○ / × / △ and the standings.', scoreDrawsAllowed: 'Allow tied scores as draws',
           addParticipant: 'Add participant', participantName: 'Participant name', participantPlaceholder: 'e.g. Alex', add: 'Add',
           bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
+          eventLibraryOpen: 'Events', eventLibraryTitle: 'Events on this device', eventLibraryNew: 'Create new event', eventLibraryEmpty: 'No saved events yet.', eventLibraryNote: 'Events are stored in this browser. Clearing browser data may remove them; save a JSON backup for events you need to keep.', eventLibraryActive: 'Current', eventLibraryOpenAction: 'Open', eventLibraryDelete: 'Delete', eventLibraryDeleteTitle: 'Delete this event?', eventLibraryDeleteMessage: 'Delete "{name}" from this device? This cannot be undone. Save a JSON backup first if needed.', eventLibraryDeleteAction: 'Delete', eventLibraryDeleted: 'Event deleted.', eventLibraryCreated: 'Ready to create a new event.', eventLibraryDraft: 'Setup', eventLibraryProgress: '{done}/{total} matches played', eventLibraryInvalid: 'Saved events could not be read. Switching and deletion are disabled to protect existing data.', eventLibraryNotFound: 'This event could not be found.', eventLibrarySwitchFailed: 'Could not switch events. Check available device storage.', eventLibraryImported: 'Event added.',
           reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', backupDetails: 'Backup & restore', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'Add, edit, and reorder participants here.', participantAddActionsLabel: 'Add participants', people: 'people',
           emptyTitle: 'No participants yet', emptyBody: 'Use the + buttons below to add participants.',
           reorderHelp: 'Drag or use the arrow buttons to adjust the order.', dragLabel: 'Drag to reorder {name}', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
@@ -2715,7 +2761,7 @@
           helpStep3: 'After starting, use Progress for what is next, Matches for the match list, round-robin table, and participant-specific remaining opponents, and Standings for the current ranking.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event names, participants, matches, results, standings, and JSON/CSV/PNG export data are processed on this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'The event is saved automatically on this device. Use Backup & restore to save or load a JSON file. A warning appears if saving fails or the event changes in another tab.',
+          helpNoteNoSave: 'Events are saved automatically on this device. Use Events to switch between saved events, and Backup & restore for a JSON file. Clearing browser data may erase saved events. A warning appears if saving fails or an event changes in another tab.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
           helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. During an event you can export CSV files, a standings PNG, or a print layout.',
 
@@ -2726,10 +2772,11 @@
       const $ = selector => document.querySelector(selector);
       const SCHEMA_VERSION = 1;
       const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', matchView: 'rounds', participantFocusId: '', activePage: 'progress' }, meta: { eventId: '', createdAt: '', updatedAt: '' } };
-      const storageKeys = { language: `${APP_CONFIG.slug}:language`, event: `${APP_CONFIG.slug}:active-event:v${SCHEMA_VERSION}` };
+      const storageKeys = { language: `${APP_CONFIG.slug}:language`, event: `${APP_CONFIG.slug}:active-event:v${SCHEMA_VERSION}`, archives: `${APP_CONFIG.slug}:archived-events:v${SCHEMA_VERSION}` };
       let persistenceReady = false;
       let persistenceWarningShown = false;
       let lastStoredEventRaw = null;
+      let lastArchivedEventsRaw = readStorage(storageKeys.archives);
       let storageConflict = false;
       let persistenceFailed = false;
       let startupNoticeKey = '';
