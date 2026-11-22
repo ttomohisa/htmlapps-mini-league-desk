@@ -2001,6 +2001,17 @@
       .fixture-overview-tools .fixture-actions.data-actions { gap: 13px; }
     }
 
+
+    .rename-event-dialog { width: min(440px, calc(100% - 28px)); }
+    .rename-event-dialog .dialog-body { padding: 18px; }
+    .rename-event-dialog .backup-field input { width: 100%; margin-top: 5px; }
+    .rename-event-dialog .field-error { min-height: 18px; margin: 8px 0 0; }
+    @media (max-width: 520px) {
+      .rename-event-dialog { width: 100%; max-width: none; margin: auto 0 0; border-radius: 20px 20px 0 0; border-width: 1px 0 0; }
+      .rename-event-dialog .backup-dialog-actions { flex-direction: column-reverse; }
+      .rename-event-dialog .backup-dialog-actions .button { width: 100%; min-height: 48px; }
+    }
+
     @media print {
       @page { size: auto; margin: 12mm; }
       body { background: #fff !important; color: #111 !important; }
@@ -2221,7 +2232,7 @@
           <div class="fixture-stats" aria-live="polite">
             <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
             <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
-            <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
+            <div class="fixture-stat"><strong id="fixtureCompletedCount">0</strong><span data-i18n="overviewCompleted">終了</span></div>
           </div>
         </div>
         <div class="fixture-overview-toolbar">
@@ -2232,6 +2243,7 @@
           </div>
           <div class="fixture-overview-tools">
             <div class="fixture-actions data-actions">
+              <button class="button text-link" id="renameEventButton" type="button" data-i18n="renameEvent">大会名を変更</button>
               <button class="button text-link" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
               <button class="button text-link" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
             </div>
@@ -2390,6 +2402,27 @@
 
 
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden>
+
+
+  <dialog class="rename-event-dialog" id="renameEventDialog" aria-labelledby="renameEventTitle">
+    <div class="dialog-header">
+      <h2 id="renameEventTitle" data-i18n="renameEventTitle">大会名を変更</h2>
+      <button class="dialog-close" id="closeRenameEventButton" type="button" data-i18n-aria-label="close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <form class="dialog-body" id="renameEventForm" novalidate>
+      <label class="backup-field" for="renameEventInput">
+        <span data-i18n="tournamentName">大会名</span>
+        <input class="text-input" id="renameEventInput" type="text" maxlength="100" autocomplete="off" required>
+      </label>
+      <p class="field-error" id="renameEventError" role="status" aria-live="polite"></p>
+      <div class="backup-dialog-actions">
+        <button class="button" id="cancelRenameEventButton" type="button" data-i18n="cancel">キャンセル</button>
+        <button class="button primary" type="submit" data-i18n="renameEventSave">変更する</button>
+      </div>
+    </form>
+  </dialog>
 
   <dialog class="backup-dialog" id="backupExportDialog" aria-labelledby="backupExportTitle" aria-describedby="backupFilenameHelp">
     <div class="dialog-header">
@@ -2623,10 +2656,10 @@
           reorderHelp: 'ドラッグまたは矢印で順番を調整できます。', dragLabel: '{name} をドラッグして並べ替え', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
           fixtureKicker: '大会を進行中',
-          matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。',
+          matches: '試合', rounds: '巡', overviewCompleted: '終了', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。',
           navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixCorner: '対戦', matrixPending: '—', matrixWinLabel: '勝ち', matrixLossLabel: '負け', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixCellScoreLabel: '{result}、{score}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
-          backToEdit: '参加者を編集', draftNotice: '大会はこの端末に自動保存されます。',
+          renameEvent: '大会名を変更', renameEventTitle: '大会名を変更', renameEventSave: '変更する', renameEventRequired: '大会名を入力してください。', renameEventSaved: '大会名を変更しました。', backToEdit: '参加者を編集', draftNotice: '大会はこの端末に自動保存されます。',
           defaultTournament: '新しい大会', footer: '大会の運営はブラウザー内で完結',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
@@ -2663,10 +2696,10 @@
           reorderHelp: 'Drag or use the arrow buttons to adjust the order.', dragLabel: 'Drag to reorder {name}', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
           fixtureKicker: 'Event in progress',
-          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.',
+          matches: 'Matches', rounds: 'Rounds', overviewCompleted: 'Played', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.',
           navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixCorner: 'vs', matrixPending: '—', matrixWinLabel: 'Win', matrixLossLabel: 'Loss', matrixCellLabel: '{row} vs {opponent}: {result}', matrixCellScoreLabel: '{result}, {score}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
-          backToEdit: 'Edit participants', draftNotice: 'This event is saved automatically on this device.',
+          renameEvent: 'Rename event', renameEventTitle: 'Rename event', renameEventSave: 'Save name', renameEventRequired: 'Enter an event name.', renameEventSaved: 'Event name updated.', backToEdit: 'Edit participants', draftNotice: 'This event is saved automatically on this device.',
           defaultTournament: 'New event', footer: 'League management stays in the browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
@@ -4688,7 +4721,7 @@
         setText('#fixtureModeLabel', resultModeLabel());
         setText('#fixtureParticipantCount', new Intl.NumberFormat(language).format(state.participants.length));
         setText('#fixtureMatchCount', new Intl.NumberFormat(language).format(matchCount));
-        setText('#fixtureRoundCount', new Intl.NumberFormat(language).format(state.rounds.length));
+        setText('#fixtureCompletedCount', new Intl.NumberFormat(language).format(snapshot.completed.length));
         setText('#filterAllCount', String(snapshot.matches.length));
         setText('#filterPendingCount', String(snapshot.pending.length));
         setText('#filterCompletedCount', String(snapshot.completed.length));
@@ -4978,6 +5011,44 @@
       $('#shuffleButton').addEventListener('click', shuffleParticipants);
       $('#resetButton').addEventListener('click', resetSetup);
       $('#confirmParticipantsButton').addEventListener('click', confirmParticipants);
+
+      function openRenameEvent() {
+        if (state.phase !== 'fixtures') return;
+        const dialog = $('#renameEventDialog');
+        $('#renameEventInput').value = state.tournamentName || '';
+        setText('#renameEventError', '');
+        rememberDialogOpener(dialog);
+        dialog.showModal();
+        requestAnimationFrame(() => $('#renameEventInput').focus({ preventScroll: true }));
+      }
+      function saveRenamedEvent() {
+        const value = $('#renameEventInput').value.trim();
+        if (!value) {
+          setText('#renameEventError', translate('renameEventRequired'));
+          $('#renameEventInput').focus();
+          return;
+        }
+        if (value !== state.tournamentName) {
+          const previous = state.tournamentName;
+          state.tournamentName = value;
+          if (!persistEvent()) {
+            state.tournamentName = previous;
+            setText('#renameEventError', translate(storageConflict ? 'storageConflictShort' : 'saveFailed'));
+            return;
+          }
+          setText('#fixtureTitle', value);
+          $('#tournamentName').value = value;
+          showToast(translate('renameEventSaved'), { tone: 'success' });
+        }
+        $('#renameEventDialog').close();
+      }
+      $('#renameEventButton').addEventListener('click', openRenameEvent);
+      $('#renameEventForm').addEventListener('submit', event => { event.preventDefault(); saveRenamedEvent(); });
+      $('#renameEventInput').addEventListener('input', () => setText('#renameEventError', ''));
+      $('#closeRenameEventButton').addEventListener('click', () => $('#renameEventDialog').close());
+      $('#cancelRenameEventButton').addEventListener('click', () => $('#renameEventDialog').close());
+      $('#renameEventDialog').addEventListener('close', () => restoreDialogOpener($('#renameEventDialog')));
+
       $('#backToEditButton').addEventListener('click', async () => {
         const hasResults = allMatches().some(match => match.status === 'completed');
         if (hasResults) {

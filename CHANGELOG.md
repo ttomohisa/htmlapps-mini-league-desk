@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features (v1.0.4 candidate)
+- Rename an event without regenerating the schedule or clearing recorded results.
+- Replace the overview's round count with completed match count, updated from the current results.
+
+
 ### Design refinement (v1.0.4 candidate)
 - Condense the bordered event overview into title/mode and three small counts above one compact toolbar; keep secondary actions and backup accessible without making them separate vertical sections.
 - Keep automatic-save information in the backup disclosure and verify overview size on desktop/phone in Chromium.

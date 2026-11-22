@@ -180,3 +180,14 @@ test('event overview is a compact header with essential information and intact a
   assert.match(style, /\.fixture-overview-toolbar[\s\S]*?border-top: 1px solid var\(--line\)/);
   assert.match(style, /@media \(max-width: 600px\)[\s\S]*?\.fixture-hero \{ gap: 9px; padding: 13px 15px 9px; \}/);
 });
+
+test('event name can be edited independently from match data', () => {
+  assert.match(source, /id="renameEventButton"/);
+  assert.match(source, /id="renameEventDialog"/);
+  assert.match(source, /function saveRenamedEvent\(\)/);
+  assert.match(source, /state\.tournamentName = value;/);
+  assert.match(source, /state\.tournamentName = previous;/);
+  assert.match(source, /id="fixtureCompletedCount"/);
+  assert.match(source, /snapshot\.completed\.length/);
+  assert.doesNotMatch(source, /fixtureRoundCount/);
+});
