@@ -211,3 +211,8 @@ test('event library does not replace legacy active data and protects backups', (
   assert.match(source, /function deleteSavedEvent\(id, name\)[\s\S]*?AppConfirm\.ask/);
   assert.match(source, /lastArchivedEventsRaw/);
 });
+
+test('event library and rename dialogs scroll inside short viewports', () => {
+  assert.match(source, /#eventLibraryDialog\[open\], #renameEventDialog\[open\] \{ display: flex; flex-direction: column; \}/);
+  assert.match(source, /#eventLibraryDialog \.dialog-body, #renameEventDialog \.dialog-body/);
+});

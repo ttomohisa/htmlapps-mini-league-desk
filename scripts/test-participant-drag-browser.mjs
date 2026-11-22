@@ -610,6 +610,50 @@ try {
   }
   console.log("[OK] Legacy data, rename, new event, switching, reload and import Undo passed.");
 
+
+  // A saved event can be deleted only after confirmation; the active event remains.
+  const deletionStart = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Second Event');" +
+      "row?.querySelector('.event-library-actions .danger-ghost')?.click();" +
+      "return {rowFound:!!row,dialogOpen:document.getElementById('appConfirmDialog').open," +
+      "modalDisplay:getComputedStyle(document.getElementById('eventLibraryDialog')).display};" +
+      "})()",
+    returnByValue: true
+  });
+  const deleting = deletionStart.result?.value;
+  if (!deleting?.rowFound || !deleting.dialogOpen || deleting.modalDisplay !== "flex") {
+    throw new Error("Saved event deletion confirmation missing: " + JSON.stringify(deleting));
+  }
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('appConfirmCancel').click()" });
+  await sleep(80);
+  const afterCancel = await cdp.send("Runtime.evaluate", {
+    expression: "JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events.length",
+    returnByValue: true
+  });
+  if (afterCancel.result?.value !== 1) throw new Error("Cancelling deletion changed the archive.");
+  await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Second Event');" +
+      "row.querySelector('.event-library-actions .danger-ghost').click();" +
+      "})()"
+  });
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('appConfirmOk').click()" });
+  await sleep(120);
+  const afterDelete = await cdp.send("Runtime.evaluate", {
+    expression: "(() => ({active:JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1')).event.id," +
+      "archiveSize:JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events.length," +
+      "dialogOpen:document.getElementById('eventLibraryDialog').open}))()",
+    returnByValue: true
+  });
+  const deleted = afterDelete.result?.value;
+  if (!deleted || deleted.active !== "matrix-score-smoke" || deleted.archiveSize !== 0 || !deleted.dialogOpen) {
+    throw new Error("Deleting an archived event affected the current event: " + JSON.stringify(deleted));
+  }
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('closeEventLibraryButton').click()" });
+  console.log("[OK] Event library confirmation, cancellation and deletion passed.");
+
   await runPngHeaderSmoke(cdp);
 
 } finally {

@@ -2013,6 +2013,11 @@
     }
 
 
+
+    #eventLibraryDialog[open], #renameEventDialog[open] { display: flex; flex-direction: column; }
+    #eventLibraryDialog .dialog-body, #renameEventDialog .dialog-body {
+      min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+    }
     .event-library-dialog { width: min(600px, calc(100% - 28px)); }
     .event-library-dialog .dialog-body { padding: 10px 20px calc(22px + env(safe-area-inset-bottom)); }
     .event-library-list { display: grid; }
