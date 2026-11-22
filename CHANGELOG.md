@@ -2,12 +2,16 @@
 
 ## Unreleased
 
-### Features (v1.0.4 candidate)
+### Features (v1.1.0 candidate)
+- Save and switch among multiple locally stored events without creating an account; edit event names without touching match results.
+- Show the number of completed matches in the event overview rather than round count.
+- Preserve older active event data and JSON backup compatibility. Imported JSON creates a separate event; archived events can be deleted only after confirmation.
+
 - Rename an event without regenerating the schedule or clearing recorded results.
 - Replace the overview's round count with completed match count, updated from the current results.
 
 
-### Design refinement (v1.0.4 candidate)
+### Design refinement (v1.1.0 candidate)
 - Condense the bordered event overview into title/mode and three small counts above one compact toolbar; keep secondary actions and backup accessible without making them separate vertical sections.
 - Keep automatic-save information in the backup disclosure and verify overview size on desktop/phone in Chromium.
 - Restyle event overview edit/output and other secondary actions as quiet text links; reduce button visual weight while preserving clear confirmation controls.
@@ -17,13 +21,13 @@
 - Preserve button affordances, the single highlighted next-match area, keyboard focus, the roster's drag feedback, and mobile navigation.
 
 
-### Changed (v1.0.4 candidate)
+### Changed (v1.1.0 candidate)
 - Remove redundant hero and section descriptions in Japanese and English, and reclaim space during events.
 - Collapse JSON backup and restore under a secondary disclosure; tone down routine autosave status.
 - Fix phone brand descender clipping and hide the local-processing badge on phones.
 - Create a version tag and GitHub Release automatically after a successful merged-main standalone build.
 
-### Fixed (v1.0.4 candidate)
+### Fixed (v1.1.0 candidate)
 - Prevent stale-tab saves from replacing another tab's results; show persistent warnings for conflicts and storage failure.
 - Include score-for in score-mode standings PNG.
 - Normalize participant-name Unicode limits, use local dates in export names, and prevent imported pairing-key collisions.

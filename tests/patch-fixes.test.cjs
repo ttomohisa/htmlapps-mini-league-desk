@@ -169,7 +169,7 @@ test('event overview is a compact header with essential information and intact a
   assert.match(source, /class="fixture-overview-tools"/);
   const hero = source.split('<div class="fixture-hero">')[1].split('<div class="league-overview-grid">')[0];
   assert.equal((hero.match(/class="fixture-stats"/g) || []).length, 1);
-  for (const id of ['fixtureTitle','fixtureModeLabel','fixtureParticipantCount','fixtureMatchCount','fixtureRoundCount',
+  for (const id of ['fixtureTitle','fixtureModeLabel','fixtureParticipantCount','fixtureMatchCount','fixtureCompletedCount',
     'backToEditButton','openExportButton','exportBackupButton','importBackupButton']) {
     assert.match(hero, new RegExp('id="' + id + '"'), id);
   }
@@ -190,4 +190,24 @@ test('event name can be edited independently from match data', () => {
   assert.match(source, /id="fixtureCompletedCount"/);
   assert.match(source, /snapshot\.completed\.length/);
   assert.doesNotMatch(source, /fixtureRoundCount/);
+});
+
+
+test('event library does not replace legacy active data and protects backups', () => {
+  assert.match(source, /archives: \x60\$\{APP_CONFIG\.slug\}:archived-events:v\$\{SCHEMA_VERSION\}\x60/);
+  for (const fn of ['archivedEvents','saveArchivedEvents','archiveActiveEvent','setActiveEventDocument',
+    'beginAnotherEvent','switchSavedEvent','addImportedEvent','renderEventLibrary',
+    'openEventLibrary','deleteSavedEvent']) {
+    assert.match(source, new RegExp('function ' + fn + '\\('), fn);
+  }
+  for (const id of ['eventLibraryDialog','eventLibraryList','setupEventLibraryButton',
+    'fixtureEventLibraryButton','createNewEventButton']) {
+    assert.match(source, new RegExp('id="' + id + '"'), id);
+  }
+  assert.match(source, /function switchSavedEvent\(eventId\)[\s\S]*?archiveActiveEvent\(\) \|\| !setActiveEventDocument\(target\)/);
+  assert.match(source, /function beginAnotherEvent\(\)[\s\S]*?archiveActiveEvent\(\) \|\| !setActiveEventDocument\(null\)/);
+  assert.match(source, /function addImportedEvent\(doc\)[\s\S]*?copy\.event\.id = createId\(\)/);
+  assert.match(source, /async function importBackupFile\(file\)[\s\S]*?addImportedEvent\(parsed\)/);
+  assert.match(source, /function deleteSavedEvent\(id, name\)[\s\S]*?AppConfirm\.ask/);
+  assert.match(source, /lastArchivedEventsRaw/);
 });
