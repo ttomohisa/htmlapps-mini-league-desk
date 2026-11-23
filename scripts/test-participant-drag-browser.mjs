@@ -398,7 +398,319 @@ try {
   }
 
   console.log("[OK] Browser round-robin symbol and score smoke test passed.");
+
+
+  const desktopOverview = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const hero=document.querySelector('.fixture-hero');" +
+      "const styles=getComputedStyle(hero);" +
+      "const details=hero.querySelector('.fixture-backup-details');" +
+      "return {height:hero.getBoundingClientRect().height,border:styles.borderTopWidth," +
+      "backupClosed:!details.open,toolbar:!!hero.querySelector('.fixture-overview-toolbar')};" +
+      "})()",
+    returnByValue: true
+  });
+  const desktopOverviewMetrics=desktopOverview.result?.value;
+  if (!desktopOverviewMetrics || desktopOverviewMetrics.height > 185 ||
+      desktopOverviewMetrics.border === "0px" || !desktopOverviewMetrics.backupClosed ||
+      !desktopOverviewMetrics.toolbar) {
+    throw new Error("Desktop overview is not compact: " + JSON.stringify(desktopOverviewMetrics));
+  }
+  console.log("[OK] Compact event overview retains one outer border and functional controls.");
+
+  // Mobile bottom navigation: each selection must bring its own section just below
+  // the sticky header, not leave the overview as the scroll destination.
+  await cdp.send("Emulation.setDeviceMetricsOverride", {
+    width: 390, height: 780, deviceScaleFactor: 1, mobile: true
+  });
+  await sleep(200);
+
+  const phoneOverview = await cdp.send("Runtime.evaluate", {
+    expression: "(() => ({height:document.querySelector('.fixture-hero').getBoundingClientRect().height," +
+      "overflow:document.documentElement.scrollWidth>window.innerWidth}))()",
+    returnByValue:true
+  });
+  const phoneMetrics=phoneOverview.result?.value;
+  if(!phoneMetrics || phoneMetrics.height > 245 || phoneMetrics.overflow) {
+    throw new Error("Phone overview is too tall or overflows: " + JSON.stringify(phoneMetrics));
+  }
+
+  for (const [key, pageId] of [
+    ["standings", "standingsPage"],
+    ["matches", "matchesPage"],
+    ["progress", "progressPage"],
+    ["standings", "standingsPage"]
+  ]) {
+    await cdp.send("Runtime.evaluate", {
+      expression: "document.querySelector('[data-mobile-key=\"" + key + "\"]').click()"
+    });
+    await sleep(240);
+    const metrics = await cdp.send("Runtime.evaluate", {
+      expression:
+        "(() => {" +
+        "const page=document.getElementById('" + pageId + "');" +
+        "const rect=page.getBoundingClientRect();" +
+        "return {top:rect.top,header:document.querySelector('.app-header').getBoundingClientRect().height," +
+        "overview:document.querySelector('.fixture-hero').getBoundingClientRect().bottom," +
+        "active:page.classList.contains('is-mobile-active')," +
+        "current:document.querySelector('[data-mobile-key=\"" + key + "\"]').getAttribute('aria-current')," +
+        "scrollWidth:document.documentElement.scrollWidth,innerWidth:window.innerWidth};" +
+        "})()",
+      returnByValue: true
+    });
+    const m = metrics.result?.value;
+    if (!m || !m.active || m.current !== "page" ||
+        m.top < m.header - 3 || m.top > m.header + 28 ||
+        m.overview > m.header + 1 ||
+        m.scrollWidth > m.innerWidth) {
+      throw new Error("Phone tab did not align the selected section: " + key + " " + JSON.stringify(m));
+    }
+  }
+  console.log("[OK] Phone navigation scrolls to the selected section, not the overview.");
+
+
+  // The active document created by an older app version must survive rename,
+  // switching, reload, import, Undo, and deletion of an unrelated event.
+  const renamed = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const key='mini-league-desk:active-event:v1';" +
+      "const before=JSON.parse(localStorage.getItem(key));" +
+      "document.getElementById('renameEventButton').click();" +
+      "const field=document.getElementById('renameEventInput');" +
+      "field.value='Renamed Original';" +
+      "document.getElementById('renameEventForm').requestSubmit();" +
+      "const after=JSON.parse(localStorage.getItem(key));" +
+      "return {name:after.event.name,unchanged:JSON.stringify(before.event.rounds)===JSON.stringify(after.event.rounds)," +
+      "completed:document.getElementById('fixtureCompletedCount').textContent," +
+      "dialogClosed:!document.getElementById('renameEventDialog').open};" +
+      "})()",
+    returnByValue: true
+  });
+  const renamedValue = renamed.result?.value;
+  if (!renamedValue || renamedValue.name !== "Renamed Original" ||
+      !renamedValue.unchanged || renamedValue.completed !== "2" || !renamedValue.dialogClosed) {
+    throw new Error("Renaming changed match data: " + JSON.stringify(renamedValue));
+  }
+
+  const archived = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const shown=document.querySelectorAll('.event-library-row').length;" +
+      "document.getElementById('createNewEventButton').click();" +
+      "const library=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1'));" +
+      "return {shown,phase:!document.getElementById('setupView').hidden,active:localStorage.getItem('mini-league-desk:active-event:v1')," +
+      "archived:library.events.map(doc=>({id:doc.event.id,done:doc.event.rounds.flatMap(r=>r.matches).filter(m=>m.status==='completed').length}))};" +
+      "})()",
+    returnByValue: true
+  });
+  const archivedValue = archived.result?.value;
+  if (!archivedValue || archivedValue.shown !== 1 || !archivedValue.phase || archivedValue.active !== null ||
+      archivedValue.archived.length !== 1 || archivedValue.archived[0].id !== "matrix-score-smoke" ||
+      archivedValue.archived[0].done !== 2) {
+    throw new Error("Current event was not safely archived: " + JSON.stringify(archivedValue));
+  }
+
+  const second = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const title=document.getElementById('tournamentName');" +
+      "title.value='Second Event';title.dispatchEvent(new Event('input',{bubbles:true}));" +
+      "for(const name of ['Delta','Echo','Foxtrot']) {" +
+      "document.getElementById('showParticipantAddButton').click();" +
+      "document.getElementById('participantName').value=name;" +
+      "document.getElementById('participantForm').requestSubmit();" +
+      "}" +
+      "document.getElementById('confirmParticipantsButton').click();" +
+      "const doc=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "return {name:doc.event.name,id:doc.event.id,phase:doc.event.phase,people:doc.event.participants.length};" +
+      "})()",
+    returnByValue: true
+  });
+  const secondValue = second.result?.value;
+  if (!secondValue || secondValue.name !== "Second Event" ||
+      secondValue.id === "matrix-score-smoke" || secondValue.phase !== "fixtures" || secondValue.people !== 3) {
+    throw new Error("Second event setup failed: " + JSON.stringify(secondValue));
+  }
+
+  const switchedBack = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const rows=[...document.querySelectorAll('.event-library-row')];" +
+      "const original=rows.find(row=>row.querySelector('.event-library-name')?.textContent==='Renamed Original');" +
+      "const open=original?.querySelector('.event-library-actions .button:not(.danger-ghost)');" +
+      "if(!open)return {error:'original not listed',names:rows.map(row=>row.textContent)};" +
+      "open.click();" +
+      "const doc=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "const archives=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events;" +
+      "return {id:doc.event.id,done:doc.event.rounds.flatMap(r=>r.matches).filter(m=>m.status==='completed').length," +
+      "secondStored:archives.some(item=>item.event.id===" + JSON.stringify(secondValue.id) + ")};" +
+      "})()",
+    returnByValue: true
+  });
+  const switched = switchedBack.result?.value;
+  if (!switched || switched.id !== "matrix-score-smoke" || switched.done !== 2 || !switched.secondStored) {
+    throw new Error("Switching lost saved results: " + JSON.stringify(switched));
+  }
+
+  await cdp.send("Runtime.evaluate", { expression: "location.reload()" });
+  await sleep(800);
+  const reloaded = await cdp.send("Runtime.evaluate", {
+    expression: "(() => ({id:JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1')).event.id," +
+      "archived:JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events.length," +
+      "completed:document.getElementById('fixtureCompletedCount').textContent}))()",
+    returnByValue: true
+  });
+  const reloadValue = reloaded.result?.value;
+  if (!reloadValue || reloadValue.id !== "matrix-score-smoke" ||
+      reloadValue.archived !== 1 || reloadValue.completed !== "2") {
+    throw new Error("Saved event not restored after reload: " + JSON.stringify(reloadValue));
+  }
+
+
+  // Switching must discard a previous event's Undo callback; it must not be
+  // possible to apply a stale result Undo to a different tournament.
+  const staleUndo = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "window.__staleUndoApplied=false;" +
+      "AppToast.show({message:'Stale action',actionLabel:'Undo',duration:30000," +
+      "onAction:()=>{window.__staleUndoApplied=true;}});" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Second Event');" +
+      "const open=row?.querySelector('.event-library-actions .button:not(.danger-ghost)');" +
+      "open?.click();" +
+      "document.getElementById('appToastAction').click();" +
+      "return {switched:document.getElementById('fixtureTitle')?.textContent==='Second Event'," +
+      "toastOpen:document.getElementById('appToast').classList.contains('show')," +
+      "staleApplied:window.__staleUndoApplied};" +
+      "})()",
+    returnByValue: true
+  });
+  const staleValue = staleUndo.result?.value;
+  if (!staleValue || !staleValue.switched || staleValue.toastOpen || staleValue.staleApplied) {
+    throw new Error("A previous event's Undo remained active after switching: " + JSON.stringify(staleValue));
+  }
+  await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Renamed Original');" +
+      "row?.querySelector('.event-library-actions .button:not(.danger-ghost)')?.click();" +
+      "})()"
+  });
+
+  // Import must create a fresh event ID and provide Undo without overwriting either event.
+  await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const doc=localStorage.getItem('mini-league-desk:active-event:v1');" +
+      "const input=document.getElementById('backupFileInput');" +
+      "const transfer=new DataTransfer();" +
+      "transfer.items.add(new File([doc], 'original.json',{type:'application/json'}));" +
+      "input.files=transfer.files;" +
+      "input.dispatchEvent(new Event('change',{bubbles:true}));" +
+      "})()"
+  });
+  await sleep(400);
+  const imported = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const doc=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "const saved=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events;" +
+      "return {id:doc.event.id,hasOriginal:saved.some(item=>item.event.id==='matrix-score-smoke')," +
+      "hasSecond:saved.some(item=>item.event.name==='Second Event')," +
+      "undoShown:!document.getElementById('appToastAction').hidden};" +
+      "})()",
+    returnByValue: true
+  });
+  const importedValue = imported.result?.value;
+  if (!importedValue || importedValue.id === "matrix-score-smoke" ||
+      !importedValue.hasOriginal || !importedValue.hasSecond || !importedValue.undoShown) {
+    throw new Error("JSON import replaced or lost an event: " + JSON.stringify(importedValue));
+  }
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('appToastAction').click()" });
+  await sleep(220);
+  const undoImport = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const active=JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1'));" +
+      "const archives=JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events;" +
+      "return {active:active.event.id,importStillSaved:archives.some(item=>item.event.id===" + JSON.stringify(importedValue.id) + ")," +
+      "secondSaved:archives.some(item=>item.event.name==='Second Event')};" +
+      "})()",
+    returnByValue: true
+  });
+  const undoValue = undoImport.result?.value;
+  if (!undoValue || undoValue.active !== "matrix-score-smoke" || undoValue.importStillSaved || !undoValue.secondSaved) {
+    throw new Error("Import Undo lost event state: " + JSON.stringify(undoValue));
+  }
+  console.log("[OK] Legacy data, rename, new event, switching, reload and import Undo passed.");
+
+
+  // A saved event can be deleted only after confirmation; the active event remains.
+  const deletionStart = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Second Event');" +
+      "row?.querySelector('.event-library-actions .danger-ghost')?.click();" +
+      "return {rowFound:!!row,dialogOpen:document.getElementById('appConfirmDialog').open," +
+      "modalDisplay:getComputedStyle(document.getElementById('eventLibraryDialog')).display};" +
+      "})()",
+    returnByValue: true
+  });
+  const deleting = deletionStart.result?.value;
+  if (!deleting?.rowFound || !deleting.dialogOpen || deleting.modalDisplay !== "flex") {
+    throw new Error("Saved event deletion confirmation missing: " + JSON.stringify(deleting));
+  }
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('appConfirmCancel').click()" });
+  await sleep(80);
+  const afterCancel = await cdp.send("Runtime.evaluate", {
+    expression: "JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events.length",
+    returnByValue: true
+  });
+  if (afterCancel.result?.value !== 1) throw new Error("Cancelling deletion changed the archive.");
+  await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Second Event');" +
+      "row.querySelector('.event-library-actions .danger-ghost').click();" +
+      "})()"
+  });
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('appConfirmOk').click()" });
+  await sleep(120);
+  const afterDelete = await cdp.send("Runtime.evaluate", {
+    expression: "(() => ({active:JSON.parse(localStorage.getItem('mini-league-desk:active-event:v1')).event.id," +
+      "archiveSize:JSON.parse(localStorage.getItem('mini-league-desk:archived-events:v1')).events.length," +
+      "dialogOpen:document.getElementById('eventLibraryDialog').open}))()",
+    returnByValue: true
+  });
+  const deleted = afterDelete.result?.value;
+  if (!deleted || deleted.active !== "matrix-score-smoke" || deleted.archiveSize !== 0 || !deleted.dialogOpen) {
+    throw new Error("Deleting an archived event affected the current event: " + JSON.stringify(deleted));
+  }
+  await cdp.send("Runtime.evaluate", { expression: "document.getElementById('closeEventLibraryButton').click()" });
+  console.log("[OK] Event library confirmation, cancellation and deletion passed.");
+
   await runPngHeaderSmoke(cdp);
+
+  // A malformed active key must be preserved exactly, including after UI renders.
+  await cdp.send("Runtime.evaluate", {
+    expression: "localStorage.setItem('mini-league-desk:active-event:v1','{broken-json:');location.reload();"
+  });
+  await sleep(900);
+  const unreadable = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const saved=localStorage.getItem('mini-league-desk:active-event:v1');" +
+      "const alert=document.getElementById('storageAlert');" +
+      "document.getElementById('setupEventLibraryButton').click();" +
+      "return {saved,warningVisible:!alert.hidden," +
+      "newDisabled:document.getElementById('createNewEventButton').disabled," +
+      "activeUnchanged:localStorage.getItem('mini-league-desk:active-event:v1')===saved};" +
+      "})()",
+    returnByValue:true
+  });
+  const invalidValue = unreadable.result?.value;
+  if (!invalidValue || invalidValue.saved !== "{broken-json:" ||
+      !invalidValue.warningVisible || !invalidValue.newDisabled || !invalidValue.activeUnchanged) {
+    throw new Error("Corrupted local storage was discarded: " + JSON.stringify(invalidValue));
+  }
+  console.log("[OK] Corrupt persisted event remains intact and blocks unsafe writes.");
+
 
 } finally {
   try { if (cdp) cdp.close(); } catch {}

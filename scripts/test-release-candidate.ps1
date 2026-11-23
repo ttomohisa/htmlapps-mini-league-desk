@@ -152,7 +152,7 @@ foreach ($relative in $staleScreenshotBlobs.Keys) {
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-Assert-Equal ([string]$app.version) "1.0.3" "Stable release version."
+if ([string]$app.version -notmatch "^[0-9]+\.[0-9]+\.[0-9]+$") { throw "Invalid semantic version: $($app.version)" }
 if (-not [bool]$app.build.blockRuntimeNetwork) { throw "blockRuntimeNetwork must remain true." }
 if (-not [bool]$app.build.selfExtract.enabled) { throw "Self-extract build must remain enabled." }
 
@@ -194,6 +194,6 @@ foreach ($artifact in @($readable, $selfExtract, $rootHtml)) {
 $builtHtml = Get-Content -Raw -Encoding UTF8 $readable
 if (-not $builtHtml.Contains("connect-src 'none'")) { throw "Built standalone CSP must keep connect-src 'none'." }
 if ($builtHtml -match $externalPattern) { throw "External runtime resource URL found in built standalone HTML." }
-if (-not $builtHtml.Contains('"version":"1.0.3"')) { throw "Built standalone does not contain config version 1.0.3." }
+if (-not $builtHtml.Contains('"version":"' + [string]$app.version + '"')) { throw "Built standalone does not contain config version $($app.version)." }
 
 Write-Host "[OK] Stable release checks passed for 3/4/5/8/16 participants, release assets, standalone, CSP, and privacy markers." -ForegroundColor Green

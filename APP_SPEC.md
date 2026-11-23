@@ -4,7 +4,7 @@
 
 - **Name:** Mini League Desk
 - **Japanese name:** Mini League Desk / ミニリーグ運営
-- **Current app version:** v1.0.3
+- **Current app version:** v1.1.0 (unreleased)
 - **Stable release:** v1.0.3
 - **One-sentence purpose:** Small-event organizers can prepare a round-robin event, record results, see what is next, find remaining matches, and check standings without accounts or a server.
 - **Primary users:** Organizers of small table-tennis, badminton, futsal, board-game, card-game, school, club, office, and casual round-robin events.
@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- v1.0.0 stores the active event locally in addition to the language preference.
+- The original v1.0.0 format stores the active event locally in addition to language preference. v1.1.0 retains that key and stores inactive events under a separate archive key.
 
 ## 5. Event setup
 
@@ -569,6 +569,42 @@ The exported standings PNG keeps its full localized record heading within its av
 - Keep result entry, standings, persistence, exports, and the existing local-processing shield unchanged.
 - Verify the contract in source, readable, repository-root, and decoded self-extract HTML; use native wheel, keyboard, and geometry checks to verify actual scrolling behavior.
 
+## v1.1.0 visual hierarchy
+- Event overview: a single restrained outline, a first row with title/mode and three compact counts, and a slim action/navigation row. Autosave explanation lives inside the existing backup disclosure.
+- Compact event overview must preserve backup, export, participant-edit, keyboard focus and phone tab alignment.
+- Event edit and export are low-emphasis link-style buttons; primary confirmation actions retain a clear filled state. Touch areas and focus outlines remain accessible.
+- Mobile bottom navigation reveals and scrolls to the selected section below the sticky app header, never to the event overview; short sections reserve enough scroll height.
+
+- Keep top-level section boundaries but avoid nested framed cards for statistics, options, schedules, match results, and standings.
+- Use whitespace, lightweight dividers, and typography for nested content; use a single restrained accent surface to focus the upcoming match.
+- Preserve touch targets, keyboard focus, radio selection states, drag feedback, accessible names, and small-screen readability.
+
+## v1.1.0 presentation and release workflow
+
+- Replace the duplicate hero heading with a compact introduction; hide the introduction when an event starts.
+- Remove instructions duplicated by controls in the event hero, progress, initial standings, and matrix.
+- Keep JSON backup/restore behind accessible closed-by-default disclosure controls in setup and event modes.
+- Show successful autosave as quiet status, reserving prominent warning UI for actual failures and tab conflicts.
+- Hide the local-processing badge on phones and provide enough vertical space for header descenders.
+- After a merge into `main`, create a semantic-version tag and GitHub Release only once the standalone build passes. Attach both single-file HTML variants.
+
+## v1.1.0 correctness fixes
+- Stop stale tabs from overwriting another tab's event changes; ignore navigation and timestamps for conflicts.
+- Retain localized warnings on storage failure; offer confirmed reload or JSON backup.
+- Include score-for in score-mode standings PNG exports.
+- Validate 80 Unicode code points consistently across participant-name entry.
+- Use local dates in filenames and collision-free participant-ID pair keys.
+
 ## Shared phone layout
 
-- Hide only the informational footer at the existing 600px phone breakpoint; preserve functional controls and canonical Fully local processing wording.
+- Hide the informational footer and the nonessential local-processing badge at the existing 600px phone breakpoint; preserve functional controls. The desktop badge and localized copy remain unchanged.
+
+## Multiple events (device-local) — v1.1.0
+- The active event uses the original single-document storage key; inactive events are saved in a separately validated archive collection with no server synchronization.
+- Switching archives the active event before changing the current event. Removing the activated event from the archive happens afterward, so interrupted switches may retain a harmless duplicate rather than lose data.
+- Saved events can be opened, deleted after explicit confirmation, or followed by a new event. JSON backups retain schema v1 and imports create an independent event instead of replacing the current event.
+- Existing results and fixtures remain unchanged when only the event name is edited. Returning to participant setup and confirming a modified roster or scoring mode regenerates fixtures; warn before clearing existing results.
+- The overview shows participants, total matches, and completed matches; rounds remain visible in the match list and CSV.
+- Unreadable stored current-event data must not be erased by automatic setup renders; stop saving and offer the original raw text for download.
+- Up to 500 inactive events can be archived, subject to browser storage quota. Event switching may transiently hold 501 archive entries while its previous active event is safely copied; cleanup removes the newly active entry afterward.
+- On switching events, dismiss pending Undo actions that reference result objects from the previous event. Local browser data deletion may remove all stored events; advise JSON backups for important data. If storage or cross-tab checks fail, do not proceed with switching.

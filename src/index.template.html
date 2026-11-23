@@ -51,6 +51,11 @@
       outline: 3px solid color-mix(in srgb,var(--focus) 55%,transparent);
       outline-offset: 2px;
     }
+    .storage-alert { position: sticky; top: calc(var(--header-height) + 6px); z-index: 40; display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 12px 14px; border: 1px solid color-mix(in srgb,var(--warning) 35%,var(--line)); border-radius: 12px; background: var(--warning-soft); box-shadow: var(--shadow-sm); }
+    .storage-alert[hidden] { display: none; }
+    .storage-alert strong { flex: 1 1 auto; min-width: 0; color: var(--warning); font-size: 13px; font-weight: 650; }
+    .storage-alert .button { flex: 0 0 auto; }
+    @media (max-width: 600px) { .storage-alert { flex-wrap: wrap; } .storage-alert .button { width: 100%; } }
     .app-header {
       position: sticky;
       z-index: 30;
@@ -82,8 +87,9 @@
     .brand-copy { min-width: 0; }
     .brand-name {
       margin: 0;
+      padding-block: 1px 2px;
       font-size: 17px;
-      line-height: 1.2;
+      line-height: 1.4;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -151,23 +157,12 @@
     }
     .page-intro {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      padding: 0 2px 20px;
+      gap: 18px;
+      padding: 0 2px 14px;
     }
-    .page-intro h2 {
-      margin: 0;
-      font-size: clamp(22px,3vw,28px);
-      line-height: 1.3;
-      letter-spacing: -.025em;
-    }
-    .page-intro p {
-      max-width: 720px;
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .page-intro p { max-width: 720px; margin: 0; color: var(--muted); font-size: 13px; }
     .local-badge {
       display: inline-flex;
       align-items: center;
@@ -266,6 +261,24 @@
     .button.danger-ghost { color: var(--danger); }
     .button:disabled { cursor: not-allowed; opacity: .46; }
     .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .backup-details { margin-top: 10px; min-width: 0; }
+    .backup-details > summary {
+      display: inline-flex; align-items: center; gap: 10px; min-height: 42px;
+      padding: 8px 10px; border-radius: 9px; color: var(--muted);
+      cursor: pointer; font-size: 12px; font-weight: 650; list-style: none;
+    }
+    .backup-details > summary::-webkit-details-marker { display: none; }
+    .backup-details > summary::after {
+      content: ""; display: inline-block; width: 6px; height: 6px;
+      border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translateY(-2px); transition: transform .15s ease;
+    }
+    .backup-details[open] > summary::after { transform: rotate(225deg) translateY(-1px); }
+    .backup-details > summary:hover { color: var(--text); background: var(--surface-hover); }
+    .backup-details > summary:focus-visible { outline: 3px solid color-mix(in srgb,var(--focus) 55%,transparent); outline-offset: 2px; }
+    .backup-detail-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 2px; }
+    .fixture-backup-details { margin-top: 4px; }
+    .fixture-save-status { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
     .result-mode-fieldset {
       min-width: 0;
@@ -560,15 +573,6 @@
     .ready-count strong { display: block; font-size: 22px; line-height: 1; }
     .ready-count span { color: var(--muted); font-size: 10px; }
     .ready-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .notice {
-      margin-top: 18px;
-      padding: 11px 12px;
-      border: 1px solid color-mix(in srgb,var(--warning) 22%,var(--line));
-      border-radius: 10px;
-      background: var(--warning-soft);
-      color: #5d430d;
-      font-size: 11px;
-    }
 
     .fixture-view { min-width: 0; }
     .fixture-hero {
@@ -590,7 +594,6 @@
       font-weight: 800;
     }
     .fixture-hero h3 { margin: 16px 0 5px; font-size: clamp(21px,3vw,28px); letter-spacing: -.025em; overflow-wrap: anywhere; }
-    .fixture-hero > p { margin: 0; color: var(--muted); }
     .fixture-stats {
       display: grid;
       grid-template-columns: repeat(3,minmax(0,1fr));
@@ -1334,7 +1337,7 @@
       :root { --header-height: 58px; }
       .header-inner { padding-block: 8px; }
       .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
-      .brand-name { font-size: 15px; }
+      .brand-name { font-size: 15px; line-height: 1.5; padding-bottom: 3px; }
       .brand-meta { display: none; }
       .header-actions { gap: 11px; }
       .main { padding-top: 18px; }
@@ -1404,6 +1407,7 @@
         white-space: normal;
         overflow-wrap: anywhere;
       }
+      .backup-detail-actions .button { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
       .data-actions .button { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
       .notice { overflow-wrap: anywhere; }
       .app-toast { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: none; }
@@ -1517,6 +1521,529 @@
     }
 
 
+
+    /* Visual hierarchy: section containers are cards; their contents are open lists. */
+    .panel, .league-page, .ready-view {
+      border-color: #e1e3de;
+      border-radius: 14px;
+      box-shadow: none;
+    }
+    .panel, .league-page { padding: 22px; }
+    .result-mode-options { gap: 0; }
+    .result-mode-card {
+      padding: 13px 10px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .result-mode-card:last-child { border-bottom: 0; }
+    .result-mode-card:hover { background: var(--surface-muted); }
+    .result-mode-card:has(input:checked) { background: #edf5f1; color: var(--accent); }
+    .result-mode-card:has(input:checked) small { color: var(--muted); }
+    .check-row { border-radius: 0; background: transparent; }
+
+    .roster-list { gap: 0; }
+    .participant {
+      padding-block: 11px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      transition: background .14s ease, transform .14s ease;
+    }
+    .participant:hover { background: #f7f8f5; }
+    .participant.is-drag-placeholder {
+      border: 1px dashed var(--line-strong);
+      border-radius: 10px;
+    }
+    .participant-drag-ghost {
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+    }
+    .empty-state { min-height: 148px; padding: 24px 18px; border: 0; border-radius: 0; }
+    .participant-add-panel { padding: 10px 0; border: 0; border-radius: 0; background: transparent; }
+    .start-card {
+      margin-top: 22px;
+      padding: 18px 0 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .ready-view { box-shadow: none; }
+    .ready-summary {
+      padding: 16px 0;
+      border-block: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .ready-count { border-radius: 0; background: transparent; }
+
+    /* The event header should not be another card above the three main pages. */
+    .fixture-hero {
+      padding: clamp(18px, 3vw, 26px);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: none;
+    }
+    .fixture-kicker, .ready-kicker {
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+    .fixture-hero h3 { margin: 8px 0 2px; font-size: clamp(23px,3vw,29px); }
+    .fixture-mode { margin-top: 6px; padding: 0; border-radius: 0; background: transparent; }
+    .fixture-stats, .progress-summary { gap: 0; }
+    .fixture-stat, .progress-stat {
+      padding: 5px 16px;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .fixture-stat:first-child, .progress-stat:first-child { padding-left: 0; }
+    .fixture-stat:last-child, .progress-stat:last-child { border-right: 0; }
+    .desktop-league-nav { gap: 18px; }
+    .desktop-league-nav button {
+      padding: 6px 1px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      font-size: 12px;
+    }
+    .desktop-league-nav button:hover {
+      border-color: transparent;
+      border-bottom-color: var(--accent);
+      background: transparent;
+      color: var(--accent);
+    }
+
+    /* Fixtures and standings are rows of data, not rows of mini-cards. */
+    .rounds-grid { gap: 26px 22px; }
+    .round-card {
+      padding: 12px 0 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-list, .standings-list { gap: 0; }
+    .match-row {
+      min-height: 56px;
+      padding: 11px 6px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-row:hover { border-color: var(--line); background: #f3f6f3; }
+    .match-row.completed { border-color: var(--line); }
+    .match-row.completed .match-result { color: var(--accent); }
+    .standing-row {
+      padding: 12px 0;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .standing-row:last-child { border-bottom: 0; }
+    .standing-rank {
+      border-radius: 0;
+      background: transparent;
+      color: var(--accent);
+      font-size: 15px;
+    }
+
+    /* Only the next match receives an accented surface; its action is not boxed again. */
+    .next-match-card, .completion-card {
+      padding: 17px;
+      border: 0;
+      border-radius: 11px;
+      background: #eaf4ee;
+    }
+    .next-match-button {
+      margin-top: 8px;
+      padding: 10px 0;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      text-align: left;
+    }
+    .next-match-button:hover { border-color: transparent; color: var(--accent); }
+    .following-list, .completion-standings { gap: 0; }
+    .following-match, .opponent-match {
+      min-height: 42px;
+      padding: 9px 3px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .following-match:hover, .opponent-match:hover {
+      border-color: var(--line);
+      background: #f7f8f5;
+      color: var(--accent);
+    }
+    .completion-standing {
+      padding: 9px 1px;
+      border-bottom: 1px solid rgba(22,98,79,.16);
+      border-radius: 0;
+      background: transparent;
+    }
+    .completion-standing:last-child { border-bottom: 0; }
+
+    .match-view-switcher {
+      gap: 16px;
+      padding: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-view-button {
+      padding: 8px 1px;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+    }
+    .match-view-button.is-active {
+      border-bottom-color: var(--accent);
+      background: transparent;
+      box-shadow: none;
+    }
+    .match-filter {
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+    }
+    .match-filter:hover, .match-filter.is-active {
+      border-color: transparent;
+      border-bottom-color: var(--accent);
+      background: transparent;
+    }
+    .participant-match-panel {
+      margin: 0 0 20px;
+      padding: 16px 0 18px;
+      border-block: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .opponent-group { padding: 6px 0; border-radius: 0; background: transparent; }
+
+    @media (max-width: 520px) {
+      .panel, .league-page { padding: 14px; }
+      .fixture-stat, .progress-stat { padding: 5px 10px; }
+      .fixture-stat:first-child, .progress-stat:first-child { padding-left: 0; }
+    }
+    @media (max-width: 380px) {
+      .panel, .league-page { padding: 12px; }
+      .fixture-hero { padding: 15px 12px; }
+      .fixture-stat, .progress-stat { padding: 5px 7px; }
+      .fixture-stat:first-child, .progress-stat:first-child { padding-left: 0; }
+    }
+
+
+
+    /* Quiet controls: navigation and exports read as links; confirmations remain buttons. */
+    .button {
+      min-height: 42px;
+      padding: 8px 13px;
+      border: 1px solid #d6dad4;
+      border-radius: 8px;
+      background: #fbfcfa;
+      font-size: 13px;
+      font-weight: 650;
+      box-shadow: none;
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
+    }
+    .button:hover:not(:disabled) {
+      border-color: #b9c7bf;
+      background: #f1f6f2;
+    }
+    .button:active:not(:disabled) { transform: none; }
+    .button.primary {
+      border-color: var(--accent);
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+    .button.primary:hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
+    .button.text-link {
+      min-height: 44px;
+      width: auto;
+      padding: 9px 3px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #56645b;
+      font-size: 12px;
+      font-weight: 650;
+      text-align: left;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      text-underline-offset: 4px;
+      cursor: pointer;
+    }
+    .button.text-link:hover:not(:disabled) {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      text-decoration-color: currentColor;
+    }
+    .button.text-link.danger-ghost { color: var(--muted); }
+    .button.text-link.danger-ghost:hover:not(:disabled) { color: var(--danger); }
+    .fixture-actions.data-actions { gap: 22px; align-items: center; }
+    .fixture-actions.data-actions .button.text-link { width: auto; white-space: nowrap; }
+    .backup-details > summary { padding-inline: 3px; }
+    .backup-detail-actions { gap: 20px; }
+    .backup-detail-actions .button {
+      min-height: 40px;
+      padding: 7px 2px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .backup-detail-actions .button:hover:not(:disabled) {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .participant-add-row {
+      flex-direction: row;
+      min-height: 68px;
+      gap: 10px;
+      border-color: #d0d7d1;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .participant-add-row svg { width: 18px; height: 18px; }
+    .participant-add-row:hover { background: #f1f7f3; border-color: #94b5a4; color: var(--accent); }
+    .result-choice {
+      min-height: 52px;
+      padding: 12px 9px;
+      border: 0;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+    }
+    .result-choice:hover { border-color: var(--line); border-left-color: transparent; background: #f4f8f5; }
+    .result-choice.is-current { border-color: var(--line); border-left-color: var(--accent); background: #edf5f0; }
+    .export-option {
+      min-height: 72px;
+      padding: 12px 8px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+    .export-option:hover { border-color: var(--line); background: #f4f8f5; }
+    .app-confirm-button { border-radius: 8px; font-weight: 700; }
+
+    @media (max-width: 520px) {
+      .fixture-actions.data-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        width: auto;
+      }
+      .fixture-actions.data-actions .button.text-link {
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        padding-inline: 3px;
+      }
+      .roster-toolbar .button-row { width: auto; }
+      .roster-toolbar .button.text-link { flex: 0 0 auto; }
+      .result-choice { min-height: 56px; }
+    }
+    @media (max-width: 600px) {
+      body.has-mobile-page-tabs .app-mobile-page.is-mobile-active {
+        /* Reserve enough page height so even short standings can align below the sticky header. */
+        min-height: calc(100dvh - var(--header-height) - var(--app-mobile-bottom-bar-height) + 8px);
+        scroll-margin-top: calc(var(--header-height) + 12px);
+      }
+    }
+
+
+
+    /* Compact event overview: two deliberate rows rather than a stack of cards. */
+    .fixture-hero {
+      display: grid;
+      gap: 11px;
+      padding: 16px 20px 12px;
+      min-width: 0;
+    }
+    .fixture-overview-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-width: 0;
+    }
+    .fixture-identity { min-width: 0; flex: 1 1 220px; }
+    .fixture-hero .fixture-identity h3 {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 24px);
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+    .fixture-hero .fixture-mode {
+      margin-top: 2px;
+      font-size: 11px;
+      gap: 7px;
+    }
+    .fixture-hero .fixture-stats {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: stretch;
+      gap: 0;
+      margin: 0;
+    }
+    .fixture-hero .fixture-stat {
+      min-width: 72px;
+      padding: 0 17px;
+    }
+    .fixture-hero .fixture-stat:first-child { padding-left: 0; }
+    .fixture-hero .fixture-stat:last-child { padding-right: 0; }
+    .fixture-hero .fixture-stat strong {
+      font-size: 19px;
+      line-height: 1.2;
+    }
+    .fixture-hero .fixture-stat span {
+      margin-top: 1px;
+      font-size: 10px;
+    }
+    .fixture-overview-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      padding-top: 7px;
+      border-top: 1px solid var(--line);
+    }
+    .fixture-overview-toolbar .desktop-league-nav {
+      flex: 0 0 auto;
+      gap: 16px;
+      margin: 0;
+    }
+    .fixture-overview-toolbar .desktop-league-nav button {
+      min-height: 38px;
+      padding-block: 6px;
+    }
+    .fixture-overview-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 12px 17px;
+      min-width: 0;
+      margin-left: auto;
+    }
+    .fixture-overview-tools .fixture-actions.data-actions {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      width: auto;
+      margin: 0;
+    }
+    .fixture-overview-tools .fixture-actions.data-actions .button.text-link {
+      width: auto;
+      min-width: 0;
+      padding-inline: 2px;
+      white-space: nowrap;
+    }
+    .fixture-overview-tools .fixture-backup-details { margin: 0; min-width: 0; }
+    .fixture-overview-tools .fixture-backup-details > summary {
+      min-height: 40px;
+      padding: 7px 2px;
+    }
+    .fixture-overview-tools .backup-detail-actions { gap: 14px; }
+    .fixture-overview-tools .fixture-save-status { margin: 5px 0 4px; }
+    @media (max-width: 700px) {
+      .fixture-overview-main { align-items: flex-start; flex-wrap: wrap; gap: 11px; }
+      .fixture-identity { flex-basis: 100%; }
+      .fixture-hero .fixture-stats { width: 100%; }
+      .fixture-hero .fixture-stat { flex: 1 1 0; padding: 0 12px; min-width: 0; }
+      .fixture-hero .fixture-stat:first-child { padding-left: 0; }
+      .fixture-hero .fixture-stat:last-child { padding-right: 0; }
+      .fixture-overview-toolbar { flex-wrap: wrap; }
+    }
+    @media (max-width: 600px) {
+      .fixture-hero { gap: 9px; padding: 13px 15px 9px; }
+      .fixture-hero .fixture-identity h3 { font-size: 20px; }
+      .fixture-overview-toolbar { padding-top: 8px; }
+      .fixture-overview-tools {
+        justify-content: flex-start;
+        gap: 8px 16px;
+        width: 100%;
+        margin: 0;
+      }
+    }
+    @media (max-width: 380px) {
+      .fixture-hero { padding: 12px 12px 8px; }
+      .fixture-hero .fixture-stat { padding-inline: 8px; }
+      .fixture-hero .fixture-stat strong { font-size: 17px; }
+      .fixture-overview-tools { column-gap: 12px; }
+      .fixture-overview-tools .fixture-actions.data-actions { gap: 13px; }
+    }
+
+
+    .rename-event-dialog { width: min(440px, calc(100% - 28px)); }
+    .rename-event-dialog .dialog-body { padding: 18px; }
+    .rename-event-dialog .backup-field input { width: 100%; margin-top: 5px; }
+    .rename-event-dialog .field-error { min-height: 18px; margin: 8px 0 0; }
+    @media (max-width: 520px) {
+      .rename-event-dialog { width: 100%; max-width: none; margin: auto 0 0; border-radius: 20px 20px 0 0; border-width: 1px 0 0; }
+      .rename-event-dialog .backup-dialog-actions { flex-direction: column-reverse; }
+      .rename-event-dialog .backup-dialog-actions .button { width: 100%; min-height: 48px; }
+    }
+
+
+
+    #eventLibraryDialog[open], #renameEventDialog[open] { display: flex; flex-direction: column; }
+    #eventLibraryDialog .dialog-body, #renameEventDialog .dialog-body {
+      min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+    }
+    .event-library-dialog { width: min(600px, calc(100% - 28px)); }
+    .event-library-dialog .dialog-body { padding: 10px 20px calc(22px + env(safe-area-inset-bottom)); }
+    .event-library-list { display: grid; }
+    .event-library-row {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center; gap: 10px 16px; padding: 15px 0;
+      border-bottom: 1px solid var(--line); min-width: 0;
+    }
+    .event-library-row:last-child { border-bottom: 0; }
+    .event-library-row.is-current { border-left: 3px solid var(--accent); padding-left: 11px; }
+    .event-library-info { min-width: 0; }
+    .event-library-name { display: block; overflow-wrap: anywhere; font-size: 14px; }
+    .event-library-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .event-library-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+    .event-library-actions .button.text-link { min-height: 44px; padding-inline: 5px; }
+    .event-library-current { color: var(--accent); font-size: 11px; font-weight: 700; padding: 8px 5px; }
+    .event-library-empty { margin: 20px 0; color: var(--muted); font-size: 13px; }
+    .event-library-note { margin: 16px 0 14px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .event-library-new { width: 100%; min-height: 46px; }
+    @media (max-width: 600px) {
+      .event-library-dialog { width: 100%; max-width: none; margin: auto 0 0; border-width: 1px 0 0; border-radius: 20px 20px 0 0; }
+      .event-library-dialog .dialog-body { padding-inline: 16px; }
+      .event-library-row { grid-template-columns: minmax(0,1fr); gap: 3px; }
+      .event-library-actions { justify-content: flex-start; }
+    }
+
     @media print {
       @page { size: auto; margin: 12mm; }
       body { background: #fff !important; color: #111 !important; }
@@ -1569,7 +2096,7 @@
       *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
   
-    @media (max-width: 600px) { body > footer { display: none; } }
+    @media (max-width: 600px) { body > footer, .local-badge { display: none; } .page-intro { padding-bottom: 12px; } }
 </style>
 </head>
 <body>
@@ -1592,17 +2119,15 @@
   </header>
 
   <main class="main">
-    <section class="page-intro" aria-labelledby="heroTitle">
-      <div>
-        <h2 id="heroTitle" data-i18n="introTitle">結果を入れると順位がすぐ分かる</h2>
-        <p data-i18n="lead">大会名と参加者を登録します。参加者は1人ずつでも、複数行をまとめて貼り付けても追加できます。</p>
-      </div>
+    <div id="pageIntro" class="page-intro">
+      <p data-i18n="lead">総当たりの対戦表に結果を記録すると、現在の順位をその場で自動計算します。</p>
       <div class="local-badge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg>
         <span data-i18n="localBadge">完全ローカル処理</span>
       </div>
-    </section>
+    </div>
 
+    <div class="storage-alert" id="storageAlert" role="alert" hidden><strong id="storageAlertMessage"></strong><button class="button" id="storageAlertAction" type="button"></button></div>
     <!-- APP:BEGIN -->
     <section id="setupView" class="setup-grid" aria-label="大会作成">
       <section class="panel" aria-labelledby="settingsTitle">
@@ -1611,12 +2136,12 @@
             <h3 id="settingsTitle" data-i18n="settingsTitle">大会設定</h3>
             <p data-i18n="settingsLead">大会名と結果の記録方法を決めます。</p>
           </div>
+          <button class="button text-link" id="setupEventLibraryButton" type="button" data-i18n="eventLibraryOpen">大会一覧</button>
         </div>
 
         <label class="field" for="tournamentName">
           <span class="field-label" data-i18n="tournamentName">大会名</span>
           <input class="text-input" id="tournamentName" type="text" maxlength="100" autocomplete="off" data-i18n-placeholder="tournamentNamePlaceholder" placeholder="例：金曜卓球大会">
-          <span class="field-note" data-i18n="tournamentNameNote">未入力の場合は「新しい大会」になります。</span>
         </label>
 
         <div class="section-divider"></div>
@@ -1648,10 +2173,15 @@
         <div class="section-divider"></div>
 
         <div class="button-row">
-          <button class="button danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
-          <button class="button" id="setupExportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
-          <button class="button" id="setupImportBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+          <button class="button text-link danger-ghost" id="resetButton" type="button" disabled data-i18n="reset">すべてリセット</button>
         </div>
+        <details class="backup-details">
+          <summary data-i18n="backupDetails">バックアップ・復元</summary>
+          <div class="backup-detail-actions">
+            <button class="button" id="setupExportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
+            <button class="button" id="setupImportBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+          </div>
+        </details>
         <div class="save-status">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h12l2 2v14H5z"/><path d="M8 4v6h8V4M8 17h8"/></svg>
           <span data-i18n="autosaveStatus">入力内容はこの端末に自動保存されます。</span>
@@ -1679,7 +2209,7 @@
             <div class="roster-toolbar">
               <span class="field-note" id="reorderHelp" data-i18n="reorderHelp">ドラッグまたは矢印で順番を調整できます。</span>
               <div class="button-row">
-                <button class="button" id="shuffleButton" type="button" data-i18n="shuffle">シャッフル</button>
+                <button class="button text-link" id="shuffleButton" type="button" data-i18n="shuffle">シャッフル</button>
               </div>
             </div>
             <ol class="roster-list" id="rosterList"></ol>
@@ -1696,7 +2226,7 @@
             <form class="inline-form" id="participantForm" novalidate>
               <div>
                 <label class="sr-only" for="participantName" data-i18n="participantName">参加者名</label>
-                <input class="text-input" id="participantName" type="text" maxlength="80" autocomplete="off" data-i18n-placeholder="participantPlaceholder" placeholder="例：山田">
+                <input class="text-input" id="participantName" type="text" autocomplete="off" data-i18n-placeholder="participantPlaceholder" placeholder="例：山田">
                 <div class="field-error" id="participantError" role="status" aria-live="polite"></div>
               </div>
               <button class="button" id="addParticipantButton" type="submit" data-i18n="add">追加</button>
@@ -1726,30 +2256,41 @@
 
     <section id="fixtureView" class="fixture-view" hidden aria-labelledby="fixtureTitle">
       <div class="fixture-hero">
-        <span class="fixture-kicker">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M7 8h10M7 16h10"/></svg>
-          <span data-i18n="fixtureKicker">大会を進行中</span>
-        </span>
-        <h3 id="fixtureTitle"></h3>
-        <p data-i18n="fixtureLead">次の試合、残りの対戦、現在順位をここから確認できます。</p>
-        <div class="fixture-mode"><span data-i18n="resultModeShort">記録方式</span><strong id="fixtureModeLabel"></strong></div>
-        <div class="fixture-stats" aria-live="polite">
-          <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
-          <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
-          <div class="fixture-stat"><strong id="fixtureRoundCount">0</strong><span data-i18n="rounds">巡</span></div>
+        <div class="fixture-overview-main">
+          <div class="fixture-identity">
+            <span class="fixture-kicker sr-only" data-i18n="fixtureKicker">大会を進行中</span>
+            <h3 id="fixtureTitle"></h3>
+            <div class="fixture-mode"><span data-i18n="resultModeShort">記録方式</span><strong id="fixtureModeLabel"></strong></div>
+          </div>
+          <div class="fixture-stats" aria-live="polite">
+            <div class="fixture-stat"><strong id="fixtureParticipantCount">0</strong><span data-i18n="participants">参加者</span></div>
+            <div class="fixture-stat"><strong id="fixtureMatchCount">0</strong><span data-i18n="matches">試合</span></div>
+            <div class="fixture-stat"><strong id="fixtureCompletedCount">0</strong><span data-i18n="overviewCompleted">終了</span></div>
+          </div>
         </div>
-        <div class="fixture-actions data-actions">
-          <button class="button" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
-          <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
-          <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
-          <button class="button primary" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
+        <div class="fixture-overview-toolbar">
+          <div class="desktop-league-nav" data-i18n-aria-label="leagueNavLabel" aria-label="大会内ナビゲーション">
+            <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
+            <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
+            <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
+          </div>
+          <div class="fixture-overview-tools">
+            <div class="fixture-actions data-actions">
+              <button class="button text-link" id="fixtureEventLibraryButton" type="button" data-i18n="eventLibraryOpen">大会一覧</button>
+              <button class="button text-link" id="renameEventButton" type="button" data-i18n="renameEvent">大会名を変更</button>
+              <button class="button text-link" id="backToEditButton" type="button" data-i18n="backToEdit">参加者を編集</button>
+              <button class="button text-link" id="openExportButton" type="button" data-i18n="exportOpen">出力</button>
+            </div>
+            <details class="backup-details fixture-backup-details">
+              <summary data-i18n="backupDetails">バックアップ・復元</summary>
+              <div class="backup-detail-actions">
+                <button class="button" id="exportBackupButton" type="button" data-i18n="backupExport">JSONバックアップ</button>
+                <button class="button" id="importBackupButton" type="button" data-i18n="backupImport">JSONを読み込む</button>
+              </div>
+              <p class="fixture-save-status" data-i18n="draftNotice">大会はこの端末に自動保存されます。</p>
+            </details>
+          </div>
         </div>
-        <div class="desktop-league-nav" data-i18n-aria-label="leagueNavLabel" aria-label="大会内ナビゲーション">
-          <button type="button" data-league-section="progressPage" data-i18n="navProgress">進行</button>
-          <button type="button" data-league-section="matchesPage" data-i18n="navMatches">対戦</button>
-          <button type="button" data-league-section="standingsPage" data-i18n="navStandings">順位</button>
-        </div>
-        <div class="notice" data-i18n="draftNotice">大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。</div>
       </div>
 
       <div class="league-overview-grid">
@@ -1757,7 +2298,6 @@
           <div class="panel-head">
             <div>
               <h3 id="progressHeading" data-i18n="progressHeading">進行</h3>
-              <p data-i18n="progressLead">次に行う試合と大会の進み具合を確認します。</p>
             </div>
           </div>
           <div class="progress-summary" aria-live="polite">
@@ -1776,7 +2316,7 @@
               <div class="following-list" id="followingMatches"></div>
             </div>
             <div class="progress-actions">
-              <button class="button" id="viewPendingButton" type="button"><span data-i18n="viewPending">未実施試合を見る</span> <span id="viewPendingCount"></span></button>
+              <button class="button text-link" id="viewPendingButton" type="button"><span data-i18n="viewPending">未実施試合を見る</span> <span id="viewPendingCount"></span></button>
             </div>
           </div>
           <div class="completion-card" id="completionState" hidden>
@@ -1784,8 +2324,8 @@
             <p data-i18n="eventCompleteLead">最終順位が確定しました。</p>
             <div class="completion-standings" id="completionStandings"></div>
             <div class="progress-actions">
-              <button class="button primary" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
-              <button class="button" id="completionExportButton" type="button" data-i18n="exportOpen">出力</button>
+              <button class="button text-link" id="viewFinalStandingsButton" type="button" data-i18n="viewFinalStandings">最終順位を見る</button>
+              <button class="button text-link" id="completionExportButton" type="button" data-i18n="exportOpen">出力</button>
             </div>
           </div>
         </section>
@@ -1797,7 +2337,6 @@
               <p data-i18n="standingsLead">結果を入力すると自動で更新されます。</p>
             </div>
           </div>
-          <p class="standings-empty-note" id="standingsEmptyNote" data-i18n="standingsEmpty">まだ結果がありません。最初の結果を入力すると順位が表示されます。</p>
           <div class="standings-list" id="standingsList" aria-live="polite"></div>
         </section>
       </div>
@@ -1842,12 +2381,11 @@
           <div class="rounds-grid" id="roundsContainer"></div>
           <div class="match-filter-empty" id="matchFilterEmpty" hidden>
             <div data-i18n="filterEmpty">該当する試合はありません。</div>
-            <button class="button" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
+            <button class="button text-link" id="showAllMatchesButton" type="button" data-i18n="showAllMatches">すべての試合を表示</button>
           </div>
         </div>
 
         <div id="matrixMatchView" hidden>
-          <p class="matrix-help" data-i18n="matrixHelp">参加者どうしの対戦状況を一覧で確認できます。横にスクロールできます。</p>
           <div class="matrix-scroll" tabindex="0" role="region" data-i18n-aria-label="matrixRegionLabel" aria-label="総当たり表">
             <table class="round-robin-matrix" id="roundRobinMatrix"></table>
           </div>
@@ -1898,6 +2436,42 @@
 
 
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden>
+
+
+
+  <dialog class="event-library-dialog" id="eventLibraryDialog" aria-labelledby="eventLibraryTitle">
+    <div class="dialog-header">
+      <h2 id="eventLibraryTitle" data-i18n="eventLibraryTitle">この端末の大会</h2>
+      <button class="dialog-close" id="closeEventLibraryButton" type="button" data-i18n-aria-label="close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="event-library-list" id="eventLibraryList" role="list"></div>
+      <p class="event-library-note" data-i18n="eventLibraryNote">大会はこのブラウザ内に保存されます。端末のデータを消去すると失われるため、必要な大会はJSONでバックアップしてください。</p>
+      <button class="button primary event-library-new" id="createNewEventButton" type="button" data-i18n="eventLibraryNew">新しい大会を作る</button>
+    </div>
+  </dialog>
+
+  <dialog class="rename-event-dialog" id="renameEventDialog" aria-labelledby="renameEventTitle">
+    <div class="dialog-header">
+      <h2 id="renameEventTitle" data-i18n="renameEventTitle">大会名を変更</h2>
+      <button class="dialog-close" id="closeRenameEventButton" type="button" data-i18n-aria-label="close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <form class="dialog-body" id="renameEventForm" novalidate>
+      <label class="backup-field" for="renameEventInput">
+        <span data-i18n="tournamentName">大会名</span>
+        <input class="text-input" id="renameEventInput" type="text" maxlength="100" autocomplete="off" required>
+      </label>
+      <p class="field-error" id="renameEventError" role="status" aria-live="polite"></p>
+      <div class="backup-dialog-actions">
+        <button class="button" id="cancelRenameEventButton" type="button" data-i18n="cancel">キャンセル</button>
+        <button class="button primary" type="submit" data-i18n="renameEventSave">変更する</button>
+      </div>
+    </form>
+  </dialog>
 
   <dialog class="backup-dialog" id="backupExportDialog" aria-labelledby="backupExportTitle" aria-describedby="backupFilenameHelp">
     <div class="dialog-header">
@@ -2119,29 +2693,29 @@
         ja: {
           brandMeta: '小大会の総当たり運営',
           helpTitle: '使い方と注意事項', close: '閉じる',
-          introTitle: '結果を入れると順位がすぐ分かる',
           lead: '総当たりの対戦表に結果を記録すると、現在の順位をその場で自動計算します。',
           localBadge: '完全ローカル処理',
           settingsTitle: '大会設定', settingsLead: '大会名と結果の記録方法を決めます。',
-          tournamentName: '大会名', tournamentNamePlaceholder: '例：金曜卓球大会', tournamentNameNote: '未入力の場合は「新しい大会」になります。',
+          tournamentName: '大会名', tournamentNamePlaceholder: '例：金曜卓球大会',
           resultModeLegend: '結果の記録方法', resultModeShort: '記録方式', modeWinLoss: '勝敗だけ', modeWinLossHelp: '勝ち1、負け0で順位を計算します。', modeWinDrawLoss: '勝ち・引き分け', modeWinDrawLossHelp: '勝ち3、引き分け1、負け0で順位を計算します。', modeScore: '得点を入力', modeScoreHelp: '双方の得点を入力し、○×△と順位を自動判定します。', scoreDrawsAllowed: '同点を引き分けとして認める',
           addParticipant: '参加者を追加', participantName: '参加者名', participantPlaceholder: '例：山田', add: '追加',
           bulkAdd: '複数人をまとめて追加', bulkHelp: '1行に1人ずつ入力してください。空行は無視します。', bulkPlaceholder: '山田\n佐藤\n鈴木', addAll: 'まとめて追加',
-          reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '追加・編集・並べ替えをここで行います。', participantAddActionsLabel: '参加者を追加', people: '人',
+          eventLibraryOpen: '大会一覧', eventLibraryTitle: 'この端末の大会', eventLibraryNew: '新しい大会を作る', eventLibraryEmpty: '保存された大会はありません。', eventLibraryNote: '大会はこのブラウザ内に保存されます。端末のデータを消去すると失われるため、必要な大会はJSONでバックアップしてください。', eventLibraryActive: '表示中', eventLibraryOpenAction: '開く', eventLibraryDelete: '削除', eventLibraryDeleteTitle: '大会を削除しますか？', eventLibraryDeleteMessage: '「{name}」をこの端末から削除します。元に戻せないため、必要なら先にJSONバックアップを保存してください。', eventLibraryDeleteAction: '削除する', eventLibraryDeleted: '大会を削除しました。', eventLibraryCreated: '新しい大会を作成できます。', eventLibraryDraft: '準備中', eventLibraryProgress: '{done}/{total}試合終了', eventLibraryInvalid: '保存された大会一覧を読み込めません。データを保護するため、大会の切り替え・削除を停止しました。', eventLibraryNotFound: 'この大会が見つかりません。', eventLibrarySwitchFailed: '大会を切り替えられませんでした。端末の保存領域を確認してください。', eventLibraryImported: '大会を追加しました。', eventLibraryLimit: '保存できる大会の上限に達しました。不要な大会を削除するか、JSONバックアップを保存してください。',
+          reset: 'すべてリセット', backupExport: 'JSONバックアップ', backupImport: 'JSONを読み込む', backupDetails: 'バックアップ・復元', autosaveStatus: '入力内容はこの端末に自動保存されます。', rosterTitle: '参加者一覧', rosterLead: '追加・編集・並べ替えをここで行います。', participantAddActionsLabel: '参加者を追加', people: '人',
           emptyTitle: 'まだ参加者がいません', emptyBody: '下の＋ボタンから参加者を追加してください。',
           reorderHelp: 'ドラッグまたは矢印で順番を調整できます。', dragLabel: '{name} をドラッグして並べ替え', shuffle: 'シャッフル', needThree: '参加者を3人以上追加すると確定できます。',
           readyToConfirm: '参加者を確定できます。', confirmParticipants: '参加者を確定', participants: '参加者',
-          fixtureKicker: '大会を進行中', fixtureLead: '次の試合、残りの対戦、現在順位をここから確認できます。',
-          matches: '試合', rounds: '巡', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。', standingsEmpty: 'まだ結果がありません。最初の結果を入力すると順位が表示されます。',
-          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', progressLead: '次に行う試合と大会の進み具合を確認します。', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixHelp: '○=勝ち、×=負け、△=引き分け。得点入力では点数も表示します。横にスクロールできます。', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixCorner: '対戦', matrixPending: '—', matrixWinLabel: '勝ち', matrixLossLabel: '負け', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixCellScoreLabel: '{result}、{score}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
+          fixtureKicker: '大会を進行中',
+          matches: '試合', rounds: '巡', overviewCompleted: '終了', fixturesHeading: '対戦', fixturesHeadingLead: '未実施・完了を切り替え、任意の試合から結果を入力できます。', standingsHeading: '順位', standingsLead: '結果を入力すると自動で更新されます。',
+          navProgress: '進行', navMatches: '対戦', navStandings: '順位', leagueNavLabel: '大会内ナビゲーション', eventProgressLabel: '大会の進行率', matchFilterLabel: '対戦フィルター', progressHeading: '進行', completedMatches: '完了', remainingMatches: '未実施', progressPercentLabel: '進行率', nextMatch: '次の試合', followingMatches: 'その次', viewPending: '未実施試合を見る', eventComplete: '全試合が終了しました', eventCompleteLead: '最終順位が確定しました。', viewFinalStandings: '最終順位を見る', participantMatchesHeading: '参加者別の対戦状況', participantSelectLabel: '参加者', remainingOpponents: '未実施', completedOpponents: '完了', opponentNone: 'なし', matchViewLabel: '対戦表示', matchViewRounds: '対戦一覧', matchViewMatrix: '総当たり表', matrixRegionLabel: '総当たり表', matrixCaption: '参加者ごとの総当たり対戦表', matrixCorner: '対戦', matrixPending: '—', matrixWinLabel: '勝ち', matrixLossLabel: '負け', matrixCellLabel: '{row} 対 {opponent}: {result}', matrixCellScoreLabel: '{result}、{score}', matrixSelfLabel: '{name} 自身', filterAll: 'すべて', filterPending: '未実施', filterCompleted: '完了', filterEmpty: '該当する試合はありません。', showAllMatches: 'すべての試合を表示', currentResult: '現在', exportOpen: '出力', exportTitle: '大会結果を出力', exportFilename: 'ファイル名', exportFilenameHelp: '拡張子は選んだ形式に合わせて自動で付けます。', exportMatchesCsv: '対戦結果CSV', exportMatchesCsvHelp: '全試合の状態・結果・得点を保存', exportStandingsCsv: '順位CSV', exportStandingsCsvHelp: '現在の順位表を保存', exportStandingsPng: '順位表PNG', exportStandingsPngHelp: '共有しやすい順位表画像を保存', exportPrint: '印刷', exportPrintHelp: '順位と全対戦結果を印刷', exportSaved: 'ファイルを保存しました。', exportImageError: '順位表画像を作成できませんでした。', points: '勝点', csvRound: '巡', csvOrder: '試合順', csvPlayerA: '参加者A', csvPlayerB: '参加者B', csvStatus: '状態', csvScoreA: '得点A', csvScoreB: '得点B', csvResult: '結果', csvWinner: '勝者', csvRank: '順位', csvParticipant: '参加者', csvPlayed: '試合', csvWins: '勝', csvDraws: '分', csvLosses: '敗', csvScoreFor: '得点', csvScoreAgainst: '失点', csvDifference: '得失点差', csvPending: '未実施', csvCompleted: '完了', printStandings: '順位', printResults: '対戦結果', recordNoDraw: '{wins}勝 {losses}敗', recordWithDraw: '{wins}勝 {draws}分 {losses}敗', scoreStats: '得 {for} / 失 {against} / 差 {diff}',
           roundLabel: '第{round}巡', byeLabel: '休み: {name}', versus: 'vs', enterResult: '結果入力', editResult: '修正', completed: '完了', winMark: '勝', drawMark: '分', lossMark: '敗', resultDialogTitle: '試合結果', resultDialogMeta: '第{round}巡 · {a} vs {b}', playerWinChoice: '{name} の勝ち', drawChoice: '引き分け', saveResult: '結果を記録', removeResult: '結果を取り消す', scoreRequired: '両方の得点を0以上の整数で入力してください。', scoreTooLarge: '得点は999999以下で入力してください。', scoreDrawNotAllowed: 'この大会では同点を登録できません。',
-          backToEdit: '参加者を編集', draftNotice: '大会内容はこの端末に自動保存されます。必要に応じてJSONバックアップも保存してください。',
+          renameEvent: '大会名を変更', renameEventTitle: '大会名を変更', renameEventSave: '変更する', renameEventRequired: '大会名を入力してください。', renameEventSaved: '大会名を変更しました。', backToEdit: '参加者を編集', draftNotice: '大会はこの端末に自動保存されます。',
           defaultTournament: '新しい大会', footer: '大会の運営はブラウザー内で完結',
           requiredName: '参加者名を入力してください。', duplicateName: '同じ参加者名は登録できません。', tooMany: '参加者は最大64人です。',
           bulkEmpty: '追加する参加者名を入力してください。', bulkDuplicate: '重複している名前があります：{names}', bulkTooLong: '80文字を超える参加者名があります。',
           bulkTooMany: '追加すると64人を超えます。', addedOne: '{name} を追加しました。', addedMany: '{count}人を追加しました。',
           removed: '{name} を削除しました。', moved: '順番を変更しました。', shuffled: '参加者をシャッフルしました。', resetDone: '入力内容をリセットしました。',
-          undo: '元に戻す', undone: '元に戻しました', confirmed: '大会を開始しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。', resultSaved: '試合結果を記録しました。', resultUpdated: '試合結果を修正しました。', resultRemoved: '試合結果を取り消しました。', editSetupTitle: '参加者編集へ戻りますか？', editSetupMessage: '入力済みの試合結果はすべて消えます。参加者と記録方法は編集できます。', editSetupAction: '結果を消して戻る', backupExportTitle: 'JSONバックアップを保存', backupFilename: 'ファイル名', backupFilenameHelp: '大会名・参加者・対戦・結果・設定をJSONとして保存します。', backupDownload: '保存', backupSaved: 'JSONバックアップを保存しました。', backupImported: 'JSONバックアップを読み込みました。', backupRestored: '前回の大会を復元しました。', backupInvalid: 'このファイルはMini League Deskの有効なバックアップではありません。', backupIncompatible: 'このバックアップは現在のデータ形式に対応していません。', backupReadError: 'JSONバックアップを読み込めませんでした。', backupReplaceTitle: '現在の大会を置き換えますか？', backupReplaceMessage: '現在の大会内容を、読み込んだバックアップで置き換えます。', backupReplaceAction: '置き換える', saveFailed: '端末への自動保存に失敗しました。JSONバックアップを保存してください。',
+          undo: '元に戻す', undone: '元に戻しました', confirmed: '大会を開始しました。', fixtureError: '対戦表を正しく生成できませんでした。参加者を確認してもう一度お試しください。', resultSaved: '試合結果を記録しました。', resultUpdated: '試合結果を修正しました。', resultRemoved: '試合結果を取り消しました。', editSetupTitle: '参加者編集へ戻りますか？', editSetupMessage: '入力済みの試合結果はすべて消えます。参加者と記録方法は編集できます。', editSetupAction: '結果を消して戻る', backupExportTitle: 'JSONバックアップを保存', backupFilename: 'ファイル名', backupFilenameHelp: '大会名・参加者・対戦・結果・設定をJSONとして保存します。', backupDownload: '保存', backupSaved: 'JSONバックアップを保存しました。', backupImported: 'JSONバックアップを読み込みました。', backupRestored: '前回の大会を復元しました。', backupInvalid: 'このファイルはMini League Deskの有効なバックアップではありません。', backupIncompatible: 'このバックアップは現在のデータ形式に対応していません。', backupReadError: 'JSONバックアップを読み込めませんでした。', backupReplaceTitle: '現在の大会を置き換えますか？', backupReplaceMessage: '現在の大会内容を、読み込んだバックアップで置き換えます。', backupReplaceAction: '置き換える', saveFailed: '端末への自動保存に失敗しました。JSONバックアップを保存してください。', storageConflict: '別のタブで大会が更新されました。このタブの変更は保存されません。必要ならJSONバックアップを保存し、再読み込みしてください。', storageConflictShort: '別のタブで大会が更新されました。再読み込みしてください。', saveFailedPersistent: 'この端末へ自動保存できません。ページを閉じる前にJSONバックアップを保存してください。', unreadableStoredEvent: '前回の大会を読み取れませんでした。保存内容は削除せず、この画面からの自動保存を停止しています。', downloadUnreadableStoredEvent: '保存内容を退避', reloadEvent: '再読み込み', reloadEventTitle: '最新の大会を読み込みますか？', reloadEventMessage: 'このタブの未保存の変更は失われます。必要なら先にJSONバックアップを保存してください。',
           resetTitle: '入力内容をリセットしますか？', resetMessage: '大会名と参加者をすべて消去します。この操作は元に戻せません。', resetAction: 'リセットする',
           confirmTitle: '確認', confirmAction: '実行する', cancel: 'キャンセル',
           editLabel: '{name} の名前を編集', saveEditLabel: '名前を保存', cancelEditLabel: '編集をキャンセル', nameUpdated: '{old} を {name} に変更しました。', removeLabel: '{name} を削除', moveUpLabel: '{name} を上へ移動', moveDownLabel: '{name} を下へ移動',
@@ -2151,7 +2725,7 @@
           helpStep3: '大会開始後は「進行」で次の試合、「対戦」で対戦一覧・総当たり表・参加者別の残り対戦、「順位」で現在順位を確認できます。',
           helpPrivacyTitle: 'プライバシー', helpPrivacyBody: '大会名、参加者、対戦、結果、順位、JSON・CSV・PNGの出力データはこのページ内で処理し、このアプリから外部サーバーへ送信しません。実行時の外部通信も行いません。',
           helpNotesTitle: '注意事項',
-          helpNoteNoSave: '大会内容はこの端末に自動保存されます。別のブラウザや端末へ移す場合はJSONバックアップを利用できます。',
+          helpNoteNoSave: '大会はこの端末に自動保存されます。「大会一覧」から切り替えられます。ブラウザのデータを消去すると失われるため、必要なら「バックアップ・復元」からJSONを保存してください。保存できない場合や別タブで更新された場合は警告が表示されます。',
           helpNoteNames: '同じ参加者名は重複登録できません。奇数人数では各巡に1人の「休み」が入ります。',
           helpNoteScope: 'スマホでは下部の「進行 / 対戦 / 順位」で画面を切り替えます。大会中はCSV・順位PNG・印刷で結果を出力できます。',
 
@@ -2160,29 +2734,29 @@
         en: {
           brandMeta: 'Round-robin desk for small events',
           helpTitle: 'How to use & notes', close: 'Close',
-          introTitle: 'Enter results and see the standings instantly',
           lead: 'Record results on the round-robin fixture list and the current standings update immediately.',
           localBadge: 'Fully local processing',
           settingsTitle: 'Event setup', settingsLead: 'Choose the event name and result-entry mode.',
-          tournamentName: 'Event name', tournamentNamePlaceholder: 'e.g. Friday Table Tennis', tournamentNameNote: 'If left blank, “New event” is used.',
+          tournamentName: 'Event name', tournamentNamePlaceholder: 'e.g. Friday Table Tennis',
           resultModeLegend: 'Result entry', resultModeShort: 'Result mode', modeWinLoss: 'Win / loss', modeWinLossHelp: 'A win is 1 point and a loss is 0.', modeWinDrawLoss: 'Win / draw / loss', modeWinDrawLossHelp: 'Win 3, draw 1, loss 0.', modeScore: 'Enter scores', modeScoreHelp: 'Enter both scores to derive ○ / × / △ and the standings.', scoreDrawsAllowed: 'Allow tied scores as draws',
           addParticipant: 'Add participant', participantName: 'Participant name', participantPlaceholder: 'e.g. Alex', add: 'Add',
           bulkAdd: 'Add multiple participants', bulkHelp: 'Enter one participant per line. Blank lines are ignored.', bulkPlaceholder: 'Alex\nJordan\nTaylor', addAll: 'Add all',
-          reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'Add, edit, and reorder participants here.', participantAddActionsLabel: 'Add participants', people: 'people',
+          eventLibraryOpen: 'Events', eventLibraryTitle: 'Events on this device', eventLibraryNew: 'Create new event', eventLibraryEmpty: 'No saved events yet.', eventLibraryNote: 'Events are stored in this browser. Clearing browser data may remove them; save a JSON backup for events you need to keep.', eventLibraryActive: 'Current', eventLibraryOpenAction: 'Open', eventLibraryDelete: 'Delete', eventLibraryDeleteTitle: 'Delete this event?', eventLibraryDeleteMessage: 'Delete "{name}" from this device? This cannot be undone. Save a JSON backup first if needed.', eventLibraryDeleteAction: 'Delete', eventLibraryDeleted: 'Event deleted.', eventLibraryCreated: 'Ready to create a new event.', eventLibraryDraft: 'Setup', eventLibraryProgress: '{done}/{total} matches played', eventLibraryInvalid: 'Saved events could not be read. Switching and deletion are disabled to protect existing data.', eventLibraryNotFound: 'This event could not be found.', eventLibrarySwitchFailed: 'Could not switch events. Check available device storage.', eventLibraryImported: 'Event added.', eventLibraryLimit: 'The saved event limit has been reached. Delete an unneeded event or save a JSON backup.',
+          reset: 'Reset all', backupExport: 'JSON backup', backupImport: 'Import JSON', backupDetails: 'Backup & restore', autosaveStatus: 'Your event is saved automatically on this device.', rosterTitle: 'Participants', rosterLead: 'Add, edit, and reorder participants here.', participantAddActionsLabel: 'Add participants', people: 'people',
           emptyTitle: 'No participants yet', emptyBody: 'Use the + buttons below to add participants.',
           reorderHelp: 'Drag or use the arrow buttons to adjust the order.', dragLabel: 'Drag to reorder {name}', shuffle: 'Shuffle', needThree: 'Add at least 3 participants to confirm the roster.',
           readyToConfirm: 'The roster is ready to confirm.', confirmParticipants: 'Confirm participants', participants: 'Participants',
-          fixtureKicker: 'Event in progress', fixtureLead: 'See what is next, what remains, and the current standings from one desk.',
-          matches: 'Matches', rounds: 'Rounds', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.', standingsEmpty: 'No results yet. Standings appear after the first result.',
-          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', progressLead: 'See the next match and how far the event has progressed.', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixHelp: '○ = win, × = loss, △ = draw. Score mode also shows the score. Scroll horizontally when needed.', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixCorner: 'vs', matrixPending: '—', matrixWinLabel: 'Win', matrixLossLabel: 'Loss', matrixCellLabel: '{row} vs {opponent}: {result}', matrixCellScoreLabel: '{result}, {score}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
+          fixtureKicker: 'Event in progress',
+          matches: 'Matches', rounds: 'Rounds', overviewCompleted: 'Played', fixturesHeading: 'Matches', fixturesHeadingLead: 'Switch between pending and completed matches, then enter or edit any result.', standingsHeading: 'Standings', standingsLead: 'Updated automatically after every result.',
+          navProgress: 'Progress', navMatches: 'Matches', navStandings: 'Standings', leagueNavLabel: 'Event navigation', eventProgressLabel: 'Event progress', matchFilterLabel: 'Match filter', progressHeading: 'Progress', completedMatches: 'Completed', remainingMatches: 'Pending', progressPercentLabel: 'Progress', nextMatch: 'Next match', followingMatches: 'Following', viewPending: 'View pending matches', eventComplete: 'All matches are complete', eventCompleteLead: 'The final standings are now set.', viewFinalStandings: 'View final standings', participantMatchesHeading: 'Matches by participant', participantSelectLabel: 'Participant', remainingOpponents: 'Pending', completedOpponents: 'Completed', opponentNone: 'None', matchViewLabel: 'Match view', matchViewRounds: 'Match list', matchViewMatrix: 'Round-robin table', matrixRegionLabel: 'Round-robin table', matrixCaption: 'Round-robin table by participant', matrixCorner: 'vs', matrixPending: '—', matrixWinLabel: 'Win', matrixLossLabel: 'Loss', matrixCellLabel: '{row} vs {opponent}: {result}', matrixCellScoreLabel: '{result}, {score}', matrixSelfLabel: '{name} versus self', filterAll: 'All', filterPending: 'Pending', filterCompleted: 'Completed', filterEmpty: 'No matches in this view.', showAllMatches: 'Show all matches', currentResult: 'Current', exportOpen: 'Export', exportTitle: 'Export event results', exportFilename: 'File name', exportFilenameHelp: 'The extension is added automatically for the selected format.', exportMatchesCsv: 'Match results CSV', exportMatchesCsvHelp: 'Save status, result, and scores for every match', exportStandingsCsv: 'Standings CSV', exportStandingsCsvHelp: 'Save the current standings table', exportStandingsPng: 'Standings PNG', exportStandingsPngHelp: 'Save a shareable standings image', exportPrint: 'Print', exportPrintHelp: 'Print standings and all match results', exportSaved: 'File saved.', exportImageError: 'The standings image could not be created.', points: 'Pts', csvRound: 'Round', csvOrder: 'Order', csvPlayerA: 'Participant A', csvPlayerB: 'Participant B', csvStatus: 'Status', csvScoreA: 'Score A', csvScoreB: 'Score B', csvResult: 'Result', csvWinner: 'Winner', csvRank: 'Rank', csvParticipant: 'Participant', csvPlayed: 'Played', csvWins: 'Wins', csvDraws: 'Draws', csvLosses: 'Losses', csvScoreFor: 'For', csvScoreAgainst: 'Against', csvDifference: 'Difference', csvPending: 'Pending', csvCompleted: 'Completed', printStandings: 'Standings', printResults: 'Match results', recordNoDraw: '{wins}W {losses}L', recordWithDraw: '{wins}W {draws}D {losses}L', scoreStats: 'For {for} / Against {against} / Diff {diff}',
           roundLabel: 'Round {round}', byeLabel: 'Bye: {name}', versus: 'vs', enterResult: 'Enter result', editResult: 'Edit', completed: 'Done', winMark: 'W', drawMark: 'D', lossMark: 'L', resultDialogTitle: 'Match result', resultDialogMeta: 'Round {round} · {a} vs {b}', playerWinChoice: '{name} wins', drawChoice: 'Draw', saveResult: 'Save result', removeResult: 'Remove result', scoreRequired: 'Enter both scores as whole numbers of 0 or greater.', scoreTooLarge: 'Scores must be 999999 or lower.', scoreDrawNotAllowed: 'Tied scores are not allowed for this event.',
-          backToEdit: 'Edit participants', draftNotice: 'Event data is saved automatically on this device. Keep a JSON backup when you need a portable copy.',
+          renameEvent: 'Rename event', renameEventTitle: 'Rename event', renameEventSave: 'Save name', renameEventRequired: 'Enter an event name.', renameEventSaved: 'Event name updated.', backToEdit: 'Edit participants', draftNotice: 'This event is saved automatically on this device.',
           defaultTournament: 'New event', footer: 'League management stays in the browser',
           requiredName: 'Enter a participant name.', duplicateName: 'That participant name is already in the roster.', tooMany: 'A maximum of 64 participants is supported.',
           bulkEmpty: 'Enter at least one participant.', bulkDuplicate: 'Duplicate names found: {names}', bulkTooLong: 'One or more participant names exceed 80 characters.',
           bulkTooMany: 'Adding these names would exceed 64 participants.', addedOne: 'Added {name}.', addedMany: 'Added {count} participants.',
           removed: 'Removed {name}.', moved: 'Participant order updated.', shuffled: 'Participants shuffled.', resetDone: 'Setup reset.',
-          undo: 'Undo', undone: 'Restored', confirmed: 'Event started.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.', resultSaved: 'Match result recorded.', resultUpdated: 'Match result updated.', resultRemoved: 'Match result removed.', editSetupTitle: 'Return to participant editing?', editSetupMessage: 'All entered match results will be cleared. You can edit participants and the result mode.', editSetupAction: 'Clear results and edit', backupExportTitle: 'Save JSON backup', backupFilename: 'File name', backupFilenameHelp: 'Saves the event name, participants, fixtures, results, and settings as JSON.', backupDownload: 'Save', backupSaved: 'JSON backup saved.', backupImported: 'JSON backup imported.', backupRestored: 'Previous event restored.', backupInvalid: 'This file is not a valid Mini League Desk backup.', backupIncompatible: 'This backup uses an unsupported data format.', backupReadError: 'The JSON backup could not be read.', backupReplaceTitle: 'Replace the current event?', backupReplaceMessage: 'The current event will be replaced by the imported backup.', backupReplaceAction: 'Replace', saveFailed: 'Automatic device save failed. Save a JSON backup to protect this event.',
+          undo: 'Undo', undone: 'Restored', confirmed: 'Event started.', fixtureError: 'The fixture list could not be generated correctly. Check the roster and try again.', resultSaved: 'Match result recorded.', resultUpdated: 'Match result updated.', resultRemoved: 'Match result removed.', editSetupTitle: 'Return to participant editing?', editSetupMessage: 'All entered match results will be cleared. You can edit participants and the result mode.', editSetupAction: 'Clear results and edit', backupExportTitle: 'Save JSON backup', backupFilename: 'File name', backupFilenameHelp: 'Saves the event name, participants, fixtures, results, and settings as JSON.', backupDownload: 'Save', backupSaved: 'JSON backup saved.', backupImported: 'JSON backup imported.', backupRestored: 'Previous event restored.', backupInvalid: 'This file is not a valid Mini League Desk backup.', backupIncompatible: 'This backup uses an unsupported data format.', backupReadError: 'The JSON backup could not be read.', backupReplaceTitle: 'Replace the current event?', backupReplaceMessage: 'The current event will be replaced by the imported backup.', backupReplaceAction: 'Replace', saveFailed: 'Automatic device save failed. Save a JSON backup to protect this event.', storageConflict: 'The event changed in another tab. Changes in this tab will not be saved. Export a JSON backup if needed, then reload.', storageConflictShort: 'The event changed in another tab. Reload to see the latest event.', saveFailedPersistent: 'Automatic saving is unavailable. Export a JSON backup before closing this page.', unreadableStoredEvent: 'The previously saved event could not be read. The stored data has not been deleted, and automatic saving is disabled.', downloadUnreadableStoredEvent: 'Download saved data', reloadEvent: 'Reload', reloadEventTitle: 'Load the latest event?', reloadEventMessage: 'Unsaved changes in this tab will be lost. Export a JSON backup first if needed.',
           resetTitle: 'Reset this setup?', resetMessage: 'This removes the event name and all participants. This action cannot be undone.', resetAction: 'Reset',
           confirmTitle: 'Confirm', confirmAction: 'Continue', cancel: 'Cancel',
           editLabel: 'Edit the name of {name}', saveEditLabel: 'Save name', cancelEditLabel: 'Cancel editing', nameUpdated: 'Renamed {old} to {name}.', removeLabel: 'Remove {name}', moveUpLabel: 'Move {name} up', moveDownLabel: 'Move {name} down',
@@ -2192,7 +2766,7 @@
           helpStep3: 'After starting, use Progress for what is next, Matches for the match list, round-robin table, and participant-specific remaining opponents, and Standings for the current ranking.',
           helpPrivacyTitle: 'Privacy', helpPrivacyBody: 'Event names, participants, matches, results, standings, and JSON/CSV/PNG export data are processed on this page and are not sent to an external server by this app. The app makes no runtime network requests.',
           helpNotesTitle: 'Notes',
-          helpNoteNoSave: 'The event is saved automatically on this device. Use JSON backup when moving it to another browser or device.',
+          helpNoteNoSave: 'Events are saved automatically on this device. Use Events to switch between saved events, and Backup & restore for a JSON file. Clearing browser data may erase saved events. A warning appears if saving fails or an event changes in another tab.',
           helpNoteNames: 'Duplicate participant names are not allowed. Odd rosters receive one Bye per round.',
           helpNoteScope: 'On phones, use the bottom Progress / Matches / Standings tabs. During an event you can export CSV files, a standings PNG, or a print layout.',
 
@@ -2203,10 +2777,15 @@
       const $ = selector => document.querySelector(selector);
       const SCHEMA_VERSION = 1;
       const state = { phase: 'setup', tournamentName: '', participants: [], rounds: [], settings: { resultMode: 'winLoss', scoreDrawsAllowed: true }, ui: { matchFilter: 'all', matchView: 'rounds', participantFocusId: '', activePage: 'progress' }, meta: { eventId: '', createdAt: '', updatedAt: '' } };
-      const storageKeys = { language: `${APP_CONFIG.slug}:language`, event: `${APP_CONFIG.slug}:active-event:v${SCHEMA_VERSION}` };
+      const storageKeys = { language: `${APP_CONFIG.slug}:language`, event: `${APP_CONFIG.slug}:active-event:v${SCHEMA_VERSION}`, archives: `${APP_CONFIG.slug}:archived-events:v${SCHEMA_VERSION}` };
       let persistenceReady = false;
       let persistenceWarningShown = false;
+      let lastStoredEventRaw = null;
+      let lastArchivedEventsRaw = readStorage(storageKeys.archives);
+      let storageConflict = false;
+      let persistenceFailed = false;
       let startupNoticeKey = '';
+      let unreadableStoredEvent = false;
       let language = readStorage(storageKeys.language) || detectLanguage();
 
       function readStorage(key) {
@@ -2363,7 +2942,6 @@
           if (!(root instanceof HTMLElement)) throw new TypeError('A mobile bottom bar root element is required.');
           const buttons = Array.from(root.querySelectorAll('.app-mobile-bottom-item'));
           const mobileQuery = window.matchMedia?.('(max-width: 600px)') || null;
-          const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
           let currentPageKey = null;
           function setActive(key) {
             buttons.forEach(button => {
@@ -2387,11 +2965,14 @@
             persistEvent();
             if (mobileQuery?.matches && showOptions.scroll !== false) {
               const page = document.getElementById(button.dataset.mobilePageTarget);
-              const topTarget = document.getElementById(options.pageTopTarget || '') || page;
-              if (topTarget) {
-                const top = Math.max(0, topTarget.getBoundingClientRect().top + window.scrollY - (options.pageTopOffset || 0));
-                window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
-              }
+              // Measure the newly visible page after layout, not the event overview.
+              // A short standings page has sufficient minimum height for this target.
+              requestAnimationFrame(() => {
+                if (!page || currentPageKey !== key || !mobileQuery.matches) return;
+                const headerHeight = document.querySelector('.app-header')?.getBoundingClientRect().height || 0;
+                const top = Math.max(0, page.getBoundingClientRect().top + window.scrollY - headerHeight - 12);
+                window.scrollTo({ top, behavior: 'instant' });
+              });
             }
             return true;
           }
@@ -2471,22 +3052,84 @@
           }
         };
       }
-      function persistEvent() {
-        if (!persistenceReady) return true;
-        if (!meaningfulEventState()) {
-          removeStorage(storageKeys.event);
+      // Tab-local UI navigation and timestamps do not constitute changes to event data.
+      function eventDataSignature(raw) {
+        if (raw === null) return null;
+        try {
+          const doc = JSON.parse(raw);
+          if (!doc || !doc.event || typeof doc.event !== 'object') return raw;
+          const { ui, updatedAt, ...eventData } = doc.event;
+          return JSON.stringify({ format: doc.format, schemaVersion: doc.schemaVersion, event: eventData });
+        } catch { return raw; }
+      }
+      function refreshStorageAlert() {
+        const root = $('#storageAlert');
+        root.hidden = !storageConflict && !persistenceFailed && !unreadableStoredEvent;
+        if (root.hidden) return;
+        const action = $('#storageAlertAction');
+        const messageKey = unreadableStoredEvent ? 'unreadableStoredEvent' : storageConflict ? 'storageConflict' : 'saveFailedPersistent';
+        setText('#storageAlertMessage', translate(messageKey));
+        action.textContent = translate(unreadableStoredEvent ? 'downloadUnreadableStoredEvent' : storageConflict ? 'reloadEvent' : 'backupExport');
+        action.disabled = unreadableStoredEvent ? !lastStoredEventRaw : !storageConflict && !meaningfulEventState();
+      }
+      function markStorageConflict() {
+        if (storageConflict) return;
+        storageConflict = true;
+        refreshStorageAlert();
+        showToast(translate('storageConflictShort'), { tone: 'warning', duration: 7000 });
+      }
+      function hasCurrentStoredEvent() {
+        if (unreadableStoredEvent) return false;
+        const raw = readStorage(storageKeys.event);
+        if (raw === lastStoredEventRaw) return true;
+        if (eventDataSignature(raw) === eventDataSignature(lastStoredEventRaw)) {
+          lastStoredEventRaw = raw;
           return true;
         }
-        const documentValue = buildEventDocument({ touchUpdated: true });
-        const ok = writeStorage(storageKeys.event, JSON.stringify(documentValue));
-        if (!ok && !persistenceWarningShown) {
-          persistenceWarningShown = true;
-          showToast(translate('saveFailed'), { tone: 'warning', duration: 7000 });
+        markStorageConflict();
+        return false;
+      }
+      function persistEvent() {
+        if (!persistenceReady) return true;
+        if (storageConflict || !hasCurrentStoredEvent()) return false;
+        if (!meaningfulEventState()) {
+          const ok = removeStorage(storageKeys.event);
+          if (ok) {
+            lastStoredEventRaw = null; persistenceFailed = false; persistenceWarningShown = false;
+          } else if (lastStoredEventRaw !== null) persistenceFailed = true;
+          refreshStorageAlert();
+          return ok;
         }
+        const serialized = JSON.stringify(buildEventDocument({ touchUpdated: true }));
+        const ok = writeStorage(storageKeys.event, serialized);
+        if (ok) {
+          lastStoredEventRaw = serialized; persistenceFailed = false; persistenceWarningShown = false;
+        } else {
+          persistenceFailed = true;
+          if (!persistenceWarningShown) {
+            persistenceWarningShown = true;
+            showToast(translate('saveFailed'), { tone: 'warning', duration: 7000 });
+          }
+        }
+        refreshStorageAlert();
         return ok;
       }
       function clearPersistedEvent() {
-        return removeStorage(storageKeys.event);
+        if (storageConflict || !hasCurrentStoredEvent()) return false;
+        // If there is nothing in storage, resetting unsaved work must still work
+        // even when the browser refuses localStorage access.
+        if (lastStoredEventRaw === null) {
+          persistenceFailed = false;
+          persistenceWarningShown = false;
+          refreshStorageAlert();
+          return true;
+        }
+        const ok = removeStorage(storageKeys.event);
+        if (ok) {
+          lastStoredEventRaw = null; persistenceFailed = false; persistenceWarningShown = false;
+        } else persistenceFailed = true;
+        refreshStorageAlert();
+        return ok;
       }
       function isPlainObject(value) {
         return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -2666,23 +3309,298 @@
         setBulkError('');
         updateResultModeControls();
       }
+
+      // Keep the legacy active-event storage key unchanged. Inactive events are
+      // archived separately. A write-ahead copy precedes every switch: if the
+      // browser closes between writes, duplicate snapshots can be recovered.
+      function archivedEvents() {
+        const raw = readStorage(storageKeys.archives);
+        if (raw !== lastArchivedEventsRaw) { markStorageConflict(); return null; }
+        if (!raw) return [];
+        try {
+          const parsed = JSON.parse(raw);
+          if (!isPlainObject(parsed) || parsed.format !== 'mini-league-desk-archive' ||
+              parsed.schemaVersion !== SCHEMA_VERSION || !Array.isArray(parsed.events) ||
+              parsed.events.length > 501) throw new Error('archive schema');
+          const ids = new Set();
+          for (const doc of parsed.events) {
+            const normalized = normalizeImportedEvent(doc);
+            if (!normalized.ok || ids.has(normalized.value.meta.eventId)) throw new Error('invalid archived event');
+            ids.add(normalized.value.meta.eventId);
+          }
+          return parsed.events;
+        } catch {
+          showToast(translate('eventLibraryInvalid'), { tone: 'warning', duration: 7000 });
+          return null;
+        }
+      }
+      function saveArchivedEvents(entries, { allowTransient = false } = {}) {
+        // A switch needs one extra write-ahead entry until its target is active.
+        // Only a switch may temporarily hold 501 documents: 500 inactive + active.
+        if (entries.length > (allowTransient ? 501 : 500)) {
+          showToast(translate('eventLibraryLimit'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
+        if (storageConflict || readStorage(storageKeys.archives) !== lastArchivedEventsRaw) {
+          markStorageConflict();
+          return false;
+        }
+        const raw = JSON.stringify({ format: 'mini-league-desk-archive', schemaVersion: SCHEMA_VERSION, events: entries });
+        if (!writeStorage(storageKeys.archives, raw)) {
+          persistenceFailed = true;
+          refreshStorageAlert();
+          showToast(translate('saveFailed'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
+        lastArchivedEventsRaw = raw;
+        return true;
+      }
+      function archiveActiveEvent({ switchingToId = null } = {}) {
+        if (storageConflict || !hasCurrentStoredEvent()) return false;
+        const archives = archivedEvents();
+        if (!archives) return false;
+        const activeId = meaningfulEventState() ? state.meta.eventId : null;
+        const inactiveCount = archives.filter(item => item.event.id !== activeId).length;
+        if (!switchingToId && inactiveCount >= 500) {
+          showToast(translate('eventLibraryLimit'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
+        if (!meaningfulEventState()) return true;
+        if (!persistEvent()) return false;
+        const doc = buildEventDocument({ touchUpdated: false });
+        return saveArchivedEvents([...archives.filter(item => item.event.id !== doc.event.id), doc], {
+          allowTransient: Boolean(switchingToId)
+        });
+      }
+      function setActiveEventDocument(doc) {
+        if (storageConflict || !hasCurrentStoredEvent()) return false;
+        const serialized = doc ? JSON.stringify(doc) : null;
+        const ok = serialized === null ? removeStorage(storageKeys.event) : writeStorage(storageKeys.event, serialized);
+        if (!ok) {
+          persistenceFailed = true;
+          refreshStorageAlert();
+          showToast(translate('eventLibrarySwitchFailed'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
+        lastStoredEventRaw = serialized;
+        persistenceFailed = false;
+        persistenceWarningShown = false;
+        refreshStorageAlert();
+        return true;
+      }
+      function resetActiveEventState() {
+        state.phase = 'setup';
+        state.tournamentName = '';
+        state.participants = [];
+        state.rounds = [];
+        state.settings = defaultSettings();
+        state.ui = defaultUi();
+        state.meta = { eventId: '', createdAt: '', updatedAt: '' };
+        $('#tournamentName').value = '';
+        $('#participantName').value = '';
+        $('#bulkParticipants').value = '';
+        setParticipantError('');
+        setBulkError('');
+        editingParticipantId = null;
+      }
+      function closeEventLibrary() {
+        if ($('#eventLibraryDialog').open) $('#eventLibraryDialog').close();
+      }
+      function bringEventToTop() { window.scrollTo({ top: 0, behavior: 'instant' }); }
+      function beginAnotherEvent() {
+        if (!archiveActiveEvent() || !setActiveEventDocument(null)) return false;
+        resetActiveEventState();
+        closeEventLibrary();
+        render();
+        bringEventToTop();
+        showToast(translate('eventLibraryCreated'), { tone: 'success' });
+        return true;
+      }
+      function switchSavedEvent(eventId) {
+        if (!eventId || storageConflict || !hasCurrentStoredEvent()) return false;
+        if (meaningfulEventState() && state.meta.eventId === eventId) { closeEventLibrary(); return true; }
+        const entries = archivedEvents();
+        if (!entries) return false;
+        const target = entries.find(doc => doc.event.id === eventId);
+        const normalized = target && normalizeImportedEvent(target);
+        if (!normalized?.ok) {
+          showToast(translate('eventLibraryNotFound'), { tone: 'warning' });
+          return false;
+        }
+        if (!archiveActiveEvent({ switchingToId: eventId }) || !setActiveEventDocument(target)) return false;
+        // Cancel Undo callbacks referencing the previous event's match objects.
+        AppToast.dismiss();
+        // Remove the newly active copy only after activation. If this cleanup
+        // fails, a duplicate is retained rather than losing the original.
+        const remaining = archivedEvents();
+        if (remaining) saveArchivedEvents(remaining.filter(doc => doc.event.id !== eventId));
+        applyEventState(normalized.value);
+        closeEventLibrary();
+        render();
+        bringEventToTop();
+        return true;
+      }
+      function addImportedEvent(doc) {
+        const archives = archivedEvents();
+        if (!archives || storageConflict || !hasCurrentStoredEvent()) return null;
+        const ids = new Set(archives.map(item => item.event.id));
+        if (meaningfulEventState()) ids.add(state.meta.eventId);
+        const copy = JSON.parse(JSON.stringify(doc));
+        do { copy.event.id = createId(); } while (ids.has(copy.event.id));
+        copy.event.createdAt = new Date().toISOString();
+        copy.event.updatedAt = copy.event.createdAt;
+        const normalized = normalizeImportedEvent(copy);
+        if (!normalized.ok) return null;
+        if (!archiveActiveEvent() || !setActiveEventDocument(copy)) return null;
+        applyEventState(normalized.value);
+        render();
+        bringEventToTop();
+        return copy;
+      }
+      function renderEventLibrary() {
+        const root = $('#eventLibraryList');
+        root.replaceChildren();
+        const archives = archivedEvents();
+        if (!archives) {
+          const notice = document.createElement('p');
+          notice.className = 'event-library-empty';
+          notice.textContent = translate('eventLibraryInvalid');
+          root.append(notice);
+          $('#createNewEventButton').disabled = true;
+          return;
+        }
+        $('#createNewEventButton').disabled = storageConflict || unreadableStoredEvent;
+        const activeId = meaningfulEventState() ? state.meta.eventId : null;
+        const docs = archives.filter(doc => doc.event.id !== activeId).map(doc => ({ doc, active: false }));
+        if (activeId) docs.push({ doc: buildEventDocument({ touchUpdated: false }), active: true });
+        docs.sort((a, b) => Date.parse(b.doc.event.updatedAt) - Date.parse(a.doc.event.updatedAt));
+        if (!docs.length) {
+          const empty = document.createElement('p');
+          empty.className = 'event-library-empty';
+          empty.textContent = translate('eventLibraryEmpty');
+          root.append(empty);
+        }
+        docs.forEach(({ doc, active }) => {
+          const name = doc.event.name || translate('defaultTournament');
+          const row = document.createElement('div');
+          row.className = 'event-library-row' + (active ? ' is-current' : '');
+          row.setAttribute('role', 'listitem');
+          const info = document.createElement('div');
+          info.className = 'event-library-info';
+          const title = document.createElement('strong');
+          title.className = 'event-library-name';
+          title.textContent = name;
+          const meta = document.createElement('span');
+          meta.className = 'event-library-meta';
+          if (doc.event.phase === 'fixtures') {
+            const matches = doc.event.rounds.flatMap(round => round.matches);
+            meta.textContent = translate('eventLibraryProgress', {
+              done: matches.filter(match => match.status === 'completed').length, total: matches.length
+            });
+          } else meta.textContent = translate('eventLibraryDraft');
+          info.append(title, meta);
+          const actions = document.createElement('div');
+          actions.className = 'event-library-actions';
+          if (active) {
+            const current = document.createElement('span');
+            current.className = 'event-library-current';
+            current.textContent = translate('eventLibraryActive');
+            actions.append(current);
+          } else {
+            const open = document.createElement('button');
+            open.type = 'button';
+            open.className = 'button text-link';
+            open.textContent = translate('eventLibraryOpenAction');
+            open.setAttribute('aria-label', translate('eventLibraryOpenAction') + ': ' + name);
+            open.disabled = storageConflict || unreadableStoredEvent;
+            open.addEventListener('click', () => switchSavedEvent(doc.event.id));
+            actions.append(open);
+          }
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'button text-link danger-ghost';
+          remove.textContent = translate('eventLibraryDelete');
+          remove.setAttribute('aria-label', translate('eventLibraryDelete') + ': ' + name);
+          remove.disabled = storageConflict || unreadableStoredEvent;
+          remove.addEventListener('click', () => deleteSavedEvent(doc.event.id, name));
+          actions.append(remove);
+          row.append(info, actions);
+          root.append(row);
+        });
+      }
+      function openEventLibrary() {
+        if (storageConflict) {
+          showToast(translate('storageConflictShort'), { tone: 'warning' });
+          return;
+        }
+        renderEventLibrary();
+        const dialog = $('#eventLibraryDialog');
+        rememberDialogOpener(dialog);
+        dialog.showModal();
+      }
+      async function deleteSavedEvent(id, name) {
+        if (storageConflict || !hasCurrentStoredEvent() || !archivedEvents()) return;
+        const confirmed = await AppConfirm.ask({
+          title: translate('eventLibraryDeleteTitle'),
+          message: translate('eventLibraryDeleteMessage', { name }),
+          confirmLabel: translate('eventLibraryDeleteAction'),
+          cancelLabel: translate('cancel'),
+          tone: 'danger'
+        });
+        if (!confirmed || storageConflict || !hasCurrentStoredEvent()) return;
+        const entries = archivedEvents();
+        if (!entries) return;
+        if (meaningfulEventState() && state.meta.eventId === id) {
+          // Remove a possible interrupted-switch duplicate before clearing active.
+          if (entries.some(doc => doc.event.id === id) &&
+              !saveArchivedEvents(entries.filter(doc => doc.event.id !== id))) return;
+          if (!setActiveEventDocument(null)) return;
+          resetActiveEventState();
+          render();
+        } else {
+          if (!entries.some(doc => doc.event.id === id)) return;
+          if (!saveArchivedEvents(entries.filter(doc => doc.event.id !== id))) return;
+        }
+        renderEventLibrary();
+        showToast(translate('eventLibraryDeleted'), { tone: 'success' });
+      }
+
       function restorePersistedEvent() {
         const raw = readStorage(storageKeys.event);
+        lastStoredEventRaw = raw;
         if (!raw) return false;
         try {
           const parsed = JSON.parse(raw);
           const normalized = normalizeImportedEvent(parsed);
           if (!normalized.ok) {
-            startupNoticeKey = normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid';
+            unreadableStoredEvent = true;
+            startupNoticeKey = 'unreadableStoredEvent';
             return false;
           }
           applyEventState(normalized.value);
           startupNoticeKey = 'backupRestored';
           return true;
         } catch {
-          startupNoticeKey = 'backupInvalid';
+          unreadableStoredEvent = true;
+          startupNoticeKey = 'unreadableStoredEvent';
           return false;
         }
+      }
+      window.addEventListener('storage', event => {
+        if (!persistenceReady || storageConflict) return;
+        if ((event.key === storageKeys.archives || event.key === null) &&
+            readStorage(storageKeys.archives) !== lastArchivedEventsRaw) {
+          markStorageConflict();
+          return;
+        }
+        if (event.key !== storageKeys.event && event.key !== null) return;
+        const raw = readStorage(storageKeys.event);
+        if (raw === lastStoredEventRaw) return;
+        if (eventDataSignature(raw) === eventDataSignature(lastStoredEventRaw)) lastStoredEventRaw = raw;
+        else markStorageConflict();
+      });
+      function localDateStamp(date = new Date()) {
+        return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
       }
       function safeBackupFilename(value) {
         let filename = String(value || '').trim()
@@ -2695,7 +3613,7 @@
         return filename;
       }
       function defaultBackupFilename() {
-        const date = new Date().toISOString().slice(0, 10);
+        const date = localDateStamp();
         const eventPart = (state.tournamentName || 'mini-league-desk')
           .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
           .replace(/\s+/g, '-')
@@ -2734,6 +3652,7 @@
         closeBackupExportDialog();
         showToast(translate('backupSaved'), { tone: 'success' });
       }
+
       async function importBackupFile(file) {
         let parsed;
         try {
@@ -2743,40 +3662,28 @@
           showToast(translate('backupReadError'), { tone: 'warning', duration: 6000 });
           return;
         }
-
         const normalized = normalizeImportedEvent(parsed);
         if (!normalized.ok) {
           showToast(translate(normalized.reason === 'incompatible' ? 'backupIncompatible' : 'backupInvalid'), { tone: 'warning', duration: 6000 });
           return;
         }
-
-        if (meaningfulEventState()) {
-          const confirmed = await AppConfirm.ask({
-            title: translate('backupReplaceTitle'),
-            message: translate('backupReplaceMessage'),
-            confirmLabel: translate('backupReplaceAction'),
-            cancelLabel: translate('cancel'),
-            tone: 'danger'
-          });
-          if (!confirmed) return;
-        }
-
-        const before = meaningfulEventState() ? JSON.parse(JSON.stringify(buildEventDocument({ touchUpdated: false }))) : null;
-        applyEventState(normalized.value);
-        render();
-        persistEvent();
-        showToast(translate('backupImported'), {
+        const priorId = meaningfulEventState() ? state.meta.eventId : null;
+        const imported = addImportedEvent(parsed);
+        if (!imported) return;
+        showToast(translate('eventLibraryImported'), {
           tone: 'success',
-          actionLabel: before ? translate('undo') : '',
+          actionLabel: translate('undo'),
           duration: 6000,
-          onAction: before ? () => {
-            const previous = normalizeImportedEvent(before);
-            if (!previous.ok) return;
-            applyEventState(previous.value);
-            render();
-            persistEvent();
-            showToast(translate('undone'));
-          } : null
+          onAction: () => {
+            if (state.meta.eventId !== imported.event.id ||
+                eventDataSignature(JSON.stringify(buildEventDocument({ touchUpdated: false }))) !==
+                eventDataSignature(JSON.stringify(imported))) return;
+            const switched = priorId ? switchSavedEvent(priorId) : beginAnotherEvent();
+            if (!switched) return;
+            const saved = archivedEvents();
+            if (!saved || !saveArchivedEvents(saved.filter(doc => doc.event.id !== imported.event.id))) return;
+            showToast(translate('undone'), { tone: 'success' });
+          }
         });
       }
       function updateBackupButtons() {
@@ -2797,7 +3704,7 @@
         return stem;
       }
       function defaultOutputFilename() {
-        const date = new Date().toISOString().slice(0, 10);
+        const date = localDateStamp();
         const eventPart = (state.tournamentName || 'mini-league-desk')
           .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
           .replace(/\s+/g, '-')
@@ -2966,7 +3873,10 @@
             217,
             config.scoreBased ? 159 : 330
           );
-          if (config.scoreBased) ctx.fillText(translate('csvDifference'), 900, 217);
+          if (config.scoreBased) {
+            ctx.fillText(translate('csvDifference'), 900, 217, 76);
+            ctx.fillText(translate('csvScoreFor'), 990, 217, 60);
+          }
           ctx.fillText(translate('points'), 1070, 217);
 
           standings.forEach((row, index) => {
@@ -2995,7 +3905,12 @@
               ? row.wins + '-' + row.draws + '-' + row.losses
               : row.wins + '-' + row.losses;
             ctx.fillText(record, 720, y + 26);
-            if (config.scoreBased) ctx.fillText(signedNumber(row.difference), 900, y + 26);
+            if (config.scoreBased) {
+              ctx.fillText(signedNumber(row.difference), 900, y + 26, 76);
+              ctx.textAlign = 'right';
+              ctx.fillText(String(row.scoreFor), 1054, y + 26, 72);
+              ctx.textAlign = 'left';
+            }
 
             ctx.fillStyle = '#151715';
             ctx.font = '800 28px system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -3106,6 +4021,7 @@
         document.title = language === 'ja' ? APP_CONFIG.nameJa : APP_CONFIG.name;
         updateResultModeControls();
         render();
+        refreshStorageAlert();
       }
 
       function setParticipantAddOpen(open) {
@@ -3432,7 +4348,6 @@
             input.className = 'participant-edit-input';
             input.id = 'participantEditInput';
             input.type = 'text';
-            input.maxLength = 80;
             input.autocomplete = 'off';
             input.value = editingParticipantDraft || participant.name;
             input.addEventListener('input', event => {
@@ -3574,7 +4489,7 @@
             active.add(match.participantAId);
             active.add(match.participantBId);
 
-            const pairKey = [match.participantAId, match.participantBId].sort().join('|');
+            const pairKey = JSON.stringify([match.participantAId, match.participantBId].sort());
             if (seenPairs.has(pairKey)) return false;
             seenPairs.add(pairKey);
             matchCount += 1;
@@ -3747,7 +4662,7 @@
       }
 
       function matrixPairKey(a, b) {
-        return a < b ? a + '|' + b : b + '|' + a;
+        return JSON.stringify([a, b].sort());
       }
       function matrixResultText(match, rowParticipantId) {
         if (match.status !== 'completed') return translate('matrixPending');
@@ -3918,7 +4833,6 @@
       function renderStandings() {
         const config = getResultModeConfig();
         const standings = calculateStandings();
-        $('#standingsEmptyNote').hidden = standings.completedCount > 0;
         const root = $('#standingsList');
         root.replaceChildren();
 
@@ -4115,7 +5029,7 @@
         setText('#fixtureModeLabel', resultModeLabel());
         setText('#fixtureParticipantCount', new Intl.NumberFormat(language).format(state.participants.length));
         setText('#fixtureMatchCount', new Intl.NumberFormat(language).format(matchCount));
-        setText('#fixtureRoundCount', new Intl.NumberFormat(language).format(state.rounds.length));
+        setText('#fixtureCompletedCount', new Intl.NumberFormat(language).format(snapshot.completed.length));
         setText('#filterAllCount', String(snapshot.matches.length));
         setText('#filterPendingCount', String(snapshot.pending.length));
         setText('#filterCompletedCount', String(snapshot.completed.length));
@@ -4194,6 +5108,7 @@
 
       function render() {
         const inEvent = state.phase === 'fixtures';
+        $('#pageIntro').hidden = inEvent;
         $('#setupView').hidden = state.phase !== 'setup';
         $('#fixtureView').hidden = !inEvent;
         $('#leagueBottomBar').hidden = !inEvent;
@@ -4324,6 +5239,7 @@
           tone: 'danger'
         });
         if (!confirmed) return;
+        if (!clearPersistedEvent()) return;
         state.phase = 'setup';
         state.tournamentName = '';
         state.participants = [];
@@ -4331,7 +5247,6 @@
         state.settings = { resultMode: 'winLoss', scoreDrawsAllowed: true };
         state.ui = defaultUi();
         state.meta = { eventId: '', createdAt: '', updatedAt: '' };
-        clearPersistedEvent();
         $('#tournamentName').value = '';
         $('#participantName').value = '';
         $('#bulkParticipants').value = '';
@@ -4363,6 +5278,29 @@
         showToast(translate('confirmed'), { tone: 'success' });
       }
 
+      function downloadUnreadableStoredEvent() {
+        if (!unreadableStoredEvent || !lastStoredEventRaw) return;
+        const blob = new Blob([lastStoredEventRaw], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'mini-league-desk-unreadable-event.txt';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+      }
+      $('#storageAlertAction').addEventListener('click', async () => {
+        if (unreadableStoredEvent) {
+          downloadUnreadableStoredEvent();
+        } else if (storageConflict) {
+          const confirmed = await AppConfirm.ask({
+            title: translate('reloadEventTitle'), message: translate('reloadEventMessage'),
+            confirmLabel: translate('reloadEvent'), cancelLabel: translate('cancel'), tone: 'danger'
+          });
+          if (confirmed) window.location.reload();
+        } else if (persistenceFailed) openBackupExportDialog();
+      });
       $('#showParticipantAddButton').addEventListener('click', () => {
         const open = $('#showParticipantAddButton').getAttribute('aria-expanded') === 'true';
         const nextOpen = !open;
@@ -4395,6 +5333,58 @@
       $('#shuffleButton').addEventListener('click', shuffleParticipants);
       $('#resetButton').addEventListener('click', resetSetup);
       $('#confirmParticipantsButton').addEventListener('click', confirmParticipants);
+
+      function openRenameEvent() {
+        if (state.phase !== 'fixtures') return;
+        const dialog = $('#renameEventDialog');
+        $('#renameEventInput').value = state.tournamentName || '';
+        setText('#renameEventError', '');
+        rememberDialogOpener(dialog);
+        dialog.showModal();
+        requestAnimationFrame(() => $('#renameEventInput').focus({ preventScroll: true }));
+      }
+      function saveRenamedEvent() {
+        const value = $('#renameEventInput').value.trim();
+        if (!value) {
+          setText('#renameEventError', translate('renameEventRequired'));
+          $('#renameEventInput').focus();
+          return;
+        }
+        if (value !== state.tournamentName) {
+          const previous = state.tournamentName;
+          state.tournamentName = value;
+          if (!persistEvent()) {
+            state.tournamentName = previous;
+            setText('#renameEventError', translate(storageConflict ? 'storageConflictShort' : 'saveFailed'));
+            return;
+          }
+          setText('#fixtureTitle', value);
+          $('#tournamentName').value = value;
+          showToast(translate('renameEventSaved'), { tone: 'success' });
+        }
+        $('#renameEventDialog').close();
+      }
+      $('#renameEventButton').addEventListener('click', openRenameEvent);
+      $('#renameEventForm').addEventListener('submit', event => { event.preventDefault(); saveRenamedEvent(); });
+      $('#renameEventInput').addEventListener('input', () => setText('#renameEventError', ''));
+      $('#closeRenameEventButton').addEventListener('click', () => $('#renameEventDialog').close());
+      $('#cancelRenameEventButton').addEventListener('click', () => $('#renameEventDialog').close());
+      $('#renameEventDialog').addEventListener('close', () => restoreDialogOpener($('#renameEventDialog')));
+
+
+      $('#setupEventLibraryButton').addEventListener('click', openEventLibrary);
+      $('#fixtureEventLibraryButton').addEventListener('click', openEventLibrary);
+      $('#createNewEventButton').addEventListener('click', beginAnotherEvent);
+      $('#closeEventLibraryButton').addEventListener('click', closeEventLibrary);
+      $('#eventLibraryDialog').addEventListener('close', () => restoreDialogOpener($('#eventLibraryDialog')));
+      $('#eventLibraryDialog').addEventListener('click', event => {
+        const dialog = $('#eventLibraryDialog');
+        if (event.target !== dialog) return;
+        const bounds = dialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right ||
+            event.clientY < bounds.top || event.clientY > bounds.bottom) closeEventLibrary();
+      });
+
       $('#backToEditButton').addEventListener('click', async () => {
         const hasResults = allMatches().some(match => match.status === 'completed');
         if (hasResults) {
@@ -4558,13 +5548,13 @@
       let outputFilename = '';
 
       let leagueMobileBar = AppMobileBottomBar.mount($('#leagueBottomBar'), {
-        initialPage: 'progress',
-        pageTopTarget: 'fixtureView',
-        pageTopOffset: 12
+        initialPage: 'progress'
       });
 
       restorePersistedEvent();
+      if (!archivedEvents() && !unreadableStoredEvent) startupNoticeKey = 'eventLibraryInvalid';
       persistenceReady = true;
+      refreshStorageAlert();
       $('#versionBadge').textContent = `v${APP_CONFIG.version}`;
       updateStaticLanguage();
       if (startupNoticeKey) {

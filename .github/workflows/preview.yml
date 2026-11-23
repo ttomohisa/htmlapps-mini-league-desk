@@ -64,6 +64,19 @@ jobs:
         if ($LASTEXITCODE -ne 0) { throw "Chromium executable lookup failed." }
         node ./scripts/test-participant-drag-browser.mjs
         if ($LASTEXITCODE -ne 0) { throw "Participant drag browser regression failed." }
+    - name: Capture current README screenshots
+      shell: pwsh
+      run: |
+        $env:NODE_PATH = Join-Path $env:RUNNER_TEMP "mobile-layout-tests/node_modules"
+        node ./scripts/capture-readme-screenshots.cjs
+        if ($LASTEXITCODE -ne 0) { throw "README screenshot capture failed." }
+    - name: Upload README screenshot evidence
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      with:
+        name: readme-screenshots
+        path: test-results/readme-screenshots/
+        if-no-files-found: error
+        retention-days: 3
     - name: Upload static preview site
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
       with:

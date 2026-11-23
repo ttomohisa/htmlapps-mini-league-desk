@@ -6,9 +6,9 @@
 
 [日本語版 README](README.ja.md)
 
-Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and keeps the active event on the device without requiring an account.
+Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and saves multiple events in the browser without requiring an account.
 
-Current stable release: **v1.0.3**
+Current source version: **v1.1.0**. When changes reach `main`, CI creates the matching version tag and GitHub Release.
 
 v1.0.3 pauses background page scrolling while a dialog is open. Dialog headers stay visible while their bodies scroll, keeping backup, output, result-entry, and confirmation actions reachable in short windows. Help retains its fixed header and independently scrollable reading area.
 
@@ -28,8 +28,8 @@ Smartphone screenshot: [assets/screenshot-mobile-en.png](assets/screenshot-mobil
 - **Use the whole-event round-robin table** — Switch between match list and participant × participant matrix views. Cells show **○ = win, × = loss, △ = draw, — = pending**.
 - **Keep scores as well as outcomes** — In score-entry mode, the matrix keeps the result symbol and shows the row participant's score underneath, such as **○ / 3–1** and **× / 1–3**.
 - **See what needs attention next** — Progress, suggested next matches, remaining opponents, completed matches, and live standings stay available during the event.
-- **Correct mistakes without rebuilding the event** — Edit or remove results, rename participants, reorder the roster, and use Undo for supported actions.
-- **Keep and move event data locally** — The active event is saved in browser storage, with JSON backup / restore for portability.
+- **Correct results without rebuilding** — Edit or remove recorded results, rename the event, and use Undo for supported actions. Changing the participant roster or scoring mode regenerates fixtures and clears previously recorded results.
+- **Keep and move event data locally** — Events are saved in this browser and can be switched through **Events**. Use JSON backups to move important events to another device.
 - **Export practical results** — Save match-results CSV, standings CSV, a locally generated standings PNG, or print standings and all match results.
 - **Use it on desktop or phone** — Japanese / English UI, smartphone bottom navigation, narrow-screen handling, visible keyboard focus, and accessible labels are included.
 - **Run without runtime network dependencies** — The standalone build uses CSP `connect-src 'none'` and has no runtime CDN, API, analytics, telemetry, remote-font, or third-party library dependency.
@@ -51,7 +51,7 @@ The build also produces `dist/index.self-extract.html` and the repository-root r
 
 ## Usage
 
-1. Optionally enter an event name.
+1. Optionally enter an event name. You can rename it later without losing match results.
 2. Choose the result mode:
    - Win / loss
    - Win / draw / loss
@@ -63,7 +63,9 @@ The build also produces `dist/index.self-extract.html` and the repository-root r
 7. Select a match cell or match row and enter the result. In score mode, enter both scores and the app derives ○ / × / △ automatically.
 8. Use **Standings** to review the current ranking.
 9. Use **Export** for CSV, PNG, or print output.
-10. For important events, also export a JSON backup so the event can be restored after browser/site data is cleared or moved to another device.
+10. Select **Events** to start another event or open a saved one. For important events, also export a JSON backup so the event can be restored after browser/site data is cleared or moved to another device.
+
+**Backup and restore:** In Event setup or the running event view, open **Backup & restore** to export or import JSON. Importing adds another saved event instead of replacing the current one. These less frequently used actions are collapsed by default.
 
 ## Ranking rules
 
@@ -81,9 +83,11 @@ If all active tiebreak values are identical, participants share the same rank. R
 
 ## Local save, backup, and export
 
-The active event is saved to browser local storage and normally returns after reload, including results and League Desk UI state.
+The current event and saved events are kept in this browser's local storage. Open **Events** to switch events, start another, or delete an event after confirmation. Starting a new event retains previous events. A reload normally restores the current event, including match results and the selected page. Up to 500 inactive events can be stored; storage capacity may impose a lower practical limit.
 
-Browser or operating-system actions can still clear site data. JSON backup is therefore the recovery and portability path for important events.
+If previously saved data is damaged, automatic saving is stopped and the original stored text can be downloaded without overwriting it. Browser or operating-system actions can still clear site data. JSON backup is therefore the recovery and portability path for important events.
+
+If events are edited, switched, or deleted in another tab, this tab stops automatic saving to avoid overwriting those changes. Export a JSON backup first if needed, then reload. Failed browser-storage writes also show a persistent warning. Score-based PNG standings include score-for.
 
 Exports available during an event:
 
@@ -147,18 +151,22 @@ Best effort:
 
 ## Limitations
 
-- Mini League Desk supports round-robin events only. Knockout brackets, Swiss pairing, and group-stage + knockout formats are outside v1.0.0.
+- Mini League Desk supports round-robin events only. Knockout brackets, Swiss pairing, and group-stage + knockout formats are not supported.
 - It does not provide accounts, cloud synchronization, spectator publishing URLs, or real-time multi-device collaboration.
-- The active event lives in browser storage. Clearing site data can remove it unless you exported a JSON backup.
+- Saved events live in browser storage. Clearing site data can remove them unless you have exported JSON backups.
 - Score-mode tiebreaks are league points → score difference → score for. Direct head-to-head tiebreaking is not included.
 - The hard participant limit is 64; the product is designed primarily for small events where operating the league from one browser remains practical.
+
+## Release automation
+
+After a merge into `main`, the existing Pages workflow validates and builds the standalone app before creating a semantic-version tag and GitHub Release. The release attaches readable and self-extracting HTML files. Existing releases are not recreated.
 
 ## Development and build layout
 
 ```text
 .
 ├─ src/index.template.html       # Editable application source
-├─ app.config.json               # App metadata and v1.0.3 version
+├─ app.config.json               # App metadata and v1.1.0 version
 ├─ assets/
 │  ├─ favicon.svg
 │  ├─ screenshot.png

@@ -82,6 +82,8 @@ export async function runPngHeaderSmoke(cdp) {
       if (points.join(',') !== (resultMode === 'winLoss' ? '1,1,1' : '3,3,3')) throw new Error('PNG points changed');
       const differences = value.calls.filter(c => c.x === 900 && c.y !== 217).map(c => c.text);
       if (differences.join(',') !== (scoreBased ? '+2,0,-2' : '')) throw new Error('PNG score differences changed');
+      const scoreFor = value.calls.filter(c => c.x === 1054 && c.y !== 217).map(c => c.text);
+      if (scoreFor.join(',') !== (scoreBased ? '5,3,4' : '')) throw new Error('PNG score-for column missing or incorrect');
       console.log(`[OK] PNG record heading fits: ${language}/${resultMode}/draws=${scoreDrawsAllowed}`);
     }
   }

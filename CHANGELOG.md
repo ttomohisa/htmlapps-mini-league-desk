@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Features (v1.1.0 candidate)
+- Clarify that adjusting participants or the result mode after starting a tournament rebuilds pairings and clears recorded results; routine result edits and event renaming do not.
+- Save and switch among multiple locally stored events without creating an account; edit event names without touching match results.
+- Show the number of completed matches in the event overview rather than round count.
+- Preserve older active event data and JSON backup compatibility. Imported JSON creates a separate event; archived events can be deleted only after confirmation.
+
+- Rename an event without regenerating the schedule or clearing recorded results.
+- Replace the overview's round count with completed match count, updated from the current results.
+
+
+### Design refinement (v1.1.0 candidate)
+- Condense the bordered event overview into title/mode and three small counts above one compact toolbar; keep secondary actions and backup accessible without making them separate vertical sections.
+- Keep automatic-save information in the backup disclosure and verify overview size on desktop/phone in Chromium.
+- Restyle event overview edit/output and other secondary actions as quiet text links; reduce button visual weight while preserving clear confirmation controls.
+- Align the tapped mobile tab's section just below the sticky header, including short standing lists; verify navigation in Chromium.
+- Restore a restrained white outline around the event overview, keeping its internal statistics flat and unboxed.
+- Keep the large setup and event section cards, but present internal statistics, round fixtures, matches, standings and settings as open lists with gentle separators.
+- Preserve button affordances, the single highlighted next-match area, keyboard focus, the roster's drag feedback, and mobile navigation.
+
+
+### Changed (v1.1.0 candidate)
+- Remove redundant hero and section descriptions in Japanese and English, and reclaim space during events.
+- Collapse JSON backup and restore under a secondary disclosure; tone down routine autosave status.
+- Fix phone brand descender clipping and hide the local-processing badge on phones.
+- Create a version tag and GitHub Release automatically after a successful merged-main standalone build.
+
+### Fixed (v1.1.0 candidate)
+- Cancel obsolete Undo callbacks on event switches and support the temporary write-ahead archive entry at the 500-inactive-event limit.
+- Preserve unreadable preexisting active-event data instead of clearing it during startup; offer a local raw-data download and disable writes until repaired.
+- Prevent stale-tab saves from replacing another tab's results; show persistent warnings for conflicts and storage failure.
+- Include score-for in score-mode standings PNG.
+- Normalize participant-name Unicode limits, use local dates in export names, and prevent imported pairing-key collisions.
+
+
 - Hide only the informational footer at the existing 600px phone breakpoint; preserve functional controls and canonical Fully local processing wording.
 
 

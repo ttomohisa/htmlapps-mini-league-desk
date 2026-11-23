@@ -54,8 +54,11 @@ $jaOldHeadline = ([string][char]0x7D50) + [char]0x679C + [char]0x3092 + [char]0x
 if ($source.Contains($jaOldHeadline)) {
   throw "Old Japanese hero punctuation remains."
 }
-if (-not $source.Contains($jaHeadline)) {
-  throw "Updated Japanese hero headline is missing."
+if ($source.Contains($jaHeadline) -or $source.Contains('id="heroTitle"')) {
+  throw "The removed hero headline must not return."
+}
+if (-not $source.Contains('id="pageIntro" class="page-intro"')) {
+  throw "The compact page introduction is missing."
 }
 
 $settingsStart = $source.IndexOf('<section class="panel" aria-labelledby="settingsTitle">')
