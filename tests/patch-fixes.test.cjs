@@ -36,7 +36,7 @@ test('local filenames use device calendar date', () => {
 });
 function harness(initial) {
   const code = [
-    "let stored=initial,lastStoredEventRaw=initial,storageConflict=false,persistenceFailed=false,persistenceWarningShown=false,persistenceReady=true,failWrite=false,writes=0;",
+    "let stored=initial,lastStoredEventRaw=initial,storageConflict=false,persistenceFailed=false,persistenceWarningShown=false,persistenceReady=true,unreadableStoredEvent=false,failWrite=false,writes=0;",
     "const storageKeys={event:'e'};",
     "function readStorage(){return stored;} function writeStorage(k,v){if(failWrite)return false;stored=v;writes++;return true;} function removeStorage(){stored=null;return true;}",
     "function meaningfulEventState(){return true;} function buildEventDocument(){return nextDoc;} function showToast(){} function translate(k){return k;} function refreshStorageAlert(){} function markStorageConflict(){storageConflict=true;}",
