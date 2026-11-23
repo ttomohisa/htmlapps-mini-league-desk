@@ -32,8 +32,18 @@ const { chromium } = require('playwright');
           await page.locator('#fixtureView').waitFor({ state: 'visible' });
           for (const [a,b] of [[3,1],[2,0]]) {
             await page.locator('#nextMatchButton').click();
+            // Let the result dialog's requestAnimationFrame autofocus settle before
+            // filling; otherwise an automated focus jump can race number input.
+            await page.waitForTimeout(100);
             await page.locator('#scoreA').fill(String(a));
             await page.locator('#scoreB').fill(String(b));
+            const entered = await page.evaluate(() => [
+              document.getElementById('scoreA').value,
+              document.getElementById('scoreB').value
+            ]);
+            if (entered[0] !== String(a) || entered[1] !== String(b)) {
+              throw new Error('Scores were not entered: ' + JSON.stringify({language,width,a,b,entered}));
+            }
             await page.locator('#scoreForm button[type="submit"]').click();
             await page.waitForTimeout(110);
             if (await page.locator('#resultDialog').isVisible()) {
