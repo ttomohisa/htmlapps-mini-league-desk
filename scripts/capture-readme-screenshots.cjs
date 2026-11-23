@@ -30,15 +30,23 @@ const { chromium } = require('playwright');
           }
           await page.locator('#confirmParticipantsButton').click();
           await page.locator('#fixtureView').waitFor({ state: 'visible' });
-          for (const [a,b] of [[3,1],[2,2]]) {
+          for (const [a,b] of [[3,1],[2,0]]) {
             await page.locator('#nextMatchButton').click();
             await page.locator('#scoreA').fill(String(a));
             await page.locator('#scoreB').fill(String(b));
             await page.locator('#scoreForm button[type="submit"]').click();
-            await page.locator('#resultDialog').waitFor({ state: 'hidden' });
+            await page.waitForTimeout(110);
+            if (await page.locator('#resultDialog').isVisible()) {
+              const detail = await page.evaluate(() => ({
+                error: document.querySelector('#scoreError')?.textContent,
+                resultMode: document.querySelector('#fixtureModeLabel')?.textContent,
+                drawsAllowed: document.querySelector('#scoreDrawsAllowed')?.checked
+              }));
+              throw new Error('Score entry did not close: ' + JSON.stringify({ language, width, a, b, detail }));
+            }
           }
           if (language !== await page.locator('html').getAttribute('lang')) await page.locator('#languageButton').click();
-          await page.evaluate(async () => { await document.fonts.ready; scrollTo({top:0,left:0,behavior:'instant'}); });
+          await page.evaluate(async () => { AppToast.dismiss(); await document.fonts.ready; scrollTo({top:0,left:0,behavior:'instant'}); });
           await page.waitForTimeout(170);
           if (errors.length) throw new Error(errors.join('; '));
           const filename = `${mobile ? 'screenshot-mobile' : 'screenshot'}${language === 'en' ? '-en' : ''}.png`;
