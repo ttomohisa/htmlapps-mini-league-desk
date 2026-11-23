@@ -3321,7 +3321,7 @@
           const parsed = JSON.parse(raw);
           if (!isPlainObject(parsed) || parsed.format !== 'mini-league-desk-archive' ||
               parsed.schemaVersion !== SCHEMA_VERSION || !Array.isArray(parsed.events) ||
-              parsed.events.length > 500) throw new Error('archive schema');
+              parsed.events.length > 501) throw new Error('archive schema');
           const ids = new Set();
           for (const doc of parsed.events) {
             const normalized = normalizeImportedEvent(doc);
@@ -3334,8 +3334,10 @@
           return null;
         }
       }
-      function saveArchivedEvents(entries) {
-        if (entries.length > 500) {
+      function saveArchivedEvents(entries, { allowTransient = false } = {}) {
+        // A switch needs one extra write-ahead entry until its target is active.
+        // Only a switch may temporarily hold 501 documents: 500 inactive + active.
+        if (entries.length > (allowTransient ? 501 : 500)) {
           showToast(translate('eventLibraryLimit'), { tone: 'warning', duration: 7000 });
           return false;
         }
@@ -3353,14 +3355,22 @@
         lastArchivedEventsRaw = raw;
         return true;
       }
-      function archiveActiveEvent() {
+      function archiveActiveEvent({ switchingToId = null } = {}) {
         if (storageConflict || !hasCurrentStoredEvent()) return false;
         const archives = archivedEvents();
         if (!archives) return false;
+        const activeId = meaningfulEventState() ? state.meta.eventId : null;
+        const inactiveCount = archives.filter(item => item.event.id !== activeId).length;
+        if (!switchingToId && inactiveCount >= 500) {
+          showToast(translate('eventLibraryLimit'), { tone: 'warning', duration: 7000 });
+          return false;
+        }
         if (!meaningfulEventState()) return true;
         if (!persistEvent()) return false;
         const doc = buildEventDocument({ touchUpdated: false });
-        return saveArchivedEvents([...archives.filter(item => item.event.id !== doc.event.id), doc]);
+        return saveArchivedEvents([...archives.filter(item => item.event.id !== doc.event.id), doc], {
+          allowTransient: Boolean(switchingToId)
+        });
       }
       function setActiveEventDocument(doc) {
         if (storageConflict || !hasCurrentStoredEvent()) return false;
@@ -3417,7 +3427,9 @@
           showToast(translate('eventLibraryNotFound'), { tone: 'warning' });
           return false;
         }
-        if (!archiveActiveEvent() || !setActiveEventDocument(target)) return false;
+        if (!archiveActiveEvent({ switchingToId: eventId }) || !setActiveEventDocument(target)) return false;
+        // Cancel Undo callbacks referencing the previous event's match objects.
+        AppToast.dismiss();
         // Remove the newly active copy only after activation. If this cleanup
         // fails, a duplicate is retained rather than losing the original.
         const remaining = archivedEvents();

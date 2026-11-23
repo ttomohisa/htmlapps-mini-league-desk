@@ -566,6 +566,37 @@ try {
     throw new Error("Saved event not restored after reload: " + JSON.stringify(reloadValue));
   }
 
+
+  // Switching must discard a previous event's Undo callback; it must not be
+  // possible to apply a stale result Undo to a different tournament.
+  const staleUndo = await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "window.__staleUndoApplied=false;" +
+      "AppToast.show({message:'Stale action',actionLabel:'Undo',duration:30000," +
+      "onAction:()=>{window.__staleUndoApplied=true;}});" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Second Event');" +
+      "const open=row?.querySelector('.event-library-actions .button:not(.danger-ghost)');" +
+      "open?.click();" +
+      "document.getElementById('appToastAction').click();" +
+      "return {switched:document.getElementById('fixtureTitle')?.textContent==='Second Event'," +
+      "toastOpen:document.getElementById('appToast').classList.contains('show')," +
+      "staleApplied:window.__staleUndoApplied};" +
+      "})()",
+    returnByValue: true
+  });
+  const staleValue = staleUndo.result?.value;
+  if (!staleValue || !staleValue.switched || staleValue.toastOpen || staleValue.staleApplied) {
+    throw new Error("A previous event's Undo remained active after switching: " + JSON.stringify(staleValue));
+  }
+  await cdp.send("Runtime.evaluate", {
+    expression: "(() => {" +
+      "document.getElementById('fixtureEventLibraryButton').click();" +
+      "const row=[...document.querySelectorAll('.event-library-row')].find(item=>item.querySelector('.event-library-name')?.textContent==='Renamed Original');" +
+      "row?.querySelector('.event-library-actions .button:not(.danger-ghost)')?.click();" +
+      "})()"
+  });
+
   // Import must create a fresh event ID and provide Undo without overwriting either event.
   await cdp.send("Runtime.evaluate", {
     expression: "(() => {" +

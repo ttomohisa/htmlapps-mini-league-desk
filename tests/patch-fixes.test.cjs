@@ -218,8 +218,10 @@ test('event library and rename dialogs scroll inside short viewports', () => {
 });
 
 test('archive will never write a collection larger than its own read limit', () => {
-  assert.match(source, /function archivedEvents\(\)[\s\S]*?parsed\.events\.length > 500/);
-  assert.match(source, /function saveArchivedEvents\(entries\)[\s\S]*?if \(entries\.length > 500\)/);
+  assert.match(source, /function archivedEvents\(\)[\s\S]*?parsed\.events\.length > 501/);
+  assert.match(source, /function saveArchivedEvents\(entries, \{ allowTransient = false \} = \{\}\)/);
+  assert.match(source, /entries\.length > \(allowTransient \? 501 : 500\)/);
+  assert.match(source, /switchingToId: eventId/);
 });
 
 test('unreadable saved event is preserved and blocks all automatic writes', () => {
@@ -235,4 +237,10 @@ test('an unreadable active event disables saved-event actions', () => {
   assert.match(source, /\$\('#createNewEventButton'\)\.disabled = storageConflict \|\| unreadableStoredEvent/);
   assert.match(source, /open\.disabled = storageConflict \|\| unreadableStoredEvent/);
   assert.match(source, /remove\.disabled = storageConflict \|\| unreadableStoredEvent/);
+});
+
+test('switching away from an event cancels its pending Undo action', () => {
+  const section = source.split('function switchSavedEvent(eventId)')[1].split('function addImportedEvent')[0];
+  assert.match(section, /if \(!archiveActiveEvent\(\{ switchingToId: eventId \}\) \|\| !setActiveEventDocument\(target\)\) return false;/);
+  assert.match(section, /AppToast\.dismiss\(\)/);
 });

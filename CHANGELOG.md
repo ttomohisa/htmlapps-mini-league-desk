@@ -29,6 +29,7 @@
 - Create a version tag and GitHub Release automatically after a successful merged-main standalone build.
 
 ### Fixed (v1.1.0 candidate)
+- Cancel obsolete Undo callbacks on event switches and support the temporary write-ahead archive entry at the 500-inactive-event limit.
 - Preserve unreadable preexisting active-event data instead of clearing it during startup; offer a local raw-data download and disable writes until repaired.
 - Prevent stale-tab saves from replacing another tab's results; show persistent warnings for conflicts and storage failure.
 - Include score-for in score-mode standings PNG.
