@@ -656,6 +656,31 @@ try {
 
   await runPngHeaderSmoke(cdp);
 
+  // A malformed active key must be preserved exactly, including after UI renders.
+  await cdp.send("Runtime.evaluate", {
+    expression: "localStorage.setItem('mini-league-desk:active-event:v1','{broken-json:');location.reload();"
+  });
+  await sleep(900);
+  const unreadable = await cdp.send("Runtime.evaluate", {
+    expression:
+      "(() => {" +
+      "const saved=localStorage.getItem('mini-league-desk:active-event:v1');" +
+      "const alert=document.getElementById('storageAlert');" +
+      "document.getElementById('setupEventLibraryButton').click();" +
+      "return {saved,warningVisible:!alert.hidden," +
+      "newDisabled:document.getElementById('createNewEventButton').disabled," +
+      "activeUnchanged:localStorage.getItem('mini-league-desk:active-event:v1')===saved};" +
+      "})()",
+    returnByValue:true
+  });
+  const invalidValue = unreadable.result?.value;
+  if (!invalidValue || invalidValue.saved !== "{broken-json:" ||
+      !invalidValue.warningVisible || !invalidValue.newDisabled || !invalidValue.activeUnchanged) {
+    throw new Error("Corrupted local storage was discarded: " + JSON.stringify(invalidValue));
+  }
+  console.log("[OK] Corrupt persisted event remains intact and blocks unsafe writes.");
+
+
 } finally {
   try { if (cdp) cdp.close(); } catch {}
   try { browser.kill(); } catch {}

@@ -230,3 +230,9 @@ test('unreadable saved event is preserved and blocks all automatic writes', () =
   assert.match(source, /mini-league-desk-unreadable-event\.txt/);
   assert.match(source, /root\.hidden = !storageConflict && !persistenceFailed && !unreadableStoredEvent/);
 });
+
+test('an unreadable active event disables saved-event actions', () => {
+  assert.match(source, /\$\('#createNewEventButton'\)\.disabled = storageConflict \|\| unreadableStoredEvent/);
+  assert.match(source, /open\.disabled = storageConflict \|\| unreadableStoredEvent/);
+  assert.match(source, /remove\.disabled = storageConflict \|\| unreadableStoredEvent/);
+});

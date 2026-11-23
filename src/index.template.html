@@ -3457,7 +3457,7 @@
           $('#createNewEventButton').disabled = true;
           return;
         }
-        $('#createNewEventButton').disabled = storageConflict;
+        $('#createNewEventButton').disabled = storageConflict || unreadableStoredEvent;
         const activeId = meaningfulEventState() ? state.meta.eventId : null;
         const docs = archives.filter(doc => doc.event.id !== activeId).map(doc => ({ doc, active: false }));
         if (activeId) docs.push({ doc: buildEventDocument({ touchUpdated: false }), active: true });
@@ -3500,6 +3500,7 @@
             open.className = 'button text-link';
             open.textContent = translate('eventLibraryOpenAction');
             open.setAttribute('aria-label', translate('eventLibraryOpenAction') + ': ' + name);
+            open.disabled = storageConflict || unreadableStoredEvent;
             open.addEventListener('click', () => switchSavedEvent(doc.event.id));
             actions.append(open);
           }
@@ -3508,6 +3509,7 @@
           remove.className = 'button text-link danger-ghost';
           remove.textContent = translate('eventLibraryDelete');
           remove.setAttribute('aria-label', translate('eventLibraryDelete') + ': ' + name);
+          remove.disabled = storageConflict || unreadableStoredEvent;
           remove.addEventListener('click', () => deleteSavedEvent(doc.event.id, name));
           actions.append(remove);
           row.append(info, actions);
