@@ -605,4 +605,5 @@ The exported standings PNG keeps its full localized record heading within its av
 - Saved events can be opened, deleted after explicit confirmation, or followed by a new event. JSON backups retain schema v1 and imports create an independent event instead of replacing the current event.
 - Existing results and fixtures remain unchanged when only the event name is edited. Returning to participant setup and confirming a modified roster or scoring mode regenerates fixtures; warn before clearing existing results.
 - The overview shows participants, total matches, and completed matches; rounds remain visible in the match list and CSV.
+- Unreadable stored current-event data must not be erased by automatic setup renders; stop saving and offer the original raw text for download.
 - Up to 500 inactive events can be archived, subject to browser storage quota. Local browser data deletion may remove all stored events; advise JSON backups for important data. If storage or cross-tab checks fail, do not proceed with switching.

@@ -221,3 +221,12 @@ test('archive will never write a collection larger than its own read limit', () 
   assert.match(source, /function archivedEvents\(\)[\s\S]*?parsed\.events\.length > 500/);
   assert.match(source, /function saveArchivedEvents\(entries\)[\s\S]*?if \(entries\.length > 500\)/);
 });
+
+test('unreadable saved event is preserved and blocks all automatic writes', () => {
+  assert.match(source, /let unreadableStoredEvent = false/);
+  assert.match(source, /function hasCurrentStoredEvent\(\) \{\s*if \(unreadableStoredEvent\) return false/);
+  assert.match(source, /unreadableStoredEvent = true;\s*startupNoticeKey = 'unreadableStoredEvent'/);
+  assert.match(source, /function downloadUnreadableStoredEvent\(\)/);
+  assert.match(source, /mini-league-desk-unreadable-event\.txt/);
+  assert.match(source, /root\.hidden = !storageConflict && !persistenceFailed && !unreadableStoredEvent/);
+});

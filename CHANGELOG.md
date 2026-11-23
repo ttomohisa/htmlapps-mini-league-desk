@@ -29,6 +29,7 @@
 - Create a version tag and GitHub Release automatically after a successful merged-main standalone build.
 
 ### Fixed (v1.1.0 candidate)
+- Preserve unreadable preexisting active-event data instead of clearing it during startup; offer a local raw-data download and disable writes until repaired.
 - Prevent stale-tab saves from replacing another tab's results; show persistent warnings for conflicts and storage failure.
 - Include score-for in score-mode standings PNG.
 - Normalize participant-name Unicode limits, use local dates in export names, and prevent imported pairing-key collisions.

@@ -85,7 +85,7 @@ If all active tiebreak values are identical, participants share the same rank. R
 
 The current event and saved events are kept in this browser's local storage. Open **Events** to switch events, start another, or delete an event after confirmation. Starting a new event retains previous events. A reload normally restores the current event, including match results and the selected page. Up to 500 inactive events can be stored; storage capacity may impose a lower practical limit.
 
-Browser or operating-system actions can still clear site data. JSON backup is therefore the recovery and portability path for important events.
+If previously saved data is damaged, automatic saving is stopped and the original stored text can be downloaded without overwriting it. Browser or operating-system actions can still clear site data. JSON backup is therefore the recovery and portability path for important events.
 
 If events are edited, switched, or deleted in another tab, this tab stops automatic saving to avoid overwriting those changes. Export a JSON backup first if needed, then reload. Failed browser-storage writes also show a persistent warning. Score-based PNG standings include score-for.
 
