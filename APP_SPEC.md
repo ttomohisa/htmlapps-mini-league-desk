@@ -52,7 +52,7 @@ Do not add these before v1.0.0 unless this specification is intentionally revise
 - `assets/favicon.svg` is the canonical app icon.
 - Japanese and English live in the same HTML.
 - Desktop and smartphone layouts are first-class.
-- v1.0.0 stores the active event locally in addition to the language preference.
+- The original v1.0.0 format stores the active event locally in addition to language preference. v1.1.0 retains that key and stores inactive events under a separate archive key.
 
 ## 5. Event setup
 
@@ -597,12 +597,12 @@ The exported standings PNG keeps its full localized record heading within its av
 
 ## Shared phone layout
 
-- Hide only the informational footer at the existing 600px phone breakpoint; preserve functional controls and canonical Fully local processing wording.
+- Hide the informational footer and the nonessential local-processing badge at the existing 600px phone breakpoint; preserve functional controls. The desktop badge and localized copy remain unchanged.
 
 ## Multiple events (device-local) — v1.1.0
 - The active event uses the original single-document storage key; inactive events are saved in a separately validated archive collection with no server synchronization.
 - Switching archives the active event before changing the current event. Removing the activated event from the archive happens afterward, so interrupted switches may retain a harmless duplicate rather than lose data.
 - Saved events can be opened, deleted after explicit confirmation, or followed by a new event. JSON backups retain schema v1 and imports create an independent event instead of replacing the current event.
-- Existing results and fixtures remain unchanged when only the event name is edited.
+- Existing results and fixtures remain unchanged when only the event name is edited. Returning to participant setup and confirming a modified roster or scoring mode regenerates fixtures; warn before clearing existing results.
 - The overview shows participants, total matches, and completed matches; rounds remain visible in the match list and CSV.
-- Local browser data deletion may remove all stored events; advise JSON backups for important data. If storage or cross-tab checks fail, do not proceed with switching.
+- Up to 500 inactive events can be archived, subject to browser storage quota. Local browser data deletion may remove all stored events; advise JSON backups for important data. If storage or cross-tab checks fail, do not proceed with switching.

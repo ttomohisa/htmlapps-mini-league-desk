@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features (v1.1.0 candidate)
+- Clarify that adjusting participants or the result mode after starting a tournament rebuilds pairings and clears recorded results; routine result edits and event renaming do not.
 - Save and switch among multiple locally stored events without creating an account; edit event names without touching match results.
 - Show the number of completed matches in the event overview rather than round count.
 - Preserve older active event data and JSON backup compatibility. Imported JSON creates a separate event; archived events can be deleted only after confirmation.

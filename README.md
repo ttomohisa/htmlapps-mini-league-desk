@@ -6,7 +6,7 @@
 
 [日本語版 README](README.ja.md)
 
-Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and keeps the active event on the device without requiring an account.
+Mini League Desk is a privacy-focused browser tool for running small round-robin events. It generates the schedule, records results and scores, shows remaining matches and standings, and saves multiple events in the browser without requiring an account.
 
 Current source version: **v1.1.0**. When changes reach `main`, CI creates the matching version tag and GitHub Release.
 
@@ -28,7 +28,7 @@ Smartphone screenshot: [assets/screenshot-mobile-en.png](assets/screenshot-mobil
 - **Use the whole-event round-robin table** — Switch between match list and participant × participant matrix views. Cells show **○ = win, × = loss, △ = draw, — = pending**.
 - **Keep scores as well as outcomes** — In score-entry mode, the matrix keeps the result symbol and shows the row participant's score underneath, such as **○ / 3–1** and **× / 1–3**.
 - **See what needs attention next** — Progress, suggested next matches, remaining opponents, completed matches, and live standings stay available during the event.
-- **Correct mistakes without rebuilding the event** — Edit or remove results, rename participants, reorder the roster, and use Undo for supported actions.
+- **Correct results without rebuilding** — Edit or remove recorded results, rename the event, and use Undo for supported actions. Changing the participant roster or scoring mode regenerates fixtures and clears previously recorded results.
 - **Keep and move event data locally** — Events are saved in this browser and can be switched through **Events**. Use JSON backups to move important events to another device.
 - **Export practical results** — Save match-results CSV, standings CSV, a locally generated standings PNG, or print standings and all match results.
 - **Use it on desktop or phone** — Japanese / English UI, smartphone bottom navigation, narrow-screen handling, visible keyboard focus, and accessible labels are included.
@@ -83,11 +83,11 @@ If all active tiebreak values are identical, participants share the same rank. R
 
 ## Local save, backup, and export
 
-The current event is saved to browser local storage, and previous events can be opened from **Events**. The previous event remains saved when creating a new one. Stored events normally survive a reload, including match results and the current page.
+The current event and saved events are kept in this browser's local storage. Open **Events** to switch events, start another, or delete an event after confirmation. Starting a new event retains previous events. A reload normally restores the current event, including match results and the selected page. Up to 500 inactive events can be stored; storage capacity may impose a lower practical limit.
 
 Browser or operating-system actions can still clear site data. JSON backup is therefore the recovery and portability path for important events.
 
-If an event changes in another tab, the current tab stops automatic saving. Export a JSON backup first if needed, then reload. Failed browser-storage writes also show a persistent warning. Score-based PNG standings include score-for.
+If events are edited, switched, or deleted in another tab, this tab stops automatic saving to avoid overwriting those changes. Export a JSON backup first if needed, then reload. Failed browser-storage writes also show a persistent warning. Score-based PNG standings include score-for.
 
 Exports available during an event:
 
@@ -151,7 +151,7 @@ Best effort:
 
 ## Limitations
 
-- Mini League Desk supports round-robin events only. Knockout brackets, Swiss pairing, and group-stage + knockout formats are outside v1.0.0.
+- Mini League Desk supports round-robin events only. Knockout brackets, Swiss pairing, and group-stage + knockout formats are not supported.
 - It does not provide accounts, cloud synchronization, spectator publishing URLs, or real-time multi-device collaboration.
 - Saved events live in browser storage. Clearing site data can remove them unless you have exported JSON backups.
 - Score-mode tiebreaks are league points → score difference → score for. Direct head-to-head tiebreaking is not included.
