@@ -204,7 +204,7 @@ test('event library does not replace legacy active data and protects backups', (
     'fixtureEventLibraryButton','createNewEventButton']) {
     assert.match(source, new RegExp('id="' + id + '"'), id);
   }
-  assert.match(source, /function switchSavedEvent\(eventId\)[\s\S]*?archiveActiveEvent\(\) \|\| !setActiveEventDocument\(target\)/);
+  assert.match(source, /function switchSavedEvent\(eventId\)[\s\S]*?archiveActiveEvent\(\{ switchingToId: eventId \}\) \|\| !setActiveEventDocument\(target\)/);
   assert.match(source, /function beginAnotherEvent\(\)[\s\S]*?archiveActiveEvent\(\) \|\| !setActiveEventDocument\(null\)/);
   assert.match(source, /function addImportedEvent\(doc\)[\s\S]*?copy\.event\.id = createId\(\)/);
   assert.match(source, /async function importBackupFile\(file\)[\s\S]*?addImportedEvent\(parsed\)/);
