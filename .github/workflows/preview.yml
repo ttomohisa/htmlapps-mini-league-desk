@@ -66,8 +66,6 @@ jobs:
         if ($LASTEXITCODE -ne 0) { throw "Participant drag browser regression failed." }
     - name: Capture current README screenshots
       shell: pwsh
-      env:
-        CAPTURE_README_BASE64: '1'
       run: |
         $env:NODE_PATH = Join-Path $env:RUNNER_TEMP "mobile-layout-tests/node_modules"
         node ./scripts/capture-readme-screenshots.cjs
